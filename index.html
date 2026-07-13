@@ -253,7 +253,10 @@
   }
 
   footer{text-align:center;margin-top:40px;font-size:13px;color:var(--ink-soft);font-family:'Special Elite',monospace;}
-  .footer-media{margin-top:12px;font-size:12px;font-family:'Atkinson Hyperlegible',sans-serif;}
+  .footer-media{margin-top:12px;font-size:16px;font-family:'Atkinson Hyperlegible',sans-serif;}
+  .footer-media a{font-weight:700;}
+  .modal-card .footer-media{font-size:12px;}
+  .modal-card .footer-media a{font-weight:normal;}
   .footer-media a{color:var(--teal);text-decoration:underline;}
   .footer-media .soon{color:var(--line);font-style:italic;}
   .footer-media .sep{color:var(--line-soft);margin:0 4px;}
@@ -337,7 +340,6 @@
   <div class="card" id="card"></div>
 
   <footer>
-    — specimens collected for classroom use · updated weekly —
     <div class="footer-media" id="footerMedia"></div>
   </footer>
 </div>
@@ -1609,7 +1611,23 @@ const TERMS = {
     alt:{ simpler:"An ecosystem is all the living and non-living things in one place, working together like a big team.",
       example2:"A desert ecosystem includes cactus plants, lizards, sand, and very little water — all shaping how things there survive.",
       compare:"<b>Ecosystem vs. Habitat</b> — a habitat is where one specific organism lives; an ecosystem is the whole community of organisms and their environment interacting together." },
-    media:{video:"",infographic:"",podcast:""},
+    media:{video:"https://youtube.com/shorts/pP8aaLUksWE?feature=share",infographic:"https://jbrand454-crypto.github.io/science-vocab/Ecosystem__Living_and_Non-Living.png",podcast:"https://jbrand454-crypto.github.io/science-vocab/The_Church_as_a_Living_Ecosystem.m4a"},
+    videoTranscript:[
+      "When you look at a pond ecosystem, do you just see the animals? Or is there more to it?",
+      "Let's break down this typical backyard pond. You've got fish swimming, frogs resting, and insects buzzing \u2014 these are the obvious living parts. It's a busy community sharing the exact same space.",
+      "But watch what happens if we isolate just the animals. Without a solid physical foundation, the living community immediately begins to struggle. That's because an ecosystem also requires the non-living surroundings \u2014 the water they swim in, the sunlight powering the plants, and the resting soil at the bottom.",
+      "Notice how they physically support the living organisms. The entire space works together like a unified team.",
+      "A complete ecosystem requires every single piece of this puzzle. It only survives because those living frogs and fish are deeply connected to the non-living water and sunlight around them."
+    ],
+    podcastTitle:"The Church as a Living Ecosystem",
+    podcastTranscript:[
+      "This is the brief on ecosystem. Picture a backyard pond for a second \u2014 you've got frogs, fish, and all these little insects interacting seamlessly with the water and the plants. It's like this perfectly balanced little world.",
+      "First, to understand how that balance actually works, we've got to look at the whole picture. An ecosystem is simply a specific area where living things like those frogs and plants are constantly interacting with their non-living surroundings.",
+      "Second, it's super easy to fall into the trap of thinking an ecosystem is just a bunch of animals. But here's the catch: the non-living parts, like the sunlight, the dirt, and the water, are absolutely crucial. Why? Because they literally dictate what can survive there. You just can't have the living stuff without the non-living stuff.",
+      "Finally, think about this whole setup like a team sport. Every single organism plays a highly specific role. So if just one player is missing, or even just struggling, it totally changes how the entire team performs.",
+      "This biological teamwork perfectly mirrors what St. Paul tells us in 1 Corinthians chapter 12. He talks about how the church is one body with many parts. Just like in an ecosystem, every single element is needed, and if you remove even one part, the whole community changes.",
+      "What role has God given you to play in your own community? And are you showing up for it?"
+    ],
     quiz:[
       {type:"mc", q:"Which of these best describes an ecosystem?", options:["Just the animals living in an area","Just the plants living in an area","Living things and their non-living surroundings interacting together","A single organism and its home"], correct:2, explain:"An ecosystem includes both living things (biotic factors) and non-living things (abiotic factors like water, soil, and sunlight) interacting together."},
       {type:"tf", q:"A rock can be considered part of an ecosystem.", correct:true, explain:"Non-living things like rocks, water, and soil are part of an ecosystem too — they're called abiotic factors."},
