@@ -253,6 +253,10 @@
   }
 
   footer{text-align:center;margin-top:40px;font-size:13px;color:var(--ink-soft);font-family:'Special Elite',monospace;}
+  .footer-media{margin-top:12px;font-size:12px;font-family:'Atkinson Hyperlegible',sans-serif;}
+  .footer-media a{color:var(--teal);text-decoration:underline;}
+  .footer-media .soon{color:var(--line);font-style:italic;}
+  .footer-media .sep{color:var(--line-soft);margin:0 4px;}
   @media (prefers-reduced-motion: reduce){.tab,.tab:hover{transition:none;}}
 </style>
 </head>
@@ -311,6 +315,10 @@
       </ul>
       <p>A bonus point is available for completing the reflection before the end of the school day on the second-to-last day of the school week — an incentive to work ahead rather than wait until the last minute, which also means most grading is already done well before the week ends. And a Content score of 1 (as opposed to 0, 2, or 3) isn't a final word — it's a signal that a response showed real effort but stayed shallow, and that student may be asked to revise with more depth before a final score is recorded.</p>
 
+      <h3>🎧 Listen or Watch Anywhere</h3>
+      <p>Every term's video and podcast are also being collected into a full library, so students and parents can listen or watch through the whole set like a regular show — in the car, on a walk, wherever's easiest.</p>
+      <p id="guideMediaLinks" class="footer-media"></p>
+
       <h3>Standards Alignment</h3>
       <p>Every term is tagged with the same Disciplinary Core Idea code used by Savvas Elevate Science and Ohio's Learning Standards — part of the Next Generation Science Standards (NGSS), the national framework most states' science standards are built on. Click "📋 See the Standard" on any term to read the actual end-of-unit mastery goal it supports, straight from that framework.</p>
 
@@ -328,7 +336,10 @@
 
   <div class="card" id="card"></div>
 
-  <footer>— specimens collected for classroom use · updated weekly —</footer>
+  <footer>
+    — specimens collected for classroom use · updated weekly —
+    <div class="footer-media" id="footerMedia"></div>
+  </footer>
 </div>
 
 <script>
@@ -395,6 +406,18 @@
       before locking in a final score.
    ============================================================ */
 const REFLECT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeKpy60g5FO8Ta_OyUkRnEUsrfNgLK3PXa6cr4nbXyrw-J2iw/viewform?usp=publish-editor";
+
+/* ============================================================
+   FULL MEDIA LIBRARY LINKS (optional)
+   Once all 153 terms have videos/podcasts produced, paste the
+   links below to activate a small "listen/watch anywhere" note
+   in the footer and Parent Guide. Leave any as "" to keep that
+   option hidden until it's ready.
+   ============================================================ */
+const YOUTUBE_PLAYLIST_URL = "";
+const PODCAST_APPLE_URL = "";
+const PODCAST_SPOTIFY_URL = "";
+const PODCAST_YOUTUBE_MUSIC_URL = "";
 
 const TERMS = {
 
@@ -3590,6 +3613,28 @@ function renderWeekBadge(){
   }
 }
 renderWeekBadge();
+
+function renderFooterMedia(){
+  const playlist = YOUTUBE_PLAYLIST_URL
+    ? `<a href="${YOUTUBE_PLAYLIST_URL}" target="_blank" rel="noopener">🎥 Video Playlist</a>`
+    : `<span class="soon">🎥 Video Playlist (coming soon)</span>`;
+  const apple = PODCAST_APPLE_URL
+    ? `<a href="${PODCAST_APPLE_URL}" target="_blank" rel="noopener">Apple</a>`
+    : `<span class="soon">Apple</span>`;
+  const spotify = PODCAST_SPOTIFY_URL
+    ? `<a href="${PODCAST_SPOTIFY_URL}" target="_blank" rel="noopener">Spotify</a>`
+    : `<span class="soon">Spotify</span>`;
+  const ytmusic = PODCAST_YOUTUBE_MUSIC_URL
+    ? `<a href="${PODCAST_YOUTUBE_MUSIC_URL}" target="_blank" rel="noopener">YouTube Music</a>`
+    : `<span class="soon">YouTube Music</span>`;
+  const html = `${playlist} <span class="sep">·</span> 🎧 Subscribe: ${apple} <span class="sep">|</span> ${spotify} <span class="sep">|</span> ${ytmusic}`;
+
+  const footerEl = document.getElementById('footerMedia');
+  if(footerEl) footerEl.innerHTML = html;
+  const guideEl = document.getElementById('guideMediaLinks');
+  if(guideEl) guideEl.innerHTML = html;
+}
+renderFooterMedia();
 
 renderGradeTabs();
 renderModeTabs();
