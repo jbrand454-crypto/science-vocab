@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Field Notes: Science Vocabulary</title>
+
+<!-- PWA: installable, full-screen, offline-capable -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2E6E62">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Field Notes">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Space+Grotesk:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -3671,6 +3681,15 @@ guideOverlay.addEventListener('click', (e)=>{
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape') guideOverlay.classList.remove('show');
 });
+
+// Register service worker for offline access and installability
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>{
+      console.log('Service worker registration failed (site still works normally):', err);
+    });
+  });
+}
 </script>
 </body>
 </html>
