@@ -79,6 +79,13 @@
 
   .mode-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
   #domainTabs{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-soft);}
+  .media-note{
+    text-align:center;font-size:12.5px;font-style:italic;color:var(--ink-soft);
+    margin:10px 0 0;
+  }
+  .media-row-note{
+    font-size:12.5px;font-style:italic;color:var(--ink-soft);margin:0 0 10px;
+  }
   #domainTabs button{font-size:12.5px;padding:6px 12px;}
   .mode-tabs button{
     font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
@@ -266,6 +273,7 @@
     <div class="grade-tabs" id="gradeTabs"></div>
     <div class="mode-tabs" id="modeTabs"></div>
     <div class="mode-tabs" id="domainTabs"></div>
+    <p class="media-note" id="mediaNote"></p>
   </div>
 
   <div class="modal-overlay" id="guideOverlay">
@@ -400,7 +408,7 @@ const TERMS = {
     alt:{ simpler:"Kinetic energy = the energy of something in motion. No motion, no kinetic energy.",
       example2:"A roller coaster car has the most kinetic energy at the bottom of a hill, where it's moving fastest.",
       compare:"<b>Kinetic vs. Potential Energy</b> — kinetic energy is the energy of motion; potential energy is stored energy waiting to be released, like a ball held up high before it drops." },
-    media:{video:"https://youtube.com/shorts/JYes7DWZlH4?feature=share",infographic:"https://stmaryscience.netlify.app/Kinetic_Energy__Motion_Basics.png",podcast:"https://stmaryscience.netlify.app/Why_your_faith_needs_kinetic_energy.m4a"},
+    media:{video:"https://youtube.com/shorts/JYes7DWZlH4?feature=share",infographic:"https://jbrand454-crypto.github.io/science-vocab/Kinetic_Energy__Motion_Basics.png",podcast:"https://jbrand454-crypto.github.io/science-vocab/Why_your_faith_needs_kinetic_energy.m4a"},
     videoTranscript:[
       "Any object in motion has kinetic energy, but what actually determines how much of it an object has? Take a kicked soccer ball flying toward the goal \u2014 as long as it's moving, it has this energy.",
       "Think of kinetic energy as the literal oomph behind the ball, dictating exactly how hard it will hit the target.",
@@ -435,7 +443,7 @@ const TERMS = {
     alt:{ simpler:"Potential energy = stored-up energy, waiting to be used, usually because of height or position.",
       example2:"A drawn bow (like in archery) stores potential energy in the bent bow until the arrow is released.",
       compare:"<b>Potential vs. Kinetic Energy</b> — potential energy is stored and waiting; kinetic energy is energy in motion. Potential energy often turns into kinetic energy, like a dropped book falling." },
-    media:{video:"https://youtube.com/shorts/PZqXbmaz1p4?feature=share",infographic:"https://stmaryscience.netlify.app/Understanding_Stored_Potential_Energy.png",podcast:"https://stmaryscience.netlify.app/The_Physics_of_the_Parable_of_Talents.m4a"},
+    media:{video:"https://youtube.com/shorts/PZqXbmaz1p4?feature=share",infographic:"https://jbrand454-crypto.github.io/science-vocab/Understanding_Stored_Potential_Energy.png",podcast:"https://jbrand454-crypto.github.io/science-vocab/The_Physics_of_the_Parable_of_Talents.m4a"},
     videoTranscript:[
       "Look at this heavy ball held high up on a shelf. Does it have any energy right now? Even though it is completely still, watch what happens when the shelf vanishes.",
       "That sudden burst of motion proved the energy was there the whole time, just waiting. This stored, ready-to-use power is what we call potential energy.",
@@ -472,7 +480,27 @@ const TERMS = {
     alt:{ simpler:"Thermal energy is the energy of tiny moving particles inside matter — more jiggling particles, more thermal energy.",
       example2:"When you heat a pot of soup on the stove, you're adding thermal energy that makes its particles move faster.",
       compare:"<b>Thermal Energy vs. Temperature</b> — temperature measures how fast particles are moving on average; thermal energy is the total energy of all those moving particles combined." },
-    media:{video:"",infographic:"",podcast:""},
+    media:{video:"https://youtube.com/shorts/Z9gkdL0MGh0",infographic:"https://jbrand454-crypto.github.io/science-vocab/Thermal_Energy_vs__Temperature.png",podcast:"https://jbrand454-crypto.github.io/science-vocab/Icebergs_Hot_Tea_and_Burning_Hearts.m4a"},
+    videoTranscript:[
+      "Which of these everyday objects has more total thermal energy? You'd probably guess the tiny cup of boiling water, right? Because it's much hotter, its tiny water particles are moving and jiggling around incredibly fast.",
+      "But thermal energy isn't just a measure of temperature or speed \u2014 it is the total sum of energy from every single moving particle inside an object combined.",
+      "So while the boiling cup has a few super-fast particles bouncing around, the giant bathtub is packed with a massive army of slower-moving particles. Because the tub contains vastly more matter, all those billions of extra jiggling particles start to add up.",
+      "This means the warm bathtub actually holds a much higher total amount of thermal energy.",
+      "So while a tiny piece of glowing coal burns incredibly hot and would instantly burn your hand, a massive freezing cold lake holds vastly more total thermal energy, simply because of its sheer volume of moving particles."
+    ],
+    podcastTitle:"Icebergs, Hot Tea, and Burning Hearts",
+    podcastTranscript:[
+      "Could a giant freezing iceberg actually contain more total heat energy than a steaming cup of hot tea? You look at a block of ice and naturally think, well, zero heat. But today we're unpacking the actual science of thermal energy to figure out why that freezing iceberg might actually win the energy prize \u2014 and we're going to uncover a surprising connection between physics and faith along the way.",
+      "To get started, think of thermal energy like a crowded room. If everyone is just standing perfectly still, the room has very little energy. But if people start moving around, pacing, dancing, the total energy buzzing around that room spikes. That room analogy actually illustrates what's happening at the microscopic level \u2014 scientifically speaking, thermal energy is simply the sum total of all the kinetic energy from the moving particles inside an object.",
+      "Every single piece of matter is made of particles that are constantly moving \u2014 even in solid objects like a desk, they're vibrating. The greater the movement, the more they jiggle or vibrate, the more thermal energy that object holds.",
+      "Think about putting a pot of soup on the stove. You're not magically making it hot \u2014 no magic involved at all. The burner is transferring kinetic energy directly into the soup, and that added energy accelerates the particles, causing them to collide and vibrate faster. The soup itself doesn't change what it's made of \u2014 you're simply forcing the existing matter to move more frantically, and that's what drives up the overall thermal energy.",
+      "But here's a huge misconception: if thermal energy is just based on how fast particles are moving, shouldn't thermal energy and temperature just be two words for the same thing? That's the big trap. It's easy to conflate the two, but they measure entirely different things. Temperature only measures the average speed of those particles \u2014 just an average sample. Thermal energy, on the other hand, calculates the total combined energy of every single moving particle in that object.",
+      "So back to that iceberg and the teacup \u2014 this is the real aha moment. The tea is obviously hotter, so its average particle speed, its temperature, is way higher. Those particles are basically sprinting. But an iceberg or a bathtub of warm water has enormously more matter than a tiny cup of tea, so do all those extra particles add up to more total thermal energy, even if the tea's average temperature is higher? Yes, they really do.",
+      "The particles in the hot tea are sprinting, but there are barely any of them compared to a glacier. The iceberg's particles are just shivering \u2014 barely moving, which means a very low temperature \u2014 but an iceberg contains trillions upon trillions more particles than a tiny cup. When you add up the tiny shivering energy of a whole mountain of ice, the grand total massively outweighs the sprinting energy in that single cup of tea.",
+      "And there's another physical rule at play: thermal energy never just stays contained. It inherently flows outward from something warmer to something cooler.",
+      "That outward flow connects to the story of the road to Emmaus. In the Gospel of Luke, after the disciples encounter the Risen Christ, they realize what happened and ask each other, \u201cWere not our hearts burning within us?\u201d Just as thermal energy inherently radiates out to warm cooler objects, God's love behaves the exact same way. When your heart is set on fire by that kind of encounter, the warmth isn't meant to stay trapped inside a closed system \u2014 it has to flow outward, naturally spreading to warm everyone it touches.",
+      "That makes you reconsider how we manage our own energy every day. If thermal energy is designed to flow naturally to colder areas, it makes you wonder where we're building artificial insulation, keeping that warmth to ourselves instead of letting it out. So here's the reflection question to mull over today: Who in your life needs you to bring that warmth to them today?"
+    ],
     quiz:[
       {type:"mc", q:"What is thermal energy?", options:["The temperature of an object only","The total energy of all moving particles in an object","Energy that only exists in solids","The energy released by burning something"], correct:1, explain:"Thermal energy is the sum of the energy from all the tiny moving particles in an object, not just a single temperature reading."},
       {type:"tf", q:"A bathtub of warm water always has less thermal energy than a cup of boiling water.", correct:false, explain:"Even though the boiling water is hotter, the bathtub has far more total matter and moving particles, so it can actually have more total thermal energy."},
@@ -489,7 +517,7 @@ const TERMS = {
     alt:{ simpler:"Density = how squished together the stuff inside something is. More squished = more dense.",
       example2:"A bowling ball is denser than a basketball. They're close in size, but the bowling ball packs way more mass in.",
       compare:"<b>Density vs. Mass</b> — mass is just \"how much stuff\" something has. Density is how tightly that stuff is packed into its space." },
-    media:{video:"https://youtube.com/shorts/yLwM0BW9eNM?feature=share",infographic:"https://stmaryscience.netlify.app/Understanding_Matter_and_Density.png",podcast:"https://stmaryscience.netlify.app/Why_size_does_not_determine_density.m4a"},
+    media:{video:"https://youtube.com/shorts/yLwM0BW9eNM?feature=share",infographic:"https://jbrand454-crypto.github.io/science-vocab/Understanding_Matter_and_Density.png",podcast:"https://jbrand454-crypto.github.io/science-vocab/Why_size_does_not_determine_density.m4a"},
     videoTranscript:[
       "How do we measure the amount of matter stuffed inside an object? That's density.",
       "Density is how tightly matter is packed into a specific space. The formula is simple: mass divided by volume.",
@@ -3093,9 +3121,24 @@ function renderGradeTabs(){
   });
 }
 
+function renderMediaNote(){
+  const note = document.getElementById('mediaNote');
+  if(!note) return;
+  if(selGrade === 'all' || selMode === 'allgrade'){
+    note.textContent = "🎬 Explore More media (video, infographic, podcast) is only ready for some terms so far — it's being added gradually throughout the year, starting with each week's new topics.";
+  } else if(selMode === 'new'){
+    note.textContent = "🎬 Explore More media (video, infographic, podcast) is prioritized for this week's new topics first.";
+  } else if(selMode === 'old'){
+    note.textContent = "🎬 Explore More media may not be ready yet for review topics — it's added gradually, starting with each week's new topics.";
+  } else {
+    note.textContent = "";
+  }
+}
+
 function renderModeTabs(){
   if(selGrade === 'all'){
     modeTabsEl.innerHTML = `<button class="active">📚 Practice All (Grades 6–8)</button>`;
+    renderMediaNote();
     return;
   }
   const gradeNum = GRADE_RANK[selGrade];
@@ -3119,6 +3162,7 @@ function renderModeTabs(){
       renderCatalog();
     });
   });
+  renderMediaNote();
 }
 
 function isPracticeAllView(){
@@ -3215,6 +3259,10 @@ function renderCard(){
     </div>
   ` : '';
 
+  const mediaReady = t.media && t.media.video && t.media.infographic && t.media.podcast;
+  const mediaNoteHTML = mediaReady ? '' :
+    `<p class="media-row-note">Media for <b>${t.name}</b> is still being added — some or all of these may not be ready yet.</p>`;
+
   cardEl.innerHTML = `
     <div class="card-head">
       <span class="specimen-tag">Grade ${t.grade} · ${t.label}</span>
@@ -3251,6 +3299,7 @@ function renderCard(){
     <div class="quiz-panel" id="quizPanel"></div>
 
     <div class="section-label">Explore more</div>
+    ${mediaNoteHTML}
     <div class="media-row">
       <button data-media="video">🎬 Watch (30–45s)</button>
       <button data-media="infographic">🖼️ Infographic</button>
