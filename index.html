@@ -3326,11 +3326,11 @@ function renderMediaNote(){
   }
   if(!note) return;
   if(selGrade === 'all' || selMode === 'allgrade' || selMode === 'onlygrade'){
-    note.textContent = "🎬 Explore More media (video, infographic, podcast) is only ready for some terms so far — it's being added gradually throughout the year, starting with each week's new topics.";
+    note.textContent = "🎬 New Explore More media (video, infographic, podcast) drops every Sunday at 9 AM alongside next week's new topics — it's added gradually across the year, so some terms may not have it yet.";
   } else if(selMode === 'new'){
-    note.textContent = "🎬 Explore More media (video, infographic, podcast) is prioritized for this week's new topics first.";
+    note.textContent = "🎬 This week's Explore More media drops every Sunday at 9 AM, right when new topics go live.";
   } else if(selMode === 'old'){
-    note.textContent = "🎬 Explore More media may not be ready yet for review topics — it's added gradually, starting with each week's new topics.";
+    note.textContent = "🎬 Explore More media for review topics drops on its own Sunday at 9 AM, during the week that topic was new — check back if it's not here yet.";
   } else {
     note.textContent = "";
   }
@@ -3476,7 +3476,7 @@ function renderCard(){
 
   const mediaReady = t.media && t.media.video && t.media.infographic && t.media.podcast;
   const mediaNoteHTML = mediaReady ? '' :
-    `<p class="media-row-note">Media for <b>${t.name}</b> is still being added — some or all of these may not be ready yet.</p>`;
+    `<p class="media-row-note">Media for <b>${t.name}</b> drops on its own Sunday at 9 AM as part of the production schedule — some or all of these may not be ready yet.</p>`;
 
   const backButtonHTML = isPracticeAllView()
     ? `<button class="back-to-topic-btn" id="backToTopicBtn">⬆ Back to topic</button>`
