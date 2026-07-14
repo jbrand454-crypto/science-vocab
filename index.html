@@ -217,6 +217,8 @@
   .media-row button{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:#fff;border:1.5px solid var(--teal);color:var(--teal);border-radius:20px;padding:9px 16px;cursor:pointer;transition:background .15s ease, color .15s ease;display:flex;align-items:center;gap:6px;}
   .media-row button:hover{background:var(--teal);color:#fff;}
   .media-row button.on{background:var(--teal);color:#fff;}
+  .drop-schedule-link{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13px;background:#fff;border:1.5px dashed #B8862E;color:#B8862E;border-radius:20px;padding:9px 16px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s ease, color .15s ease;}
+  .drop-schedule-link:hover{background:#B8862E;color:#fff;}
 
   .reveal{margin-top:18px;background:#fffcef;border:1.5px solid var(--gold);border-radius:8px;padding:16px 18px;font-size:15.5px;line-height:1.55;display:none;}
   .reveal.show{display:block;}
@@ -463,6 +465,10 @@ const YOUTUBE_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLb41zH_Ewwi
 const PODCAST_APPLE_URL = "";
 const PODCAST_SPOTIFY_URL = "https://open.spotify.com/show/033P0If4dVQjtZBvVwAgK3";
 const PODCAST_YOUTUBE_MUSIC_URL = "";
+
+/* Full-year content drop schedule (public sneak-peek PDF).
+   Leave as "" to hide the "See the full drop schedule" link. */
+const DROP_SCHEDULE_URL = "https://jbrand454-crypto.github.io/science-vocab/Field-Notes-Drop-Schedule.pdf";
 
 const TERMS = {
 
@@ -3524,6 +3530,7 @@ function renderCard(){
       <button data-media="video">🎬 Watch (30–45s)</button>
       <button data-media="infographic">🖼️ Infographic</button>
       <button data-media="podcast">🎧 Listen</button>
+      ${DROP_SCHEDULE_URL ? `<a class="drop-schedule-link" href="${DROP_SCHEDULE_URL}" target="_blank" rel="noopener">📅 Media not out yet? See the drop schedule</a>` : ''}
     </div>
     <div class="media-panel" id="mediaPanel"></div>
     ${reflectHTML}
