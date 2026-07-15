@@ -104,6 +104,9 @@
   .media-row-note{
     font-size:12.5px;font-style:italic;color:var(--ink-soft);margin:0 0 10px;
   }
+  .explore-more-subtitle{
+    font-size:13px;color:var(--ink-soft);margin:0 0 10px;line-height:1.4;
+  }
   #domainTabs button{font-size:12.5px;padding:6px 12px;}
   .mode-tabs button{
     font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
@@ -691,7 +694,20 @@ const TERMS = {
     alt:{ simpler:"Matter is just anything that has mass and takes up space — basically anything physical.",
       example2:"A single grain of sand is matter, just as much as an entire mountain is.",
       compare:"<b>Matter vs. Energy</b> — matter is physical stuff that takes up space; energy is the ability to do work or cause change, and doesn't take up space the same way." },
-    media:{video:"",infographic:"",podcast:""},
+    media:{video:"",infographic:"",podcast:"https://jbrand454-crypto.github.io/science-vocab/FSFNR_Season_1_Episode_1_Matter.mp3"},
+    podcastTitle:"In the Beginning, There Was Matter",
+    podcastTranscript:[
+      "Welcome to Faith and Science Field Notes Radio, where each episode combines one middle school science topic with Scripture and personal reflection \u2014 because studying how the world works is one way of getting to know the God who made it.",
+      "This is the brief on Matter. And since this is our very first episode, let me take just a minute before we dive in to tell you what this whole show is all about.",
+      "Every Sunday morning, around nine o'clock, a new episode drops right here, paired with a new science term, tied to whatever the middle schoolers are learning that week in class. The school curriculum is what sets the pace, but honestly, that's really just the scaffolding. What we're doing here is meant for anybody, at any age, in any stage of their faith. Maybe you're in sixth grade and this is helping you study for a quiz. Maybe you're a parent half-listening in the car. Maybe you're a grandparent, a teacher, a neighbor down the street who just happened to find this. However you got here \u2014 there's no test waiting for you at the end, unless you're one of my middle school students. But it's just an invitation to notice something true about how the world works, and let that observation point you somewhere bigger.",
+      "So for our very first term, it only makes sense to start where the Bible itself starts \u2014 at the very beginning.",
+      "Today's term is Matter. In the simplest terms, matter is anything that has mass and takes up space. That's a bigger category than people usually assume. Obviously, a rock is matter. Your own body is matter. But so is water. So is the air you're breathing right now \u2014 even though you can't see it, and don't feel much weight to it. If it takes up space and it has mass, it counts as matter.",
+      "Here's where people usually trip up. We assume that if something feels invisible or weightless, it must not really be \u201cstuff.\u201d But that's not true. Air has mass \u2014 it's just spread out enough that we don't notice it pressing on us all the time. The same goes for a lot of things we walk right past without a second thought.",
+      "Now here's where this gets big \u2014 lean in. Genesis chapter 1 doesn't describe God shaping matter that was already lying around somewhere. It describes God speaking matter into existence, out of nothing \u2014 \u201clet there be light,\u201d and there was light. The raw physical stuff of the universe, the stuff this whole show is going to spend an entire year exploring one term at a time, didn't have to exist. It exists because God chose, deliberately, to bring it into being.",
+      "That means everything we're going to talk about this year \u2014 energy, force, cells, gravity, the whole created order \u2014 all of it traces back to one moment of intention. Not an accident. Not something that just happened to be sitting there. A choice.",
+      "So here's something to sit with this week: what's one ordinary object around you right now \u2014 your phone, the chair you're sitting in, the air in the room \u2014 that you could pause and actually see as part of God's creation, instead of just background noise you take for granted?",
+      "Thank you for listening to this episode of Faith and Science Field Notes Radio. Remember, studying how the world works is one way of getting to know the God who made it."
+    ],
     quiz:[
       {type:"mc", q:"What makes something \"matter\"?", options:["It has to be visible","It has mass and takes up space","It has to be a solid","It has to be alive"], correct:1, explain:"Matter is defined by having mass and taking up space — visibility, state, and being alive aren't requirements."},
       {type:"tf", q:"Air is not matter because you can't see it.", correct:false, explain:"Air is matter — it has mass and takes up space, even though it's invisible to us."},
@@ -3269,7 +3285,7 @@ const TERMS = {
 };
 
 const CURRICULUM = {
-  g6: { name:"Grade 6", sub:"Course 1", new:["kineticEnergy","potentialEnergy","thermalEnergy","volume"], old:["density","mass","physicalChange"] },
+  g6: { name:"Grade 6", sub:"Course 1", new:["matter"], old:["density","volume","kineticEnergy","potentialEnergy","thermalEnergy"] },
   g7: { name:"Grade 7", sub:"Course 2", new:["ecosystem","foodWeb","biodiversity"], old:["photosynthesis","cell","organelle"] },
   g8: { name:"Grade 8", sub:"Course 3", new:["velocity","acceleration","force"], old:["atom","element","chemicalBond"] }
 };
@@ -3480,9 +3496,7 @@ function renderCard(){
     </div>
   ` : '';
 
-  const mediaReady = t.media && t.media.video && t.media.infographic && t.media.podcast;
-  const mediaNoteHTML = mediaReady ? '' :
-    `<p class="media-row-note">Media for <b>${t.name}</b> drops on its own Sunday at 9 AM as part of the production schedule — some or all of these may not be ready yet.</p>`;
+  const mediaNoteHTML = '';
 
   const backButtonHTML = isPracticeAllView()
     ? `<button class="back-to-topic-btn" id="backToTopicBtn">⬆ Back to topic</button>`
@@ -3525,11 +3539,12 @@ function renderCard(){
     <div class="quiz-panel" id="quizPanel"></div>
 
     <div class="section-label">Explore more</div>
+    <p class="explore-more-subtitle">A short video demo of the science, or a podcast that goes further \u2014 scripture, reflection, and the faith connection the video doesn't cover.</p>
     ${mediaNoteHTML}
     <div class="media-row">
-      <button data-media="video">🎬 Watch (30–45s)</button>
+      <button data-media="video">🎬 Watch the Short</button>
       <button data-media="infographic">🖼️ Infographic</button>
-      <button data-media="podcast">🎧 Listen</button>
+      <button data-media="podcast">🎧 Listen: Faith &amp; Reflection</button>
       ${DROP_SCHEDULE_URL ? `<a class="drop-schedule-link" href="${DROP_SCHEDULE_URL}" target="_blank" rel="noopener">📅 Media not out yet? See the drop schedule</a>` : ''}
     </div>
     <div class="media-panel" id="mediaPanel"></div>
