@@ -248,6 +248,8 @@
   .transcript-text.show{display:block;}
   .transcript-text p{margin:0 0 12px;font-size:14.5px;line-height:1.6;color:var(--ink);}
   .transcript-text p:last-child{margin-bottom:0;}
+  .transcript-text p{transition:background-color .3s ease, color .3s ease; border-radius:4px; padding:2px 4px; margin-left:-4px;}
+  .transcript-text p.karaoke-active{background:#fff3cd;color:#1a1a1a;font-weight:600;}
 
   .quiz-panel{margin-top:18px;background:#fffcef;border:1.5px solid var(--gold);border-radius:8px;padding:18px 20px;display:none;}
   .quiz-panel.show{display:block;}
@@ -366,7 +368,7 @@
       <p>A bonus point is available for completing the reflection before the end of the school day on the second-to-last day of the school week — an incentive to work ahead rather than wait until the last minute, which also means most grading is already done well before the week ends. And a Content score of 1 (as opposed to 0, 2, or 3) isn't a final word — it's a signal that a response showed real effort but stayed shallow, and that student may be asked to revise with more depth before a final score is recorded.</p>
 
       <h3>🎧 Listen or Watch Anywhere</h3>
-      <p>Every term's video and podcast are also being collected into a full library, so students and parents can listen or watch through the whole set like a regular show — in the car, on a walk, wherever's easiest.</p>
+      <p>Each term gets two different things, not two copies of the same thing: a short video (a quick science demo) and a podcast episode (scripture and personal reflection that goes further than the video does). Both are being collected into full libraries, so students and parents can watch or listen through the whole set like a regular show — in the car, on a walk, wherever's easiest.</p>
       <p id="guideMediaLinks" class="footer-media"></p>
 
       <h3>Standards Alignment</h3>
@@ -708,6 +710,7 @@ const TERMS = {
       "So here's something to sit with this week: what's one ordinary object around you right now \u2014 your phone, the chair you're sitting in, the air in the room \u2014 that you could pause and actually see as part of God's creation, instead of just background noise you take for granted?",
       "Thank you for listening to this episode of Faith and Science Field Notes Radio. Remember, studying how the world works is one way of getting to know the God who made it."
     ],
+    podcastTranscriptTimestamps:[0, 18.4, 30.9, 94.9, 103.5, 133.8, 158.9, 194.9, 214.1, 235.5],
     quiz:[
       {type:"mc", q:"What makes something \"matter\"?", options:["It has to be visible","It has mass and takes up space","It has to be a solid","It has to be alive"], correct:1, explain:"Matter is defined by having mass and taking up space — visibility, state, and being alive aren't requirements."},
       {type:"tf", q:"Air is not matter because you can't see it.", correct:false, explain:"Air is matter — it has mass and takes up space, even though it's invisible to us."},
@@ -3693,11 +3696,14 @@ function renderMedia(key){
   } else if(key === 'podcast'){
     const titleHTML = t.podcastTitle ? `<p class="podcast-title">${t.podcastTitle}</p>` : '';
     const playerHTML = isAudioUrl(url)
-      ? `<div class="media-embed"><audio controls src="${url}"></audio></div>`
+      ? `<div class="media-embed"><audio controls src="${url}" id="podcastAudio"></audio></div>`
       : `<a class="media-link" href="${url}" target="_blank" rel="noopener">Open podcast episode ↗</a>`;
     let transcriptHTML = '';
+    const hasTimestamps = t.podcastTranscriptTimestamps && t.podcastTranscriptTimestamps.length === (t.podcastTranscript || []).length;
     if(t.podcastTranscript && t.podcastTranscript.length){
-      const paragraphs = t.podcastTranscript.map(p => `<p>${p}</p>`).join('');
+      const paragraphs = t.podcastTranscript.map((p,i) =>
+        hasTimestamps ? `<p data-start="${t.podcastTranscriptTimestamps[i]}">${p}</p>` : `<p>${p}</p>`
+      ).join('');
       transcriptHTML = `
         <button class="transcript-btn" id="transcriptBtn">📄 Show Transcript</button>
         <div class="transcript-text" id="transcriptText">${paragraphs}</div>
@@ -3706,6 +3712,29 @@ function renderMedia(key){
     embedHTML = titleHTML + playerHTML + transcriptHTML;
   }
   mediaPanel.innerHTML = `<span class="mlabel">${labels[key]}</span>${embedHTML}`;
+
+  if(key === 'podcast'){
+    const t2 = TERMS[current];
+    const hasTimestamps = t2.podcastTranscriptTimestamps && t2.podcastTranscriptTimestamps.length === (t2.podcastTranscript || []).length;
+    if(hasTimestamps){
+      const audioEl = document.getElementById('podcastAudio');
+      const transcriptBox = document.getElementById('transcriptText');
+      if(audioEl && transcriptBox){
+        audioEl.addEventListener('timeupdate', () => {
+          const paras = transcriptBox.querySelectorAll('p[data-start]');
+          let activeIdx = -1;
+          paras.forEach((p, i) => {
+            const start = parseFloat(p.dataset.start);
+            if(audioEl.currentTime >= start) activeIdx = i;
+          });
+          paras.forEach((p, i) => p.classList.toggle('karaoke-active', i === activeIdx));
+          if(activeIdx >= 0 && transcriptBox.classList.contains('show')){
+            paras[activeIdx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    }
+  }
 
   const hasTranscript = (key === 'podcast' && t.podcastTranscript && t.podcastTranscript.length) ||
                          (key === 'video' && t.videoTranscript && t.videoTranscript.length);
@@ -3785,6 +3814,7 @@ function renderQuiz(){
    ============================================================ */
 const SCHOOL_YEAR_START = new Date(2026, 7, 18);   // Aug 18, 2026 - First Day of School
 const SCHOOL_YEAR_END   = new Date(2027, 4, 28);   // May 28, 2027 - Last Day of School for Students
+const CONTENT_LAUNCH_DATE = new Date(2026, 7, 16); // Aug 16, 2026 - Sunday, first content drop (2 days before school starts)
 const BREAKS = [
   { start: new Date(2026, 11, 21), end: new Date(2027, 0, 1) },  // Christmas Break (Dec 21 - Jan 1)
   { start: new Date(2027, 2, 26), end: new Date(2027, 3, 2) }    // Easter Break (Mar 26 - Apr 2)
@@ -3818,7 +3848,7 @@ function renderWeekBadge(){
   const now = new Date();
 
   if(now < SCHOOL_YEAR_START){
-    badge.textContent = `🗓️ Content updated ${formatFullDate(SCHOOL_YEAR_START)}`;
+    badge.textContent = `🗓️ Content updated ${formatFullDate(CONTENT_LAUNCH_DATE)}`;
   } else if(now > SCHOOL_YEAR_END){
     badge.textContent = '🗓️ School year complete';
   } else {
@@ -3832,8 +3862,8 @@ renderWeekBadge();
 
 function renderFooterMedia(){
   const playlist = YOUTUBE_PLAYLIST_URL
-    ? `<a href="${YOUTUBE_PLAYLIST_URL}" target="_blank" rel="noopener">🎥 Video Playlist</a>`
-    : `<span class="soon">🎥 Video Playlist (coming soon)</span>`;
+    ? `<a href="${YOUTUBE_PLAYLIST_URL}" target="_blank" rel="noopener">🎥 YouTube</a>`
+    : `<span class="soon">🎥 YouTube (coming soon)</span>`;
   const apple = PODCAST_APPLE_URL
     ? `<a href="${PODCAST_APPLE_URL}" target="_blank" rel="noopener">Apple</a>`
     : `<span class="soon">Apple</span>`;
@@ -3843,7 +3873,10 @@ function renderFooterMedia(){
   const ytmusic = PODCAST_YOUTUBE_MUSIC_URL
     ? `<a href="${PODCAST_YOUTUBE_MUSIC_URL}" target="_blank" rel="noopener">YouTube Music</a>`
     : `<span class="soon">YouTube Music</span>`;
-  const html = `${playlist} <span class="sep">·</span> 🎧 Subscribe: ${apple} <span class="sep">|</span> ${spotify} <span class="sep">|</span> ${ytmusic}`;
+  // Apple omitted from display for now (dropped since iPhone/Mac users can stream
+  // Spotify/YouTube Music natively) — `apple` is still computed above, so to bring
+  // it back just add ` <span class="sep">|</span> ${apple}` after ${ytmusic} below.
+  const html = `Subscribe: ${playlist} <span class="sep">·</span> 🎧 Podcast: ${spotify} <span class="sep">|</span> ${ytmusic}`;
 
   const footerEl = document.getElementById('footerMedia');
   if(footerEl) footerEl.innerHTML = html;
