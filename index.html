@@ -697,7 +697,7 @@ const TERMS = {
       example2:"A single grain of sand is matter, just as much as an entire mountain is.",
       compare:"<b>Matter vs. Energy</b> — matter is physical stuff that takes up space; energy is the ability to do work or cause change, and doesn't take up space the same way." },
     media:{video:"",infographic:"",podcast:"https://jbrand454-crypto.github.io/science-vocab/FSFNR_Season_1_Episode_1_Matter.mp3"},
-    podcastTitle:"In the Beginning, There Was Matter",
+    podcastTitle:"Ep. 001 - The Launch: Matter",
     podcastTranscript:[
       "Welcome to Faith and Science Field Notes Radio, where each episode combines one middle school science topic with Scripture and personal reflection \u2014 because studying how the world works is one way of getting to know the God who made it.",
       "This is the brief on Matter. And since this is our very first episode, let me take just a minute before we dive in to tell you what this whole show is all about.",
@@ -715,6 +715,35 @@ const TERMS = {
       {type:"mc", q:"What makes something \"matter\"?", options:["It has to be visible","It has mass and takes up space","It has to be a solid","It has to be alive"], correct:1, explain:"Matter is defined by having mass and taking up space — visibility, state, and being alive aren't requirements."},
       {type:"tf", q:"Air is not matter because you can't see it.", correct:false, explain:"Air is matter — it has mass and takes up space, even though it's invisible to us."},
       {type:"short", q:"Explain why air counts as matter even though we can't see it.", model:"Air has mass (it can be weighed) and takes up space (it fills a balloon or a room), which are the two requirements for something to be matter — visibility isn't part of the definition."}
+    ]},
+
+  substance: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Substance",
+    definition:"A substance is a form of matter that always has the same fixed composition, or makeup, no matter where the sample comes from.",
+    example:"Sodium chloride (table salt) is a substance — a chunk of salt taken from a mine and the salt left behind after ocean water evaporates are chemically identical, down to the same fixed makeup.",
+    watch:"A substance isn't the same as a mixture — a mixture, like ocean water or a salad, combines different substances that keep their own separate identities and can vary in proportion from sample to sample.",
+    analogy:"Think of a substance like a recipe that never changes — every single batch comes out with the exact same ingredients in the exact same ratio, no matter who makes it or where.",
+    check:"Is ocean water a substance or a mixture? Why?",
+    faith:"James 1:17 says every good gift comes down from the Father of lights, \"with whom there is no variation or shadow due to change.\" Just as a true substance keeps the exact same makeup no matter where you find it, God's character doesn't shift depending on our circumstances. Where do you see God's unchanging character showing up consistently in your life, no matter what's going on around you?",
+    alt:{ simpler:"A substance is matter that's always made of the exact same stuff, no matter the sample.",
+      example2:"Pure water is a substance — whether it comes from a mountain stream or a lab, it's still just hydrogen and oxygen in the exact same ratio.",
+      compare:"<b>Substance vs. Mixture</b> — a substance has one fixed composition (like pure gold); a mixture combines multiple substances that can vary in proportion (like trail mix)." },
+    media:{video:"",infographic:"",podcast:"https://jbrand454-crypto.github.io/science-vocab/FSFNR_Epsiode_2_Substance.mp3"},
+    podcastTitle:"Ep. 002 - The Substance That Never Changes",
+    podcastTranscript:[
+      "Welcome to Faith and Science Field Notes Radio, where each episode combines one middle school science topic with Scripture and personal reflection, because studying how the world works is one way of getting to know the God who made it.",
+      "This is the brief on Substance. Last time we talked about Matter, which was anything that has mass and takes up space, but matter comes in a lot of different flavors, so to speak. Today we're narrowing in on one specific kind: a substance.",
+      "A substance is a form of matter that always has the exact same fixed composition, or makeup, no matter where the sample comes from. Let's take table salt \u2014 sodium chloride, for you scientific people. A chunk of salt taken from a mine deep underground, and the salt left behind after ocean water evaporates on a beach \u2014 they're chemically identical. The same fixed makeup, every single time.",
+      "Here's where people usually trip up: a substance is not the same thing as a mixture. Ocean water itself, for example, is a mixture \u2014 it combines water, and salt, and all kinds of other dissolved substances, and the exact proportions can vary from one sample to the next. But the salt you get once that water evaporates away \u2014 that part is a pure substance, with one fixed, unchanging identity.",
+      "Think of a substance like a recipe \u2014 it genuinely never changes. Every single batch comes out with the exact same ingredients, in the exact same ratio, no matter who's making it or where.",
+      "Now here's the deeper connection \u2014 lean in. James chapter one, verse seventeen, tells us that every good gift comes down from the Father of lights, with whom there is no variation or shadow due to change. Just like a true substance keeps that exact same fixed makeup no matter where you find it, God's character doesn't shift depending on what's going on around us.",
+      "So here's a question worth sitting with: where do you see God's unchanging character showing up consistently in your life, no matter what circumstances you're in?",
+      "Thank you for listening to this episode of Faith and Science Field Notes Radio. Remember, studying how the world works is one way of getting to know the God who made it."
+    ],
+    podcastTranscriptTimestamps:[0, 19.6, 39.6, 72.1, 105.0, 120.6, 151.1, 164.6],
+    quiz:[
+      {type:"mc", q:"What makes something a substance?", options:["It has to be a liquid","It always has the same fixed composition","It has to be made by humans","It has to dissolve in water"], correct:1, explain:"A substance always has a fixed, uniform composition — that's what distinguishes it from a mixture, which can vary in proportion."},
+      {type:"tf", q:"A mixture, like ocean water, counts as a substance.", correct:false, explain:"A mixture combines multiple substances that keep their own identities and can vary in proportion — that's different from a substance's fixed, unchanging composition."},
+      {type:"short", q:"Explain why salt from a mine and salt left behind after ocean water evaporates are considered the same substance.", model:"Both are sodium chloride with the exact same fixed chemical makeup — where the salt came from doesn't change what it fundamentally is."}
     ]},
 
   physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Physical Property",
@@ -3288,7 +3317,7 @@ const TERMS = {
 };
 
 const CURRICULUM = {
-  g6: { name:"Grade 6", sub:"Course 1", new:["matter"], old:["density","volume","kineticEnergy","potentialEnergy","thermalEnergy"] },
+  g6: { name:"Grade 6", sub:"Course 1", new:["matter","substance"], old:["density","volume","kineticEnergy","potentialEnergy","thermalEnergy"] },
   g7: { name:"Grade 7", sub:"Course 2", new:["ecosystem","foodWeb","biodiversity"], old:["photosynthesis","cell","organelle"] },
   g8: { name:"Grade 8", sub:"Course 3", new:["velocity","acceleration","force"], old:["atom","element","chemicalBond"] }
 };
