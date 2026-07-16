@@ -778,6 +778,36 @@ const TERMS = {
       {type:"short", q:"Give an example of a physical property and explain why it counts as physical rather than chemical.", model:"Density is a physical property because you can measure it without changing what the substance actually is — you don't have to react it with anything to find out how dense it is."}
     ]},
 
+  chemicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Chemistry", name:"Chemical Property",
+    definition:"A chemical property describes how a substance tends to react, or change into a new substance — like flammability, or the ability to rust.",
+    example:"Iron's tendency to rust when exposed to oxygen and moisture is a chemical property — it describes iron actually changing into a new substance, iron oxide.",
+    watch:"A chemical property isn't something you can observe just by looking — you only see it in action once the substance actually reacts or changes into something new. That's different from a physical property, which you can observe without any change happening at all.",
+    analogy:"Think of a chemical property like a person's temper — you might not know someone has a short fuse just by looking at them; you only discover it once something actually provokes a reaction.",
+    check:"Is flammability a physical property or a chemical property? Why?",
+    faith:"1 Peter 1:7 talks about the \"tested genuineness\" of our faith, refined like gold through fire, so that it results in praise and honor. Just like a chemical property such as flammability only reveals itself once a substance is actually put to the test, our faith's true nature often only becomes visible once it's tested by something real. What's a trial or challenge that revealed something true about your faith — something you might not have known was there until it was tested?",
+    alt:{ simpler:"A chemical property describes how a substance changes into something new — you can only see it once that change actually happens.",
+      example2:"Wood's ability to burn is a chemical property — you don't see it until you actually light it on fire.",
+      compare:"<b>Chemical Property vs. Chemical Change</b> — a chemical property is the tendency or potential for a substance to react a certain way (like flammability); a chemical change is the actual event of that reaction happening (like the wood actually burning)." },
+    media:{video:"",infographic:"",podcast:"https://jbrand454-crypto.github.io/science-vocab/FSFNR_Epsiode_4_Chemical_Property.mp3"},
+    podcastTitle:"Ep. 004 - Tested by Fire",
+    podcastTranscript:[
+      "Welcome to Faith and Science Field Notes Radio, where each episode combines one middle school science topic with Scripture and personal reflection, because studying how the world works is one way of getting to know the God who made it.",
+      "This is the brief on Chemical Property. Last time we talked about Physical Property, and before that, Matter and Substance. But whereas a physical property is something you can observe or measure about matter without changing what it actually is, we're going to look today at the flip side: a property you can't see just by looking. You only discover it once something actually happens.",
+      "A chemical property describes how a substance tends to react, or change into a new substance \u2014 like flammability, whether or not something can catch fire and burn, or the ability to rust. Those are both examples of chemical properties.",
+      "Let's take a piece of iron. Just by looking at it, you can't tell it's going to rust. That only shows up once it's exposed to oxygen and moisture over time, and then it changes into a whole new substance called iron oxide, or rust.",
+      "Here's where people usually trip up. A chemical property isn't something you can observe just by looking. You only see it in action once the substance actually undergoes a reaction and changes into something new. And that's different from a physical property, because with a physical property, you can observe it without any change happening at all.",
+      "Think of a chemical property like a person's temper. You might not know someone has a short fuse just by looking at them. You only discover it once something actually provokes a reaction \u2014 and just ask my kids about that one.",
+      "Now here's the deeper connection \u2014 lean in. First Peter chapter one, verse seven, talks about the tested genuineness of our faith, refined like gold through fire, so that it results in praise and honor. Just like a chemical property such as flammability only reveals itself once a substance is actually put to the test, our faith's true nature often only becomes visible once it's tested by something real.",
+      "So here's a question worth sitting with: what's a trial or challenge that reveals something true about your faith? Something you might not have known was there until it was tested.",
+      "Thank you for listening to this episode of Faith and Science Field Notes Radio. Remember, studying how the world works is one way of getting to know the God who made it."
+    ],
+    podcastTranscriptTimestamps:[0, 19.6, 51.8, 71.4, 90.7, 119.8, 138.6, 172.5, 187.5],
+    quiz:[
+      {type:"mc", q:"Which of these is a chemical property?", options:["Color","Density","Flammability","Melting point"], correct:2, explain:"Flammability describes how a substance reacts to fire — you only observe it once the substance actually burns, which makes it a chemical, not physical, property."},
+      {type:"tf", q:"You can observe a chemical property just by looking at a substance, without anything happening to it.", correct:false, explain:"Chemical properties only reveal themselves once a substance actually reacts or changes — that's what separates them from physical properties, which you can observe without any change occurring."},
+      {type:"short", q:"Explain why flammability is a chemical property and not a physical property.", model:"Flammability describes how a substance reacts when exposed to fire — you can't see it just by looking at the substance; you only observe it once the substance actually burns and changes into new substances like ash, smoke, and gases."}
+    ]},
+
   chemicalChange: { grade:6, unit:"Introduction to Matter", standard:"PS1.B · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Chemistry", name:"Chemical Change",
     definition:"A chemical change is a change that transforms a substance into one or more new substances with different properties.",
     example:"Burning wood is a chemical change — it turns into ash, smoke, and gases, all completely different substances from the original wood.",
@@ -3332,7 +3362,7 @@ const TERMS = {
 };
 
 const CURRICULUM = {
-  g6: { name:"Grade 6", sub:"Course 1", new:["matter","substance","physicalProperty"], old:[] },
+  g6: { name:"Grade 6", sub:"Course 1", new:["matter","substance","physicalProperty","chemicalProperty"], old:[] },
   g7: { name:"Grade 7", sub:"Course 2", new:["ecosystem","foodWeb","biodiversity"], old:[] },
   g8: { name:"Grade 8", sub:"Course 3", new:["velocity","acceleration","force"], old:[] }
 };
