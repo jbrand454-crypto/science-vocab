@@ -224,6 +224,26 @@
   .media-row button.on{background:var(--teal);color:#fff;}
   .drop-schedule-link{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13px;background:#fff;border:1.5px dashed #B8862E;color:#B8862E;border-radius:20px;padding:9px 16px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s ease, color .15s ease;}
   .drop-schedule-link:hover{background:#B8862E;color:#fff;}
+  .media-row button.ai-cohost-btn{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:var(--ink);border:1.5px solid var(--ink);color:#fff;border-radius:20px;padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s ease;}
+  .media-row button.ai-cohost-btn:hover{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .media-row button.ai-cohost-btn.on{background:var(--teal);border-color:var(--teal);}
+  .ai-cohost-panel{display:none;margin-top:14px;}
+  .ai-cohost-panel.show{display:block;}
+  .cohost-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .cohost-mini{background:var(--paper-card);border:1.5px solid var(--line);border-radius:10px;padding:16px 12px;text-align:center;cursor:pointer;transition:border-color .15s ease, transform .15s ease;}
+  .cohost-mini:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .cohost-mini .emoji{font-size:36px;display:block;margin-bottom:8px;}
+  .cohost-mini .name{font-weight:700;font-size:14.5px;color:var(--ink);display:block;}
+  .cohost-mini .role{font-size:12px;color:var(--ink-soft);margin-top:2px;display:block;}
+  .cohost-detail{background:var(--paper-card);border:1.5px solid var(--line);border-radius:12px;padding:20px;}
+  .cohost-detail .back-link{background:none;border:none;color:var(--teal);font-weight:700;font-size:13.5px;cursor:pointer;padding:0 0 12px;font-family:'Atkinson Hyperlegible',sans-serif;}
+  .cohost-detail img{max-width:220px;width:100%;border-radius:10px;display:block;margin:0 auto 14px;}
+  .cohost-detail .cd-name{font-size:20px;font-weight:700;color:var(--ink);text-align:center;display:block;}
+  .cohost-detail .cd-role{font-size:14px;color:var(--gold);font-style:italic;text-align:center;display:block;margin-top:2px;margin-bottom:14px;}
+  .cohost-detail .cd-row{margin-bottom:10px;font-size:14px;line-height:1.5;}
+  .cohost-detail .cd-label{font-weight:700;color:var(--gold);text-transform:uppercase;font-size:11.5px;letter-spacing:1px;display:block;margin-bottom:2px;}
+  .cohost-detail .cd-stars{color:var(--gold);font-size:16px;}
+  .cohost-coming-soon{font-size:13px;color:var(--ink-soft);font-style:italic;margin-top:8px;}
 
   .reveal{margin-top:18px;background:#fffcef;border:1.5px solid var(--gold);border-radius:8px;padding:16px 18px;font-size:15.5px;line-height:1.55;display:none;}
   .reveal.show{display:block;}
@@ -806,6 +826,57 @@ const TERMS = {
       {type:"mc", q:"Which of these is a chemical property?", options:["Color","Density","Flammability","Melting point"], correct:2, explain:"Flammability describes how a substance reacts to fire — you only observe it once the substance actually burns, which makes it a chemical, not physical, property."},
       {type:"tf", q:"You can observe a chemical property just by looking at a substance, without anything happening to it.", correct:false, explain:"Chemical properties only reveal themselves once a substance actually reacts or changes — that's what separates them from physical properties, which you can observe without any change occurring."},
       {type:"short", q:"Explain why flammability is a chemical property and not a physical property.", model:"Flammability describes how a substance reacts when exposed to fire — you can't see it just by looking at the substance; you only observe it once the substance actually burns and changes into new substances like ash, smoke, and gases."}
+    ]},
+
+  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", aiCohost:"quinn",
+    definition:"An atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms.",
+    example:"A single drop of water is made of billions and billions of atoms, far too small to see even with a regular microscope.",
+    watch:"Atoms are so small you can't see even one with your own eyes, or with a typical microscope — but just like we talked about with matter, being invisible doesn't mean something isn't real.",
+    analogy:"Think of atoms like the individual Lego bricks that make up an enormous Lego castle — you can't easily spot one single brick once it's part of the huge structure, but the whole castle is built entirely out of them.",
+    check:"If atoms are too small to see, how do we know they're real?",
+    faith:"Hebrews 11:3 says that by faith we understand the universe was formed at God's command, \"so that what is seen was not made out of what was visible.\" Atoms are exactly that kind of hidden foundation — invisible building blocks behind absolutely everything we can see. What's something in your faith that you trust is real and true, even though you can't see it directly?",
+    alt:{ simpler:"An atom is a tiny building block that makes up everything around you.",
+      example2:"Your own body is made of trillions of atoms, arranged into cells, tissues, and organs.",
+      compare:"<b>Atom vs. Molecule</b> — an atom is one single tiny building block; a molecule is what you get when two or more atoms join together." },
+    media:{video:"",infographic:"",podcast:""},
+    quiz:[
+      {type:"mc", q:"What are atoms?", options:["Large, visible chunks of matter","The tiny building blocks that make up all matter","A type of energy","Something only found in metal"], correct:1, explain:"Atoms are the tiny building blocks that everything — solids, liquids, gases, even living things — is made of."},
+      {type:"tf", q:"You can see individual atoms with your own eyes.", correct:false, explain:"Atoms are far too small to see with the naked eye, or even with a typical microscope — scientists use special tools to detect them indirectly."},
+      {type:"short", q:"Explain why we can be confident atoms are real even though we can't see them directly.", model:"Scientists have observed the effects atoms have and used special tools like electron microscopes to detect them indirectly — just because something can't be seen with the naked eye doesn't mean it isn't real."}
+    ]},
+
+  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element",
+    definition:"An element is a substance made of just one type of atom — it's already at its simplest, purest form and can't be broken down into anything simpler by ordinary means.",
+    example:"Oxygen, gold, and carbon are all elements — each one made of just a single kind of atom, nothing else mixed in.",
+    watch:"An element isn't the same as a compound. Water is made of two different elements — hydrogen and oxygen — joined together, so water itself is a compound, not an element. We'll get into how that joining works soon.",
+    analogy:"Think of elements like the basic, single-color paints in a paint set — you can combine them to make new colors, but each pure color by itself can't be broken down any further.",
+    check:"Is oxygen an element or a compound? How do you know?",
+    faith:"1 Corinthians 3:11 says \"no one can lay any foundation other than the one already laid, which is Jesus Christ.\" Just like an element is already at its simplest, most basic form — nothing more foundational to break it down into — Christ is described as the one foundation everything else is built on, not something that can be reduced to anything simpler or replaced. What are you building your life on as your \"foundation element\" — is it something that can actually hold, or does it dissolve under pressure?",
+    alt:{ simpler:"An element is a substance made of just one type of atom, like pure gold or pure oxygen.",
+      example2:"The oxygen you breathe is an element made entirely of oxygen atoms.",
+      compare:"<b>Element vs. Atom</b> — an atom is one single tiny building block; an element is a substance made up of many atoms that are all the same type." },
+    media:{video:"",infographic:"",podcast:""},
+    quiz:[
+      {type:"mc", q:"What makes something an element?", options:["It has to be a liquid","It's made of just one type of atom","It has to be a metal","It has to be man-made"], correct:1, explain:"An element is defined by being made of just a single type of atom — nothing else mixed in."},
+      {type:"tf", q:"Water is an element.", correct:false, explain:"Water is made of two different types of atoms — hydrogen and oxygen — joined together, which makes it a compound, not a pure element."},
+      {type:"short", q:"Explain why water is not an element.", model:"Water is made of two different types of atoms — hydrogen and oxygen — bonded together, so since it has more than one type of atom, it's a compound, not a pure element."}
+    ]},
+
+  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Molecule",
+    definition:"A molecule forms when two or more atoms bond together — sometimes atoms of the same element, sometimes atoms of different elements entirely.",
+    example:"Oxygen gas (O2) is a molecule made of two oxygen atoms bonded together. Water (H2O) is a molecule made of two hydrogen atoms and one oxygen atom bonded together.",
+    watch:"A molecule is simply two or more atoms bonded together — that's the whole requirement. A compound is more specific: a compound is a molecule where the atoms are different elements. O2 is a molecule but not a compound (same element); water is both (different elements). Every compound is a molecule, but not every molecule is a compound — like how every square is a rectangle, but not every rectangle is a square.",
+    analogy:"Think of a molecule like a basketball team — a team of five centers is still a team (like O2, two of the same type joining up), but a normal team mixes positions, like a point guard and a center (like water, joining two different elements). Either way, once they're on the court together, they act as one team.",
+    check:"Is oxygen gas (O2) a compound? Why or why not?",
+    faith:"Ecclesiastes 4:9-12 says two are better than one, and a cord of three strands is not quickly broken. Individual atoms are already real, already matter — but the moment they bond into a molecule, they can do things neither atom could pull off alone. Who are the people in your life functioning like that cord of three strands, making you capable of something you couldn't be on your own?",
+    alt:{ simpler:"A molecule is what you get when two or more atoms join together.",
+      example2:"Carbon dioxide (CO2) is a molecule made of one carbon atom and two oxygen atoms bonded together.",
+      compare:"<b>Molecule vs. Compound</b> — a molecule is any group of bonded atoms; a compound is specifically a molecule made of two or more different elements." },
+    media:{video:"",infographic:"",podcast:""},
+    quiz:[
+      {type:"mc", q:"What is a molecule?", options:["A single atom by itself","Two or more atoms bonded together","Only substances found in living things","A type of energy"], correct:1, explain:"A molecule forms whenever two or more atoms bond together, whether they're the same element or different elements."},
+      {type:"tf", q:"Every molecule is also a compound.", correct:false, explain:"Oxygen gas (O2) is a molecule but not a compound, since both atoms are the same element — a compound specifically requires two or more different elements."},
+      {type:"short", q:"Explain why water counts as both a molecule and a compound.", model:"Water is a molecule because it's made of atoms bonded together, and it's specifically a compound because those atoms — hydrogen and oxygen — are two different elements, not just one."}
     ]},
 
   chemicalChange: { grade:6, unit:"Introduction to Matter", standard:"PS1.B · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Chemistry", name:"Chemical Change",
@@ -3361,6 +3432,51 @@ const TERMS = {
     ]}
 };
 
+const AI_COHOSTS = {
+  quinn: { key:"quinn", emoji:"⚛️", name:"Quinn Quark", role:"15-Year-Old Nuclear Physics Prodigy",
+    specialty:"Atoms, Elements, Molecules, Compounds, Periodic Table, Energy, Electricity",
+    catchphrase:"The universe gets cooler the closer you look.",
+    knownFor:"Getting more excited about atoms than most people get about pizza.",
+    sometimesForgets:"To slow down — gets so excited she skips important details.",
+    scienceLevel:5,
+    cardImage:"https://jbrand454-crypto.github.io/science-vocab/Quinn-Quark-Character-Card.png" },
+  rowan: { key:"rowan", emoji:"🌲", name:"Ranger Rowan", role:"National Park Ranger",
+    specialty:"Food Webs, Ecosystems, Habitats, Biomes, Adaptations, Conservation",
+    catchphrase:"Every trail tells a story.",
+    knownFor:"Relating nearly every concept to something seen on a hike.",
+    sometimesForgets:"Scientific precision — leans on stories and analogies first.",
+    scienceLevel:4,
+    cardImage:"" },
+  nova: { key:"nova", emoji:"🚀", name:"Commander Nova", role:"NASA Flight Director",
+    specialty:"Space, Moon, Gravity, Solar System, Stars, Black Holes, Rockets",
+    catchphrase:"Eyes up... let's launch!",
+    knownFor:"A confident Mission Control style, complete with countdowns.",
+    sometimesForgets:"Full detail on complex concepts — keeps the mission moving instead.",
+    scienceLevel:5,
+    cardImage:"" },
+  storm: { key:"storm", emoji:"🌪️", name:"Storm", role:"Storm Chaser / Meteorologist",
+    specialty:"Weather, Climate, Tornadoes, Hurricanes, Water Cycle",
+    catchphrase:"Weather is awesome!",
+    knownFor:"High-energy excitement whenever the weather gets weird.",
+    sometimesForgets:"Balance — gets caught up in the drama and overgeneralizes.",
+    scienceLevel:4,
+    cardImage:"" },
+  terra: { key:"terra", emoji:"🦕", name:"Dr. Terra Stone", role:"Young Paleontologist",
+    specialty:"Fossils, Earth History, Rocks, Plate Tectonics, Volcanoes",
+    catchphrase:"Every rock has a story.",
+    knownFor:"Always carrying fossils and unusual rocks in a backpack.",
+    sometimesForgets:"To slow down through Earth's long history — moves fast.",
+    scienceLevel:4,
+    cardImage:"" },
+  cora: { key:"cora", emoji:"🧬", name:"Dr. Cora Cell", role:"Cell Biologist & Geneticist",
+    specialty:"Cells, Human Body Systems, Genetics, Reproduction and Growth, Evolution",
+    catchphrase:"It all starts with a single cell.",
+    knownFor:"Naming every cell organelle like they're her best friends.",
+    sometimesForgets:"That not everyone finds mitochondria as thrilling as she does.",
+    scienceLevel:4,
+    cardImage:"" },
+};
+
 const CURRICULUM = {
   g6: { name:"Grade 6", sub:"Course 1", new:["matter","substance","physicalProperty","chemicalProperty"], old:[] },
   g7: { name:"Grade 7", sub:"Course 2", new:["ecosystem","foodWeb","biodiversity"], old:[] },
@@ -3622,9 +3738,11 @@ function renderCard(){
       <button data-media="video">🎬 Watch the Short</button>
       <button data-media="infographic">🖼️ Infographic</button>
       <button data-media="podcast">🎧 Listen: Faith &amp; Reflection</button>
+      ${t.aiCohost ? `<button id="aiCohostBtn" class="ai-cohost-btn">🤖 Meet Your AI Cohosts</button>` : ''}
       ${DROP_SCHEDULE_URL ? `<a class="drop-schedule-link" href="${DROP_SCHEDULE_URL}" target="_blank" rel="noopener">📅 Media not out yet? See the drop schedule</a>` : ''}
     </div>
     <div class="media-panel" id="mediaPanel"></div>
+    ${t.aiCohost ? `<div class="ai-cohost-panel" id="aiCohostPanel"></div>` : ''}
     ${reflectHTML}
 
     <div class="section-label">Navigate</div>
@@ -3685,22 +3803,38 @@ function renderCard(){
     });
   });
 
-  cardEl.querySelectorAll('.media-row button').forEach(btn=>{
+  cardEl.querySelectorAll('.media-row button[data-media]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const key = btn.dataset.media;
       const mediaPanel = document.getElementById('mediaPanel');
       if(openMedia === key){
         mediaPanel.classList.remove('show');
         openMedia = null;
-        cardEl.querySelectorAll('.media-row button').forEach(b=>b.classList.remove('on'));
+        cardEl.querySelectorAll('.media-row button[data-media]').forEach(b=>b.classList.remove('on'));
         return;
       }
       openMedia = key;
-      cardEl.querySelectorAll('.media-row button').forEach(b=>b.classList.toggle('on', b.dataset.media===key));
+      cardEl.querySelectorAll('.media-row button[data-media]').forEach(b=>b.classList.toggle('on', b.dataset.media===key));
       renderMedia(key);
       mediaPanel.classList.add('show');
     });
   });
+
+  const aiCohostBtn = document.getElementById('aiCohostBtn');
+  if(aiCohostBtn){
+    aiCohostBtn.addEventListener('click', ()=>{
+      const panel = document.getElementById('aiCohostPanel');
+      const isShowing = panel.classList.contains('show');
+      if(isShowing){
+        panel.classList.remove('show');
+        aiCohostBtn.classList.remove('on');
+        return;
+      }
+      renderCohostGrid();
+      panel.classList.add('show');
+      aiCohostBtn.classList.add('on');
+    });
+  }
 
   const keys = getKeysForView();
   const idx = keys.indexOf(current);
@@ -3819,6 +3953,51 @@ function renderMedia(key){
       const isShown = box.classList.toggle('show');
       btn.textContent = isShown ? '📄 Hide Transcript' : '📄 Show Transcript';
     });
+  }
+}
+
+function renderCohostGrid(hosts){
+  const keys = hosts || Object.keys(AI_COHOSTS);
+  const panel = document.getElementById('aiCohostPanel');
+  const cards = keys.map(k => AI_COHOSTS[k]).map(c => `
+    <div class="cohost-mini" data-cohost="${c.key}">
+      <span class="emoji">${c.emoji}</span>
+      <span class="name">${c.name}</span>
+      <span class="role">${c.role}</span>
+    </div>
+  `).join('');
+  panel.innerHTML = `<div class="cohost-grid">${cards}</div>`;
+  panel.querySelectorAll('.cohost-mini').forEach(mini=>{
+    mini.addEventListener('click', ()=>{
+      renderCohostDetail(mini.dataset.cohost, keys.length > 1 ? keys : null);
+    });
+  });
+}
+
+function renderCohostDetail(key, hosts){
+  const panel = document.getElementById('aiCohostPanel');
+  const c = AI_COHOSTS[key];
+  const stars = '★'.repeat(c.scienceLevel) + '☆'.repeat(5 - c.scienceLevel);
+  const imageHTML = c.cardImage
+    ? `<img src="${c.cardImage}" alt="${c.name} character card">`
+    : `<div style="font-size:64px;text-align:center;margin-bottom:10px;">${c.emoji}</div><p class="cohost-coming-soon" style="text-align:center;">Illustrated card coming soon</p>`;
+  const backLinkHTML = hosts ? `<button class="back-link" id="cohostBackBtn">← Back to all cohosts</button>` : '';
+
+  panel.innerHTML = `
+    <div class="cohost-detail">
+      ${backLinkHTML}
+      ${imageHTML}
+      <span class="cd-name">${c.name}</span>
+      <span class="cd-role">${c.role}</span>
+      <div class="cd-row"><span class="cd-label">Specialty</span>${c.specialty}</div>
+      <div class="cd-row"><span class="cd-label">Catchphrase</span>&#8220;${c.catchphrase}&#8221;</div>
+      <div class="cd-row"><span class="cd-label">Known for</span>${c.knownFor}</div>
+      <div class="cd-row"><span class="cd-label">Sometimes forgets</span>${c.sometimesForgets}</div>
+      <div class="cd-row"><span class="cd-label">Science level</span><span class="cd-stars">${stars}</span></div>
+    </div>
+  `;
+  if(hosts){
+    document.getElementById('cohostBackBtn').addEventListener('click', ()=>renderCohostGrid(hosts));
   }
 }
 
