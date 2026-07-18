@@ -838,7 +838,7 @@ const TERMS = {
     alt:{ simpler:"An atom is a tiny building block that makes up everything around you.",
       example2:"Your own body is made of trillions of atoms, arranged into cells, tissues, and organs.",
       compare:"<b>Atom vs. Molecule</b> — an atom is one single tiny building block; a molecule is what you get when two or more atoms join together." },
-    media:{video:"",infographic:"",podcast:""},
+    media:{video:"",infographic:"",podcast:"https://youtu.be/jZU9xdZsrHM?si=fbbtWxBCrT31DFI6"},
     quiz:[
       {type:"mc", q:"What are atoms?", options:["Large, visible chunks of matter","The tiny building blocks that make up all matter","A type of energy","Something only found in metal"], correct:1, explain:"Atoms are the tiny building blocks that everything — solids, liquids, gases, even living things — is made of."},
       {type:"tf", q:"You can see individual atoms with your own eyes.", correct:false, explain:"Atoms are far too small to see with the naked eye, or even with a typical microscope — scientists use special tools to detect them indirectly."},
@@ -3903,9 +3903,12 @@ function renderMedia(key){
       : `<p class="media-empty">Link added, but it doesn't look like a direct image file, so it can't be shown inline.</p><a class="media-link" href="${url}" target="_blank" rel="noopener">Open infographic ↗</a>`;
   } else if(key === 'podcast'){
     const titleHTML = t.podcastTitle ? `<p class="podcast-title">${t.podcastTitle}</p>` : '';
-    const playerHTML = isAudioUrl(url)
-      ? `<div class="media-embed"><audio controls src="${url}" id="podcastAudio"></audio></div>`
-      : `<a class="media-link" href="${url}" target="_blank" rel="noopener">Open podcast episode ↗</a>`;
+    const ytPodcast = youtubeEmbedUrl(url);
+    const playerHTML = ytPodcast
+      ? `<div class="media-embed"><iframe src="${ytPodcast}" title="${t.name} podcast episode" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
+      : isAudioUrl(url)
+        ? `<div class="media-embed"><audio controls src="${url}" id="podcastAudio"></audio></div>`
+        : `<a class="media-link" href="${url}" target="_blank" rel="noopener">Open podcast episode ↗</a>`;
     let transcriptHTML = '';
     const hasTimestamps = t.podcastTranscriptTimestamps && t.podcastTranscriptTimestamps.length === (t.podcastTranscript || []).length;
     if(t.podcastTranscript && t.podcastTranscript.length){
