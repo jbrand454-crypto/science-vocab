@@ -150,6 +150,10 @@
   .explore-more-subtitle{
     font-size:13px;color:var(--ink-soft);margin:0 0 10px;line-height:1.4;
   }
+  .no-media-note{
+    font-size:13px;color:var(--ink-soft);background:#F4F1E4;border:1px dashed var(--line);
+    border-radius:6px;padding:10px 12px;margin:0 0 12px;line-height:1.5;
+  }
   #domainTabs button{font-size:12.5px;padding:6px 12px;}
   .mode-tabs button{
     font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
@@ -4039,7 +4043,10 @@ function renderCard(){
     </div>
   ` : '';
 
-  const mediaNoteHTML = '';
+  const hasAnyMedia = !!(t.media && (t.media.video || t.media.infographic || t.media.podcast));
+  const mediaNoteHTML = hasAnyMedia ? '' : `
+    <p class="no-media-note">📚 This Field Entry is complete just as it is above — the definition, example, misconception, analogy, faith connection, and Field Check all stand on their own. Core vocabulary terms get first priority for a dedicated video, podcast, and infographic; other terms may get media added over time. Either way, everything you need to master this term is already right here.</p>
+  `;
 
   const backButtonHTML = isPracticeAllView()
     ? `<button class="back-to-topic-btn" id="backToTopicBtn">⬆ Back to topic</button>`
