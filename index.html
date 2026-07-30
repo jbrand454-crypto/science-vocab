@@ -155,6 +155,10 @@
     border-radius:6px;padding:10px 12px;margin:0 0 12px;line-height:1.5;
   }
   #domainTabs button{font-size:12.5px;padding:6px 12px;}
+  .unit-tabs{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-soft);display:none;}
+  .unit-tabs.show{display:flex;}
+  .unit-tabs button{font-size:12px;padding:5px 11px;}
+  .unit-tabs button.active{background:var(--blueprint);border-color:var(--blueprint);color:#fff;}
   .mode-tabs button{
     font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
     background:#fff;border:1.5px solid var(--line);border-radius:16px;
@@ -477,6 +481,7 @@
     <div class="grade-tabs" id="gradeTabs"></div>
     <div class="mode-tabs" id="modeTabs"></div>
     <div class="mode-tabs" id="domainTabs"></div>
+    <div class="mode-tabs unit-tabs" id="unitTabs"></div>
     <p class="media-note" id="mediaNote"></p>
     <div class="search-wrap" id="searchWrap">
       <input type="text" id="searchInput" placeholder="🔍 Search all terms by name…">
@@ -3839,6 +3844,7 @@ const DOMAINS = [
 let selGrade = "g6";
 let selMode = "new";
 let selDomain = "all";
+let selUnit = "all";
 let selSearch = "";
 let current = null;
 let openReveal = null;
@@ -3851,6 +3857,7 @@ let quizAnswered = false;
 const gradeTabsEl = document.getElementById('gradeTabs');
 const modeTabsEl = document.getElementById('modeTabs');
 const domainTabsEl = document.getElementById('domainTabs');
+const unitTabsEl = document.getElementById('unitTabs');
 const catalogEl = document.getElementById('catalog');
 const cardEl = document.getElementById('card');
 
@@ -3864,10 +3871,12 @@ function renderGradeTabs(){
       selGrade = btn.dataset.grade;
       selMode = selGrade === 'all' ? 'all' : 'new';
       selDomain = 'all';
+      selUnit = 'all';
       resetSelectionState();
       renderGradeTabs();
       renderModeTabs();
       renderDomainTabs();
+      renderUnitTabs();
       renderCatalog();
     });
   });
@@ -3924,9 +3933,11 @@ function renderModeTabs(){
     btn.addEventListener('click', ()=>{
       selMode = btn.dataset.mode;
       selDomain = 'all';
+      selUnit = 'all';
       resetSelectionState();
       renderModeTabs();
       renderDomainTabs();
+      renderUnitTabs();
       renderCatalog();
     });
   });
@@ -3950,8 +3961,53 @@ function renderDomainTabs(){
   domainTabsEl.querySelectorAll('button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       selDomain = btn.dataset.domain;
+      selUnit = 'all';
       resetSelectionState();
       renderDomainTabs();
+      renderUnitTabs();
+      renderCatalog();
+    });
+  });
+}
+
+function renderUnitTabs(){
+  if(!isPracticeAllView() || selDomain === 'all'){
+    unitTabsEl.innerHTML = '';
+    unitTabsEl.classList.remove('show');
+    return;
+  }
+  // Units within the currently selected grade/mode + domain, in first-seen order
+  const gradeNum = selGrade === 'all' ? null : GRADE_RANK[selGrade];
+  let baseKeys;
+  if(selGrade === 'all'){
+    baseKeys = Object.keys(TERMS);
+  } else if(selMode === 'allgrade'){
+    baseKeys = Object.keys(TERMS).filter(k => TERMS[k].grade <= gradeNum);
+  } else if(selMode === 'onlygrade'){
+    baseKeys = Object.keys(TERMS).filter(k => TERMS[k].grade === gradeNum);
+  } else {
+    baseKeys = Object.keys(TERMS);
+  }
+  baseKeys = baseKeys.filter(k => TERMS[k].domain === selDomain);
+
+  const units = [];
+  baseKeys.forEach(k => { if(!units.includes(TERMS[k].unit)) units.push(TERMS[k].unit); });
+
+  if(units.length <= 1){
+    unitTabsEl.innerHTML = '';
+    unitTabsEl.classList.remove('show');
+    return;
+  }
+
+  unitTabsEl.classList.add('show');
+  const chips = [`<button class="${selUnit==='all'?'active':''}" data-unit="all">All Topics</button>`]
+    .concat(units.map(u => `<button class="${selUnit===u?'active':''}" data-unit="${u}">${u}</button>`));
+  unitTabsEl.innerHTML = chips.join('');
+  unitTabsEl.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selUnit = btn.dataset.unit;
+      resetSelectionState();
+      renderUnitTabs();
       renderCatalog();
     });
   });
@@ -3975,6 +4031,9 @@ function getKeysForView(){
   }
   if(isPracticeAllView() && selDomain !== 'all'){
     keys = keys.filter(k => TERMS[k].domain === selDomain);
+  }
+  if(isPracticeAllView() && selDomain !== 'all' && selUnit !== 'all'){
+    keys = keys.filter(k => TERMS[k].unit === selUnit);
   }
   if(isPracticeAllView() && selSearch.trim() !== ''){
     const q = selSearch.trim().toLowerCase();
@@ -4678,6 +4737,7 @@ if(searchInput){
 renderGradeTabs();
 renderModeTabs();
 renderDomainTabs();
+renderUnitTabs();
 renderCatalog();
 
 const guideBtn = document.getElementById('guideBtn');
