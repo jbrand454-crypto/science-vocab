@@ -574,10 +574,12 @@
       show up in "Practice All" for their grade (and later grades,
       since 7th/8th are cumulative).
 
-   2) CURRICULUM.gradeX.new / .old are what change WEEKLY.
-      Just swap the term keys in these arrays each week:
-        new -> this week's 3 new vocabulary words
-        old -> 3 review words pulled from earlier in the year
+   2) CURRICULUM.gradeX.last / .current / .next are what change
+      WEEKLY. Just swap the term keys in these arrays each week:
+        last    -> last week's 3 terms (now review)
+        current -> this week's 3 new terms
+        next    -> next week's 3 terms (Field Guide ready early,
+                   Explore More media not expected yet)
       Everything else (quiz, media, etc.) stays attached to the
       term itself in TERMS, so nothing else needs updating.
 
@@ -4016,9 +4018,9 @@ const AI_COHOSTS = {
 };
 
 const CURRICULUM = {
-  g6: { name:"Grade 6", sub:"Course 1", new:["matter","substance","physicalProperty","chemicalProperty"], old:[] },
-  g7: { name:"Grade 7", sub:"Course 2", new:["ecosystem","foodWeb","biodiversity"], old:[] },
-  g8: { name:"Grade 8", sub:"Course 3", new:["velocity","acceleration","force"], old:[] }
+  g6: { name:"Grade 6", sub:"Course 1", last:[], current:["matter","atomIntro","molecule"], next:["elementIntro","compound","physicalProperty"] },
+  g7: { name:"Grade 7", sub:"Course 2", last:[], current:["cell","cellTheory","cellMembrane"], next:["cellWall","cytoplasm","nucleus"] },
+  g8: { name:"Grade 8", sub:"Course 3", last:[], current:["atom","atomicNumber","atomicMass"], next:["proton","neutron","electron"] }
 };
 const GRADE_RANK = { g6:6, g7:7, g8:8 };
 const DOMAINS = [
@@ -4029,7 +4031,7 @@ const DOMAINS = [
 ];
 
 let selGrade = "g6";
-let selMode = "new";
+let selMode = "current";
 let selDomain = "all";
 let selUnit = "all";
 let selSearch = "";
@@ -4056,7 +4058,7 @@ function renderGradeTabs(){
   gradeTabsEl.querySelectorAll('button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       selGrade = btn.dataset.grade;
-      selMode = selGrade === 'all' ? 'all' : 'new';
+      selMode = selGrade === 'all' ? 'all' : 'current';
       selDomain = 'all';
       selUnit = 'all';
       resetSelectionState();
@@ -4087,10 +4089,12 @@ function renderMediaNote(){
   if(!note) return;
   if(selGrade === 'all' || selMode === 'allgrade' || selMode === 'onlygrade'){
     note.textContent = "🎬 New Explore More media (video, infographic, podcast) drops every Sunday at 9 AM alongside next week's new topics — it's added gradually across the year, so some terms may not have it yet.";
-  } else if(selMode === 'new'){
+  } else if(selMode === 'current'){
     note.textContent = "🎬 This week's Explore More media drops every Sunday at 9 AM, right when new topics go live.";
-  } else if(selMode === 'old'){
-    note.textContent = "🎬 Explore More media for review topics drops on its own Sunday at 9 AM, during the week that topic was new — check back if it's not here yet.";
+  } else if(selMode === 'next'){
+    note.textContent = "🎬 These terms are coming up next — their Field Guide entries are ready early, but Explore More media won't drop until their own week arrives.";
+  } else if(selMode === 'last'){
+    note.textContent = "🎬 Explore More media for last week's topics drops on its own Sunday at 9 AM, during the week that topic was new — check back if it's not here yet.";
   } else {
     note.textContent = "";
   }
@@ -4103,16 +4107,16 @@ function renderModeTabs(){
     return;
   }
   const gradeNum = GRADE_RANK[selGrade];
-  const newCount = CURRICULUM[selGrade].new.length;
-  const oldCount = CURRICULUM[selGrade].old.length;
+  const lastCount = CURRICULUM[selGrade].last.length;
+  const currentCount = CURRICULUM[selGrade].current.length;
+  const nextCount = CURRICULUM[selGrade].next.length;
   const modes = [
-    ["new", `🆕 This Week: New (${newCount} Topics)`],
-    ["old", `🔁 This Week: Review (${oldCount} Topics)`],
-    ["allgrade", gradeNum === 6 ? "📚 Practice All Grade 6" : `📚 Practice All (6\u2013${gradeNum})`]
+    ["last", `⏮ Last Week's Terms (${lastCount})`],
+    ["current", `📍 This Week's Terms (${currentCount})`],
+    ["next", `⏭ Next Week's Terms (${nextCount})`],
+    ["allgrade", "📚 Practice All (Grades 6–8)"]
   ];
-  if(gradeNum > 6){
-    modes.push(["onlygrade", `🎯 Practice Grade ${gradeNum} Only`]);
-  }
+  modes.push(["onlygrade", `🎯 Practice Grade ${gradeNum} Only`]);
   modeTabsEl.innerHTML = modes.map(([key,label])=>
     `<button class="${selMode===key?'active':''}" data-mode="${key}">${label}</button>`
   ).join('');
@@ -4169,7 +4173,7 @@ function renderUnitTabs(){
   if(selGrade === 'all'){
     baseKeys = Object.keys(TERMS);
   } else if(selMode === 'allgrade'){
-    baseKeys = Object.keys(TERMS).filter(k => TERMS[k].grade <= gradeNum);
+    baseKeys = Object.keys(TERMS);
   } else if(selMode === 'onlygrade'){
     baseKeys = Object.keys(TERMS).filter(k => TERMS[k].grade === gradeNum);
   } else {
@@ -4210,9 +4214,10 @@ function getKeysForView(){
     keys = Object.keys(TERMS);
   } else {
     const gradeNum = GRADE_RANK[selGrade];
-    if(selMode === 'new') keys = CURRICULUM[selGrade].new;
-    else if(selMode === 'old') keys = CURRICULUM[selGrade].old;
-    else if(selMode === 'allgrade') keys = Object.keys(TERMS).filter(k => TERMS[k].grade <= gradeNum);
+    if(selMode === 'last') keys = CURRICULUM[selGrade].last;
+    else if(selMode === 'current') keys = CURRICULUM[selGrade].current;
+    else if(selMode === 'next') keys = CURRICULUM[selGrade].next;
+    else if(selMode === 'allgrade') keys = Object.keys(TERMS);
     else if(selMode === 'onlygrade') keys = Object.keys(TERMS).filter(k => TERMS[k].grade === gradeNum);
     else keys = [];
   }
