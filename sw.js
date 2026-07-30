@@ -3,14 +3,14 @@
 // reflections) works offline, and caches media files (images/audio) as
 // they're actually opened, so "already-visited" media works offline too.
 
-const CACHE_NAME = "field-notes-v6";
+const CACHE_NAME = "field-notes-v7";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
-  "./assets/branding/fsfn-icon.png"
+  "./fsfn-icon.png"
 ];
 
 // Install: pre-cache the app shell
