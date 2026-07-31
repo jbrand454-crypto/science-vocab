@@ -3,7 +3,7 @@
 // reflections) works offline, and caches media files (images/audio) as
 // they're actually opened, so "already-visited" media works offline too.
 
-const CACHE_NAME = "field-notes-v7";
+const CACHE_NAME = "field-notes-v8";
 const APP_SHELL = [
   "./",
   "./index.html",
