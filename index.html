@@ -284,6 +284,27 @@
   .media-row button.ai-cohost-btn.on{background:var(--teal);border-color:var(--teal);}
   .ai-cohost-panel{display:none;margin-top:14px;}
   .ai-cohost-panel.show{display:block;}
+
+  /* Galileo — suggested AI prompt (Practice section) */
+  .actions button.galileo-btn{background:var(--gold);border-color:var(--gold);color:#fff;}
+  .actions button.galileo-btn:hover{background:#a97f2c;border-color:#a97f2c;}
+  .actions button.galileo-btn.on{background:#a97f2c;border-color:#a97f2c;}
+  .galileo-panel{display:none;margin-top:14px;background:var(--paper-card);border:1.5px solid var(--gold);border-radius:12px;padding:20px clamp(16px,3vw,26px);}
+  .galileo-panel.show{display:block;}
+  .galileo-intro{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:16px;}
+  .galileo-intro-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .galileo-intro-head .glyph{font-size:26px;}
+  .galileo-intro-head h3{font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0;color:var(--ink);}
+  .galileo-intro p{font-size:14.5px;line-height:1.55;color:var(--ink-soft);margin:6px 0;}
+  .galileo-intro .tagline{font-family:'Special Elite',monospace;font-size:12.5px;letter-spacing:.06em;color:var(--gold);text-transform:uppercase;margin-top:4px;}
+  .galileo-optional-badge{display:inline-block;font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;background:#fff;border:1.5px solid var(--gold);color:#a97f2c;border-radius:20px;padding:3px 10px;margin-bottom:10px;}
+  .galileo-permission-note{background:#fdf3e3;border:1.5px solid var(--gold);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.55;color:var(--ink);margin-bottom:16px;}
+  .galileo-permission-note b{color:#a97f2c;}
+  .galileo-tool-note{font-size:13px;color:var(--ink-soft);margin:0 0 10px;}
+  .galileo-prompt-box{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:16px;font-family:'Atkinson Hyperlegible',sans-serif;font-size:13.5px;line-height:1.6;color:var(--ink);white-space:pre-wrap;max-height:340px;overflow-y:auto;}
+  .galileo-copy-btn{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:var(--gold);border:none;color:#fff;border-radius:20px;padding:9px 18px;cursor:pointer;margin-top:12px;}
+  .galileo-copy-btn:hover{background:#a97f2c;}
+  .galileo-copy-btn.copied{background:var(--teal);}
   .cohost-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
   .cohost-mini{background:var(--paper-card);border:1.5px solid var(--line);border-radius:10px;padding:16px 12px;text-align:center;cursor:pointer;transition:border-color .15s ease, transform .15s ease;}
   .cohost-mini:hover{border-color:var(--gold);transform:translateY(-2px);}
@@ -885,7 +906,7 @@ const TERMS = {
       {type:"short", q:"Explain why a basketball has more volume than a golf ball, even though both are round.", model:"The basketball takes up much more three-dimensional space than the golf ball — even though they're the same shape, the basketball's larger size means it has a much bigger volume."}
     ]},
 
-  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Matter", reflect:true,
+  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Matter", galileo:true, reflect:true,
     definition:"Matter is anything that has mass and takes up space.",
     example:"Air, water, rocks, and your own body are all matter — even though air is invisible, it still has mass and takes up space.",
     watch:"Just because something is invisible or feels weightless doesn't mean it isn't matter — air is a common example students overlook.",
@@ -984,7 +1005,7 @@ const TERMS = {
       {type:"short", q:"Explain why salt from a mine and salt left behind after ocean water evaporates are considered the same substance.", model:"Both are sodium chloride with the exact same fixed chemical makeup — where the salt came from doesn't change what it fundamentally is."}
     ]},
 
-  physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Physical Property", reflect:true,
+  physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Physical Property", galileo:true, reflect:true,
     definition:"A physical property is a characteristic of matter that can be observed or measured without changing what the substance actually is.",
     example:"Color, texture, density, and melting point are all physical properties of a substance.",
     watch:"Physical properties aren't the same as chemical properties, which describe how a substance reacts or changes into something new.",
@@ -1074,7 +1095,7 @@ const TERMS = {
       {type:"short", q:"Explain why flammability is a chemical property and not a physical property.", model:"Flammability describes how a substance reacts when exposed to fire — you can't see it just by looking at the substance; you only observe it once the substance actually burns and changes into new substances like ash, smoke, and gases."}
     ]},
 
-  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", aiCohost:"quinn", reflect:true,
+  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", galileo:true, aiCohost:"quinn", reflect:true,
     definition:"An atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms.",
     example:"A single drop of water is made of billions and billions of atoms, far too small to see even with a regular microscope.",
     watch:"Atoms are so small you can't see even one with your own eyes, or with a typical microscope — but just like we talked about with matter, being invisible doesn't mean something isn't real.",
@@ -1153,7 +1174,7 @@ const TERMS = {
         explain:"A rock and a water droplet are both large enough to see with the naked eye. A single atom and a single molecule are both far too small — they require powerful tools like electron microscopes to observe."}
     ]},
 
-  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element",
+  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element", galileo:true,
     definition:"An element is a substance made of just one type of atom — it's already at its simplest, purest form and can't be broken down into anything simpler by ordinary means.",
     example:"Oxygen, gold, and carbon are all elements — each one made of just a single kind of atom, nothing else mixed in.",
     watch:"An element isn't the same as a compound. Water is made of two different elements — hydrogen and oxygen — joined together, so water itself is a compound, not an element. We'll get into how that joining works soon.",
@@ -1200,7 +1221,7 @@ const TERMS = {
         q:"Explain why your friend is mistaken.", model:"Being naturally occurring doesn't make something an element — what matters is whether it's made of just one type of atom. Carbon dioxide is made of two different elements, carbon and oxygen, chemically bonded together, which makes it a compound, not an element, no matter how common it is in nature."}
     ]},
 
-  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Molecule",
+  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Molecule", galileo:true,
     definition:"A molecule forms when two or more atoms bond together — sometimes atoms of the same element, sometimes atoms of different elements entirely.",
     example:"Oxygen gas (O2) is a molecule made of two oxygen atoms bonded together. Water (H2O) is a molecule made of two hydrogen atoms and one oxygen atom bonded together.",
     watch:"A molecule is simply two or more atoms bonded together — that's the whole requirement. A compound is more specific: a compound is a molecule where the atoms are different elements. O2 is a molecule but not a compound (same element); water is both (different elements). Every compound is a molecule, but not every molecule is a compound — like how every square is a rectangle, but not every rectangle is a square.",
@@ -2358,7 +2379,7 @@ const TERMS = {
       {type:"short", q:"In your own words, explain what a plant produces during photosynthesis and why that matters for other living things.", model:"During photosynthesis, a plant produces sugar (its food) and releases oxygen as a byproduct. That oxygen matters because most living things, including humans, need to breathe it in to survive."}
     ]},
 
-  cell: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell",
+  cell: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell", galileo:true,
     definition:"A cell is the basic building block of all living things — the smallest unit that can carry out the functions of life.",
     example:"Your skin, muscles, and blood are all made of different types of cells working together.",
     watch:"Not all cells look the same or do the same job — a nerve cell and a red blood cell function very differently, even though both are cells.",
@@ -2423,7 +2444,7 @@ const TERMS = {
       {type:"short", q:"Explain what an organelle is and give one example.", model:"An organelle is a small structure inside a cell that carries out a specific job to keep the cell working — for example, the mitochondria produces energy for the cell, acting like a tiny power plant inside it."}
     ]},
 
-  nucleus: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Nucleus",
+  nucleus: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Nucleus", galileo:true,
     definition:"The nucleus is the organelle inside a cell that stores the cell's genetic material (DNA) and controls its activities.",
     example:"In a plant or animal cell, the nucleus acts like a control center, directing what the rest of the cell does.",
     watch:"Not every cell has a nucleus — bacteria, for example, are simpler cells that lack a nucleus entirely.",
@@ -2488,7 +2509,7 @@ const TERMS = {
       {type:"short", q:"Explain why muscle cells tend to have a large number of mitochondria.", model:"Muscle cells require a lot of energy to contract and move, and since mitochondria are responsible for converting nutrients into usable energy, muscle cells need many mitochondria to keep up with that high energy demand."}
     ]},
 
-  cellMembrane: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Membrane",
+  cellMembrane: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Membrane", galileo:true,
     definition:"The cell membrane is the thin outer boundary that surrounds a cell and controls what enters and exits it.",
     example:"The cell membrane allows nutrients to enter a cell while keeping harmful substances out.",
     watch:"The cell membrane isn't a solid, sealed wall — it's selectively permeable, meaning it lets some things pass through while blocking others.",
@@ -3308,7 +3329,7 @@ const TERMS = {
       {type:"short", q:"Explain why elements in the same column of the periodic table often share similar properties.", model:"Elements are arranged in columns on the periodic table based on shared patterns in their atomic structure, particularly their outer electrons, which is exactly why elements in the same column tend to behave in similar chemical ways."}
     ]},
 
-  proton: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Proton",
+  proton: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Proton", galileo:true,
     definition:"A proton is a positively charged particle found in the nucleus of an atom.",
     example:"A carbon atom has 6 protons in its nucleus, which is exactly what makes it carbon and not some other element.",
     watch:"The number of protons in an atom's nucleus is what determines which element it is — changing the number of protons would actually turn it into a completely different element.",
@@ -3355,7 +3376,7 @@ const TERMS = {
         explain:"A proton by itself is positively charged. An atom that has lost an electron now has more protons than electrons, giving it an overall positive charge too. A single electron is negative, and a neutron has no charge at all."}
     ]},
 
-  neutron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Neutron",
+  neutron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Neutron", galileo:true,
     definition:"A neutron is a particle with no electric charge found in the nucleus of an atom, alongside protons.",
     example:"A typical carbon atom has 6 neutrons in addition to its 6 protons.",
     watch:"Neutrons don't affect an atom's identity as an element the way protons do — atoms of the same element can actually have different numbers of neutrons, called isotopes.",
@@ -3402,7 +3423,7 @@ const TERMS = {
         explain:"Neutrons truly have no charge and are found in the nucleus. But they do NOT determine element identity (protons do that), and their count can vary between atoms of the same element — that's what makes isotopes."}
     ]},
 
-  electron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Electron",
+  electron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Electron", galileo:true,
     definition:"An electron is a negatively charged particle that orbits the nucleus of an atom.",
     example:"A neutral atom has the same number of electrons as protons, balancing out its overall electric charge.",
     watch:"Electrons aren't found inside the nucleus like protons and neutrons — they exist in a cloud-like region surrounding the nucleus, constantly moving.",
@@ -4061,7 +4082,7 @@ const TERMS = {
       {type:"short", q:"Explain why the fossil record is considered an incomplete record of life's history.", model:"Fossilization requires very specific conditions, like being quickly buried in sediment, so most organisms that have ever lived decomposed completely without ever becoming a fossil — meaning the fossil record only captures a partial, incomplete sample of life's full history."}
     ]},
 
-  atom: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom",
+  atom: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", galileo:true,
     definition:"An atom is the smallest basic unit of matter that still has the properties of an element.",
     example:"A single gold atom is still gold — split it further and it stops being gold at all.",
     watch:"Atoms aren't the smallest particles that exist — atoms are made of even smaller parts (protons, neutrons, electrons), but atoms are the smallest unit that keeps an element's identity.",
@@ -4144,7 +4165,7 @@ const TERMS = {
       {type:"short", q:"Explain how chemical bonds allow water to form from hydrogen and oxygen.", model:"Chemical bonds form when hydrogen and oxygen atoms share electrons, linking them tightly together into a single water molecule (H2O) — that bonding force is what holds the atoms together as one new substance instead of staying as separate loose atoms."}
     ]},
 
-  compound: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Compound", reflect:true,
+  compound: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Compound", galileo:true, reflect:true,
     definition:"A compound is a substance made of two or more different elements chemically bonded together in a fixed, specific ratio.",
     example:"Water (H2O) is a compound made of two hydrogen atoms bonded to one oxygen atom, always in that same 2-to-1 ratio.",
     watch:"A compound isn't the same as a mixture — in a compound, the elements are chemically bonded and lose their original properties (hydrogen and oxygen are both gases, but bonded together they form liquid water); a mixture just combines substances that keep their own separate properties.",
@@ -4191,7 +4212,7 @@ const TERMS = {
       {type:"mc", difficulty:"hard", q:"Which best explains why water (H2O) behaves completely differently than the hydrogen and oxygen gases it's made from?", options:["Water is actually a mixture, so its properties can vary","The elements are chemically bonded into a new compound, so it has entirely new properties","Water isn't really made of hydrogen and oxygen","Gases always change their properties whenever they're combined"], correct:1, explain:"Because hydrogen and oxygen are chemically bonded into the compound water, the result has its own new set of properties — that's the defining feature of a compound, not just a general rule about combining gases."}
     ]},
 
-  cellTheory: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-1", standardText:"Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.", domain:"life", label:"Biology", name:"Cell Theory", reflect:true,
+  cellTheory: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-1", standardText:"Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.", domain:"life", label:"Biology", name:"Cell Theory", galileo:true, reflect:true,
     definition:"Cell theory is the widely accepted scientific explanation that all living things are made of one or more cells, and that the cell is the basic unit of structure and function in life.",
     example:"Whether you're looking at a single bacterium or a giant redwood tree, cell theory says both are built from the same basic building block — cells.",
     watch:"Cell theory isn't just an observation about one organism — it's a foundational rule scientists have found holds true for every living thing ever studied, from the simplest to the most complex.",
@@ -4238,7 +4259,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"A friend says viruses must be alive and made of cells, since they can make people sick. Using cell theory, explain why most scientists don't consider viruses to be made of cells or fully alive.", model:"Viruses don't have their own cells — they lack the basic cell structures and can't carry out life processes on their own; they can only reproduce by hijacking a living host cell's machinery. Since cell theory requires living things to be made of one or more actual cells, and viruses aren't, most scientists don't classify viruses as fully alive."}
     ]},
 
-  cellWall: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Wall", reflect:true,
+  cellWall: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Wall", galileo:true, reflect:true,
     definition:"A cell wall is a rigid, supporting outer layer that surrounds the cells of plants and some other organisms, but not animal cells.",
     example:"A plant cell's cell wall gives it a fixed, boxy shape, which is why cut celery stays rigid instead of collapsing the way a soft animal cell would.",
     watch:"A cell wall isn't the same as a cell membrane — every cell has a cell membrane, but only certain cells, like plant cells, have the extra rigid cell wall surrounding it.",
@@ -4285,7 +4306,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"Explain why plant cells can safely take in a large amount of water without bursting, while an animal cell placed in the same amount of water might actually burst.", model:"A plant cell's rigid cell wall pushes back against the pressure created as water enters, stopping the cell from over-expanding and keeping it intact. An animal cell has no cell wall to resist that pressure, so if it takes in too much water, it can stretch too far and burst."}
     ]},
 
-  cytoplasm: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cytoplasm", reflect:true,
+  cytoplasm: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cytoplasm", galileo:true, reflect:true,
     definition:"Cytoplasm is the thick, gel-like fluid inside a cell that fills the space around its organelles.",
     example:"If a cell's organelles are like furniture in a room, cytoplasm is the space filling the rest of the room around them.",
     watch:"Cytoplasm isn't just empty space inside a cell — it's an active fluid where many important chemical reactions actually take place, and it holds the organelles in position.",
@@ -4332,7 +4353,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"Compare the role of cytoplasm to the role of the cell membrane. How are they different?", model:"The cell membrane acts like a gatekeeper, controlling what substances enter and leave the cell. Cytoplasm, on the other hand, fills the interior space of the cell, suspending the organelles in place and hosting many of the chemical reactions that happen inside — it doesn't control what crosses into or out of the cell the way the membrane does."}
     ]},
 
-  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Number", reflect:true,
+  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Number", galileo:true, reflect:true,
     definition:"The atomic number of an element is the number of protons found in the nucleus of its atoms.",
     example:"Every atom of hydrogen has exactly 1 proton, giving it an atomic number of 1; every atom of carbon has exactly 6 protons, giving it an atomic number of 6.",
     watch:"Atomic number isn't the same as atomic mass — atomic number only counts protons, while atomic mass reflects the combined weight of protons and neutrons together.",
@@ -4379,7 +4400,7 @@ const TERMS = {
         explain:"Carbon (6) and Sodium (11) both have atomic numbers of 5 or greater. Hydrogen (1) and Helium (2) both have atomic numbers under 5."}
     ]},
 
-  atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Mass", reflect:true,
+  atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Mass", galileo:true, reflect:true,
     definition:"Atomic mass is the average mass of all the naturally occurring isotopes of an element, based on the combined number of protons and neutrons in the nucleus.",
     example:"Carbon's atomic mass is about 12, reflecting its typical combination of 6 protons and 6 neutrons.",
     watch:"Atomic mass isn't the same as atomic number — atomic number only counts protons, while atomic mass reflects protons and neutrons combined, and it's often not a whole number since it's averaged across an element's isotopes.",
@@ -4796,9 +4817,11 @@ function renderCard(){
       <button data-alt="example2">Give me another example</button>
       <button data-alt="quiz">Quiz me on this term</button>
       <button data-alt="compare">Compare to a related term</button>
+      ${t.galileo ? `<button id="galileoBtn" class="galileo-btn">🔭 Ask Galileo (optional)</button>` : ''}
     </div>
     <div class="reveal" id="reveal"></div>
     <div class="quiz-panel" id="quizPanel"></div>
+    ${t.galileo ? `<div class="galileo-panel" id="galileoPanel"></div>` : ''}
 
     <div class="section-label">Explore more</div>
     <p class="explore-more-subtitle">A short video demo of the science, or a podcast that goes further \u2014 scripture, reflection, and the faith connection the video doesn't cover.</p>
@@ -4912,6 +4935,22 @@ function renderCard(){
       renderCohostGrid();
       panel.classList.add('show');
       aiCohostBtn.classList.add('on');
+    });
+  }
+
+  const galileoBtn = document.getElementById('galileoBtn');
+  if(galileoBtn){
+    galileoBtn.addEventListener('click', ()=>{
+      const panel = document.getElementById('galileoPanel');
+      const isShowing = panel.classList.contains('show');
+      if(isShowing){
+        panel.classList.remove('show');
+        galileoBtn.classList.remove('on');
+        return;
+      }
+      renderGalileoPanel();
+      panel.classList.add('show');
+      galileoBtn.classList.add('on');
     });
   }
 
@@ -5085,6 +5124,95 @@ function renderCohostDetail(key, hosts){
     document.getElementById('cohostBackBtn').addEventListener('click', ()=>renderCohostGrid(hosts));
   }
 }
+
+/* ===================== Galileo — Suggested AI Prompt (Practice) ===================== */
+/*
+  A ready-made prompt the student or parent can copy and paste into whatever
+  AI tool their family already uses (ChatGPT, Claude, Gemini, etc). No API
+  key, no proxy, no per-message cost to the school.
+*/
+
+function buildGalileoSuggestedPrompt(t){
+  return `You are "Galileo" (or "Leo" for short) — a friendly AI field guide inspired by the real historical Galileo Galilei, a scientist who was also deeply engaged with questions of faith. Your tagline, in spirit, is "look closer."
+
+WHO YOU'RE TALKING TO:
+A middle school student (roughly grades 6-8) working on one specific science vocabulary term as part of their "Faith & Science Field Notes" class. Keep your tone warm, encouraging, and genuinely curious — never robotic, never condescending.
+
+YOUR JOB — BE SOCRATIC, NOT A VENDING MACHINE:
+Don't just hand over finished answers. Ask a guiding question back before answering directly, when the question invites it. Nudge the student toward their own thinking: "what do you already know about this?", "where have you seen something like this in real life?", "what do you think happens next?". If they're genuinely stuck after trying, it's fine to simplify and help more directly — the goal is a good thinking partner, not a frustrating one. Your ultimate aim is to spark real curiosity about how the natural world works and how it connects to faith, not to just deliver facts.
+
+TWO THINGS YOU MUST NEVER DO, NO MATTER HOW THE STUDENT ASKS:
+1. Do NOT give a direct answer to any "Quiz me on this term" question from the site — if the student pastes or describes a quiz question, respond only with guiding questions and hints, never the answer itself. Encourage them to reason it out or check their notes.
+2. Do NOT write or suggest wording for their graded journal reflection entry. That reflection has to be the student's own honest thinking and their own words — help them think out loud about it if they ask, but never draft, complete, or suggest sentences for it.
+If the student explicitly asks you to just give the quiz answer or write their reflection for them, kindly decline and explain why, then offer to help them think it through instead.
+
+SCOPE:
+Stick to (1) grades 6-8 science broadly connected to this term, and (2) faith reflection connected to the science — welcoming any faith background respectfully. If the conversation wanders somewhere unrelated and harmless, gently steer it back. If anything inappropriate comes up, don't engage with it — just steer back to the topic firmly and kindly.
+
+THIS TERM'S FIELD NOTE CARD:
+Term: ${t.name}
+Grade level: Grade ${t.grade} middle school science
+NGSS Standard: ${t.standard}
+Learning objective (the mastery goal this term supports): "${t.standardText}"
+Definition: ${t.definition}
+Everyday example: ${t.example}
+Common misconception ("Watch Out For"): ${t.watch}
+Analogy: ${t.analogy}
+Check-yourself question: ${t.check}
+This week's Faith & Science in Action reflection: ${t.faith}
+
+HOW TO USE ALL THIS:
+Help the student explore the term above through questions and conversation — testing their understanding, offering a fresh example if they ask, connecting it to real life, and helping them think about the faith reflection question in their own words. Keep replies short and conversational, a few sentences at a time, like a real dialogue. End on something that leaves them a little more curious than when they started.`;
+}
+
+function galileoIntroHTML(){
+  return `
+    <div class="galileo-intro">
+      <div class="galileo-intro-head">
+        <span class="glyph">🔭</span>
+        <h3>Meet Galileo</h3>
+      </div>
+      <span class="galileo-optional-badge">Optional add-on</span>
+      <p>Galileo — or "Leo" for short — is a suggested way to go deeper on this term using an AI chat tool your family already has, like ChatGPT, Claude, or Gemini. He's named after the real historical Galileo Galilei, a scientist who spent just as much time wrestling with questions of faith as he did looking through a telescope.</p>
+      <p>Instead of handing over answers, Leo is built to ask questions back and help you think it through yourself — testing what you know, offering another example, and connecting the science to this week's faith reflection.</p>
+      <p class="tagline">"Look closer."</p>
+    </div>
+    <div class="galileo-permission-note">
+      <b>Before you use this:</b> this is a completely optional extra — nothing here is required for class. If you'd like to try it, please get a parent or guardian's permission first, and make sure it follows your school's Acceptable Use Policy for technology. Use whatever AI tool your family is already comfortable with.
+    </div>
+  `;
+}
+
+function renderGalileoPanel(){
+  const t = TERMS[current];
+  const panel = document.getElementById('galileoPanel');
+  const promptText = buildGalileoSuggestedPrompt(t);
+
+  panel.innerHTML = `
+    ${galileoIntroHTML()}
+    <p class="galileo-tool-note">Copy the prompt below and paste it as your first message into your AI tool of choice. It'll take it from there.</p>
+    <div class="galileo-prompt-box" id="galileoPromptBox">${promptText}</div>
+    <button class="galileo-copy-btn" id="galileoCopyBtn">📋 Copy Prompt</button>
+  `;
+
+  const copyBtn = document.getElementById('galileoCopyBtn');
+  if(copyBtn){
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(promptText);
+        copyBtn.textContent = '✓ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(()=>{
+          copyBtn.textContent = '📋 Copy Prompt';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      } catch(err){
+        copyBtn.textContent = 'Select the text above and copy manually';
+      }
+    });
+  }
+}
+/* =================== End Galileo — Suggested AI Prompt =================== */
 
 function getQuizPool(t){
   const hasDifficulty = t.quiz.some(qq=>qq.difficulty);
