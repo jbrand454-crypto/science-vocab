@@ -376,6 +376,27 @@
     .anim-stage{flex-wrap:wrap;gap:14px;height:auto;}
   }
 
+  .quiz-image-board{margin-bottom:14px;text-align:center;}
+  .quiz-image-board .qi-label{font-family:'Special Elite',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);display:block;margin-bottom:10px;}
+  .quiz-image-row{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;}
+  .quiz-image-item{display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:10px 14px;}
+  .quiz-image-svg svg{display:block;width:72px;height:72px;}
+  .quiz-image-item-label{font-size:12px;font-weight:700;color:var(--ink-soft);}
+
+  .quiz-image-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:10px;}
+  .img-opt-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:12px 10px;cursor:pointer;transition:border-color .15s ease, transform .1s ease;font-family:'Atkinson Hyperlegible',sans-serif;}
+  .img-opt-card:hover:not(:disabled){border-color:var(--gold);transform:translateY(-2px);}
+  .img-opt-svg svg{display:block;width:56px;height:56px;}
+  .img-opt-label{font-size:12.5px;font-weight:700;color:var(--ink);text-align:center;}
+  .img-opt-card.selected{border-color:var(--gold);background:#fdf8ec;}
+  .img-opt-card.correct{border-color:var(--green);background:#e6f2ea;}
+  .img-opt-card.incorrect{border-color:var(--red);background:#fbeceb;}
+  .img-opt-card.dim{opacity:.5;}
+  .selectall-check{position:absolute;top:6px;right:8px;font-size:14px;font-weight:700;color:var(--gold);opacity:0;}
+  .img-opt-card.selected .selectall-check{opacity:1;}
+  .img-opt-card.correct .selectall-check{color:var(--green);opacity:1;}
+  .img-opt-card.incorrect .selectall-check{color:var(--red);opacity:1;}
+
   .dragdrop-wrap{margin-top:4px;}
   .dd-bank{display:flex;flex-wrap:wrap;gap:8px;min-height:44px;padding:10px;background:#fff;border:1.5px dashed var(--line);border-radius:8px;margin-bottom:12px;}
   .dd-chip{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;background:var(--paper-card);border:1.5px solid var(--line);border-radius:16px;padding:7px 14px;cursor:pointer;color:var(--ink);transition:all .15s ease;}
@@ -893,7 +914,15 @@ const TERMS = {
     quiz:[
       {type:"mc", difficulty:"easy", q:"What two things does something need to be considered matter?", options:["Color and shape","Mass and space","Weight and temperature","Size and solidity"], correct:1, explain:"Matter is defined by having mass and taking up space — nothing else is required."},
       {type:"tf", difficulty:"easy", q:"Air is not matter because you can't see it.", correct:false, explain:"Air is matter — it has mass and takes up space, even though it's invisible to us."},
-      {type:"mc", difficulty:"easy", q:"Which of these is NOT considered matter?", options:["A rock","Water","Sunlight","The air in a balloon"], correct:2, explain:"Light doesn't have mass or take up space the way physical stuff does, so it isn't considered matter, unlike the rock, water, and air."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows something that is NOT matter?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 8 C30 8 15 32 15 42 a15 15 0 0 0 30 0 C45 32 30 8 30 8 Z" fill="#4FA8E8" stroke="#12181A" stroke-width="2"/></svg>', label:"A Water Droplet"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="12" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><g stroke="#F2C14E" stroke-width="3" stroke-linecap="round"><line x1="30" y1="4" x2="30" y2="12"/><line x1="30" y1="48" x2="30" y2="56"/><line x1="4" y1="30" x2="12" y2="30"/><line x1="48" y1="30" x2="56" y2="30"/><line x1="11" y1="11" x2="17" y2="17"/><line x1="43" y1="43" x2="49" y2="49"/><line x1="11" y1="49" x2="17" y2="43"/><line x1="43" y1="17" x2="49" y2="11"/></g></svg>', label:"A Beam of Sunlight"},
+          {svg:'<svg viewBox="0 0 60 60"><ellipse cx="30" cy="26" rx="18" ry="22" fill="#E53935" stroke="#12181A" stroke-width="2"/><line x1="30" y1="48" x2="30" y2="54" stroke="#12181A" stroke-width="2"/></svg>', label:"A Balloon Full of Air"}
+        ],
+        correct:2, explain:"Light doesn't have mass or take up space the way physical stuff does, so a beam of sunlight isn't matter — unlike the rock, water droplet, and balloon of air, which all have mass even when they don't look like \"stuff.\""},
 
       {type:"mc", difficulty:"medium",
         chart:{title:"Balloon Mass Before and After Filling with Air", labels:["Empty balloon","Inflated balloon"], values:[5,6], unit:"g"},
@@ -913,7 +942,16 @@ const TERMS = {
       {type:"short", difficulty:"hard",
         animation:{caption:"Watch water change state as it's heated.", frames:[{emoji:"🧊",label:"Ice (solid)"},{emoji:"💧",label:"Water (liquid)"},{emoji:"💨",label:"Water vapor (gas)"}]},
         q:"Is the water vapor shown at the end still matter? Explain why or why not, using the definition of matter.", model:"Yes — water vapor is still matter. Changing from ice to liquid to gas only changes the arrangement and motion of the same water particles; the water still has mass and takes up space in every stage, it's just spread out much more as a gas."},
-      {type:"short", difficulty:"hard", q:"A friend says, \"Smells aren't matter because you can't hold a smell in your hand.\" Is your friend right or wrong? Explain using the definition of matter.", model:"Your friend is wrong — a smell is actually caused by tiny gas particles that have mass and take up space, so those particles are matter, even though we experience the smell rather than seeing or holding it directly."}
+      {type:"selectall", difficulty:"hard",
+        q:"Select all of the images below that show matter.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 60 60"><g fill="none" stroke="#4FA8E8" stroke-width="3" stroke-linecap="round"><path d="M8 20 Q16 30 8 40"/><path d="M20 14 Q32 30 20 46"/><path d="M32 20 Q40 30 32 40"/></g></svg>', label:"A Sound Wave"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="12" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><g stroke="#F2C14E" stroke-width="3" stroke-linecap="round"><line x1="30" y1="4" x2="30" y2="12"/><line x1="30" y1="48" x2="30" y2="56"/><line x1="4" y1="30" x2="12" y2="30"/><line x1="48" y1="30" x2="56" y2="30"/></g></svg>', label:"A Beam of Light"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 8 C30 8 15 32 15 42 a15 15 0 0 0 30 0 C45 32 30 8 30 8 Z" fill="#4FA8E8" stroke="#12181A" stroke-width="2"/></svg>', label:"A Water Droplet"}
+        ],
+        correctSet:[0,3],
+        explain:"A rock and a water droplet both have mass and take up space, so they're matter. A sound wave and a beam of light are both forms of energy, not physical stuff — they don't have mass or take up space the way matter does."}
     ]},
 
   substance: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Substance", reflect:true,
@@ -966,9 +1004,43 @@ const TERMS = {
       "[ Transcript as provided cuts off here mid-sentence \u2014 send the rest whenever you have it and I'll complete this. ]"
     ],
     quiz:[
-      {type:"mc", q:"Which of these is a physical property?", options:["Flammability","Color","Ability to rust","Reactivity with acid"], correct:1, explain:"Color can be observed without changing the substance, making it a physical property; the others involve the substance changing into something new."},
-      {type:"tf", q:"You have to change a substance to observe its physical properties.", correct:false, explain:"Physical properties can be observed or measured without changing what the substance actually is — that's exactly what makes them physical, not chemical."},
-      {type:"short", q:"Give an example of a physical property and explain why it counts as physical rather than chemical.", model:"Density is a physical property because you can measure it without changing what the substance actually is — you don't have to react it with anything to find out how dense it is."}
+      {type:"tf", difficulty:"easy", q:"You have to change a substance to observe its physical properties.", correct:false, explain:"Physical properties can be observed or measured without changing what the substance actually is — that's exactly what makes them physical, not chemical."},
+      {type:"mc", difficulty:"easy", q:"Which of these is NOT a physical property?", options:["Color","Density","Flammability","Melting point"], correct:2, explain:"Flammability describes how a substance reacts to fire, which only shows up once it actually burns — that makes it a chemical, not physical, property."},
+
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows a physical property being observed?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 6 C20 20 14 28 14 38 a16 16 0 0 0 32 0 c0 -10 -6 -18 -16 -32 Z" fill="#F26522" stroke="#12181A" stroke-width="2"/><path d="M30 26 c-5 8 -8 12 -8 18 a8 8 0 0 0 16 0 c0 -6 -3 -10 -8 -18 Z" fill="#F2C14E"/></svg>', label:"Something Catching Fire"},
+          {svg:'<svg viewBox="0 0 70 40"><rect x="4" y="4" width="18" height="32" rx="3" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><rect x="26" y="4" width="18" height="32" rx="3" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><rect x="48" y="4" width="18" height="32" rx="3" fill="#F2C14E" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Comparing Colors"},
+          {svg:'<svg viewBox="0 0 70 50"><rect x="8" y="10" width="54" height="30" rx="3" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/><path d="M15 20 q6 -8 14 0 q6 8 12 -2 q6 -8 12 4" fill="none" stroke="#A83932" stroke-width="3"/></svg>', label:"Metal Rusting"},
+          {svg:'<svg viewBox="0 0 60 60"><rect x="15" y="10" width="30" height="40" rx="4" fill="#E0E0E0" stroke="#12181A" stroke-width="2"/><circle cx="30" cy="42" r="10" fill="#66BB6A"/><circle cx="26" cy="20" r="3" fill="#66BB6A"/><circle cx="34" cy="26" r="3" fill="#66BB6A"/></svg>', label:"A Chemical Bubbling in a Test Tube"}
+        ],
+        correct:1, explain:"Comparing colors is a physical property — you can observe it just by looking, without changing the substance. Catching fire, rusting, and bubbling in a reaction are all chemical properties, since they only show up once the substance actually reacts and changes."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Physical or Chemical Property?", headers:["Property","Physical or Chemical?"], rows:[["Color","Physical"],["Flammability","Chemical"],["Density","Physical"],["Reactivity with acid","Chemical"]]},
+        q:"Based on the table, what do all the physical properties have in common?", options:["They can all be observed without changing the substance","They all involve burning","They can only be measured in liquids","They always involve color"], correct:0, explain:"Every physical property in the table — color and density — can be observed or measured without changing what the substance actually is, unlike the chemical properties, which only show up once a reaction happens."},
+      {type:"tf", difficulty:"medium", q:"You can always tell whether something is flammable just by looking at it, since flammability is a physical property.", correct:false, explain:"Flammability is actually a chemical property, not physical — you can't tell just by looking whether something will burn; you only find out once it actually reacts with fire."},
+      {type:"short", difficulty:"medium",
+        passage:"A student takes an ice cube out of the freezer and sets it on the counter. Over the next hour, it melts into a puddle of water.",
+        q:"Is melting a physical property or a chemical property? Explain your reasoning.", model:"Melting is a physical property, because the ice is still the same substance (water) before and after melting — nothing about it has turned into a new substance, it's just changed from a solid to a liquid, which can be observed without any chemical change happening."},
+
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show a physical property.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 40"><line x1="10" y1="30" x2="60" y2="10" stroke="#12181A" stroke-width="3"/><line x1="16" y1="27" x2="16" y2="21" stroke="#12181A" stroke-width="2"/><line x1="26" y1="23" x2="26" y2="17" stroke="#12181A" stroke-width="2"/><line x1="36" y1="19" x2="36" y2="13" stroke="#12181A" stroke-width="2"/></svg>', label:"Measuring Length"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 6 C20 20 14 28 14 38 a16 16 0 0 0 32 0 c0 -10 -6 -18 -16 -32 Z" fill="#F26522" stroke="#12181A" stroke-width="2"/></svg>', label:"Catching Fire"},
+          {svg:'<svg viewBox="0 0 70 40"><rect x="4" y="4" width="18" height="32" rx="3" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><rect x="26" y="4" width="18" height="32" rx="3" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><rect x="48" y="4" width="18" height="32" rx="3" fill="#F2C14E" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Comparing Colors"},
+          {svg:'<svg viewBox="0 0 70 50"><rect x="8" y="10" width="54" height="30" rx="3" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/><path d="M15 20 q6 -8 14 0 q6 8 12 -2 q6 -8 12 4" fill="none" stroke="#A83932" stroke-width="3"/></svg>', label:"Metal Rusting"}
+        ],
+        correctSet:[0,2],
+        explain:"Measuring length and comparing colors are both physical properties — you can observe or measure them without changing what the substance is. Catching fire and rusting are chemical properties, since the substance is actually reacting and forming something new."},
+      {type:"dragdrop", difficulty:"hard", q:"Sort each characteristic into Physical Property or Chemical Property.",
+        items:[{id:"color",label:"Color"},{id:"flammability",label:"Flammability"},{id:"density",label:"Density"},{id:"rust",label:"Ability to Rust"},{id:"melting",label:"Melting Point"},{id:"reactivity",label:"Reactivity with Water"},{id:"hardness",label:"Hardness"},{id:"explode",label:"Ability to Explode"}],
+        buckets:[{id:"physical",label:"Physical Property"},{id:"chemical",label:"Chemical Property"}],
+        correctMap:{color:"physical",flammability:"chemical",density:"physical",rust:"chemical",melting:"physical",reactivity:"chemical",hardness:"physical",explode:"chemical"},
+        explain:"Color, density, melting point, and hardness can all be observed or measured without changing the substance — physical properties. Flammability, rusting, reactivity with water, and the ability to explode only show up once the substance actually reacts and changes into something new — chemical properties."},
+      {type:"short", difficulty:"hard", q:"Explain why you can't tell whether a substance is flammable just by looking at it, but you CAN tell its color just by looking.", model:"Color is a physical property, so it can be observed directly just by looking — nothing about the substance has to change. Flammability is a chemical property, which only reveals itself once the substance actually reacts (burns) — you can't detect it just by observing the substance sitting there unchanged."}
     ]},
 
   chemicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Chemistry", name:"Chemical Property", reflect:true,
@@ -1047,9 +1119,38 @@ const TERMS = {
       "JB: And remember: stay curious, test ideas, seek wisdom. Use AI as a tool, not as your authority."
     ],
     quiz:[
-      {type:"mc", q:"What are atoms?", options:["Large, visible chunks of matter","The tiny building blocks that make up all matter","A type of energy","Something only found in metal"], correct:1, explain:"Atoms are the tiny building blocks that everything — solids, liquids, gases, even living things — is made of."},
-      {type:"tf", q:"You can see individual atoms with your own eyes.", correct:false, explain:"Atoms are far too small to see with the naked eye, or even with a typical microscope — scientists use special tools to detect them indirectly."},
-      {type:"short", q:"Explain why we can be confident atoms are real even though we can't see them directly.", model:"Scientists have observed the effects atoms have and used special tools like electron microscopes to detect them indirectly — just because something can't be seen with the naked eye doesn't mean it isn't real."}
+      {type:"mc", difficulty:"easy", q:"What are atoms?", options:["Large, visible chunks of matter","The tiny building blocks that make up all matter","A type of energy","Something only found in metal"], correct:1, explain:"Atoms are the tiny building blocks that everything — solids, liquids, gases, even living things — is made of."},
+      {type:"tf", difficulty:"easy", q:"You can see individual atoms with your own eyes.", correct:false, explain:"Atoms are far too small to see with the naked eye, or even with a typical microscope — scientists use special tools to detect them indirectly."},
+      {type:"mc", difficulty:"easy", q:"Which best describes how atoms relate to matter?", options:["Atoms and matter aren't related","Atoms are the tiny building blocks that matter is made of","Only some matter is made of atoms","Atoms are bigger than matter"], correct:1, explain:"Every bit of matter — no matter how big or small — is built from atoms, the basic building blocks of physical stuff."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"How Many Atoms?", headers:["Object","Roughly How Many Atoms?"], rows:[["A grain of sand","Quintillions"],["A drop of water","Billions of billions"],["A single atom","1"]]},
+        q:"Based on the table, why can't we see individual atoms with our eyes or a regular microscope?", options:["Because atoms don't really exist","Because atoms are unbelievably tiny compared to anything we can see directly","Because atoms are hidden inside other atoms","Because atoms only exist inside liquids"], correct:1, explain:"The table shows just how many atoms fit into even a tiny object — atoms are so incredibly small that ordinary tools like our eyes or a basic microscope can't detect a single one."},
+      {type:"mc", difficulty:"medium",
+        q:"Which of these is LARGE ENOUGH to see with your naked eye (unlike a single atom)?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#F26522" stroke="#12181A" stroke-width="2"/><path d="M6 30 h48 M30 6 v48" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Basketball"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="2" fill="#E53935"/></svg>', label:"A Single Atom"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="27" cy="30" r="2" fill="#E53935"/><circle cx="33" cy="30" r="2" fill="#4FA8E8"/></svg>', label:"A Single Molecule"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="3" fill="#A83932"/></svg>', label:"A Red Blood Cell"}
+        ],
+        correct:0, explain:"A basketball is large enough to see easily with the naked eye. A single atom, molecule, and even a red blood cell are all far too small — they require powerful tools like microscopes to observe."},
+      {type:"short", difficulty:"medium",
+        passage:"A scientist looks through a powerful electron microscope and captures an image showing individual atoms arranged in a pattern.",
+        q:"Explain how scientists can be confident atoms are real, even though no one has ever seen one directly with their own eyes.", model:"Scientists rely on indirect evidence — like consistent, predictable patterns in how substances combine and react, and images captured using tools like electron microscopes — all of which strongly support that atoms exist, even without anyone directly seeing one."},
+
+      {type:"mc", difficulty:"hard", q:"Which of these is the best evidence that atoms are real, even though we can't see them directly?", options:["Because textbooks say so","Because predictable patterns in how substances combine and react match what atomic models predict","Because atoms are visible under a basic magnifying glass","Because ancient philosophers believed in them"], correct:1, explain:"The strongest evidence for atoms comes from how reliably they explain and predict real, observable patterns in chemistry — not simply because a source states it."},
+      {type:"short", difficulty:"hard", q:"A friend says, \"If I can't see something with my own eyes, it's not real.\" Using what you know about atoms, explain why this isn't a reliable way to decide what's real.", model:"Atoms are real and have strong scientific evidence behind them, even though no one has ever seen one directly with their own eyes — which shows that something can be genuinely real and well-supported by evidence without being visible to the naked eye."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that can be seen with the naked eye (without any special tools).",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="2" fill="#E53935"/></svg>', label:"A Single Atom"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 8 C30 8 15 32 15 42 a15 15 0 0 0 30 0 C45 32 30 8 30 8 Z" fill="#4FA8E8" stroke="#12181A" stroke-width="2"/></svg>', label:"A Water Droplet"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="27" cy="30" r="2" fill="#E53935"/><circle cx="33" cy="30" r="2" fill="#4FA8E8"/></svg>', label:"A Single Molecule"}
+        ],
+        correctSet:[0,2],
+        explain:"A rock and a water droplet are both large enough to see with the naked eye. A single atom and a single molecule are both far too small — they require powerful tools like electron microscopes to observe."}
     ]},
 
   elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element",
@@ -1065,9 +1166,38 @@ const TERMS = {
       compare:"<b>Element vs. Atom</b> — an atom is one single tiny building block; an element is a substance made up of many atoms that are all the same type." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What makes something an element?", options:["It has to be a liquid","It's made of just one type of atom","It has to be a metal","It has to be man-made"], correct:1, explain:"An element is defined by being made of just a single type of atom — nothing else mixed in."},
-      {type:"tf", q:"Water is an element.", correct:false, explain:"Water is made of two different types of atoms — hydrogen and oxygen — joined together, which makes it a compound, not a pure element."},
-      {type:"short", q:"Explain why water is not an element.", model:"Water is made of two different types of atoms — hydrogen and oxygen — bonded together, so since it has more than one type of atom, it's a compound, not a pure element."}
+      {type:"mc", difficulty:"easy", q:"What makes something an element?", options:["It has to be a liquid","It's made of just one type of atom","It has to be a metal","It has to be man-made"], correct:1, explain:"An element is defined by being made of just a single type of atom — nothing else mixed in."},
+      {type:"tf", difficulty:"easy", q:"Water is an element.", correct:false, explain:"Water is made of two different types of atoms — hydrogen and oxygen — joined together, which makes it a compound, not a pure element."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows an element?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="#12181A">Au</text></svg>', label:"Gold (a single type of atom)"},
+          {svg:'<svg viewBox="0 0 100 80"><line x1="50" y1="45" x2="25" y2="20" stroke="#12181A" stroke-width="3"/><line x1="50" y1="45" x2="75" y2="20" stroke="#12181A" stroke-width="3"/><circle cx="50" cy="48" r="20" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="50" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">O</text><circle cx="22" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="22" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text><circle cx="78" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="78" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text></svg>', label:"Water (two elements bonded)"},
+          {svg:'<svg viewBox="0 0 80 80"><path d="M22 12 h36 v10 l8 42 a5 5 0 0 1-5 5 h-42 a5 5 0 0 1-5-5 l8-42 z" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="45" r="5" fill="#4FA8E8"/><circle cx="52" cy="55" r="5" fill="#E53935"/><circle cx="42" cy="65" r="5" fill="#F2C14E"/></svg>', label:"A Mixture"},
+          {svg:'<svg viewBox="0 0 120 60"><line x1="38" y1="30" x2="60" y2="30" stroke="#12181A" stroke-width="3"/><line x1="60" y1="30" x2="82" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="30" cy="30" r="16" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="30" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">O</text><circle cx="60" cy="30" r="18" fill="#424242" stroke="#12181A" stroke-width="2"/><text x="60" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">C</text><circle cx="90" cy="30" r="16" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="90" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">O</text></svg>', label:"Carbon Dioxide (two elements bonded)"}
+        ],
+        correct:0, explain:"Gold is made of just one type of atom, which is exactly what makes it an element. Water and carbon dioxide are both compounds (two different elements bonded), and the mixture combines separate substances that aren't bonded at all."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Element or Compound?", headers:["Substance","Types of Atoms","Element or Compound?"], rows:[["Gold","1 type","Element"],["Water","2 types, bonded","Compound"],["Carbon","1 type","Element"],["Carbon Dioxide","2 types, bonded","Compound"]]},
+        q:"Based on the table, what determines whether a substance is an element?", options:["Its color","Whether it's made of just one type of atom","Whether it's a solid","Its temperature"], correct:1, explain:"An element is defined by being made of only one type of atom — the table shows gold and carbon qualify, while water and carbon dioxide, made of two bonded types, are compounds instead."},
+      {type:"tf", difficulty:"medium", q:"An element can be broken down into a simpler substance using ordinary chemical methods.", correct:false, explain:"An element is already at its simplest form — it can't be broken down into anything chemically simpler, unlike a compound, which can be broken back down into its original elements."},
+      {type:"short", difficulty:"medium", q:"Explain why oxygen is considered an element, but water is not.", model:"Oxygen is made of only one type of atom, which meets the definition of an element. Water is made of two different types of atoms — hydrogen and oxygen — chemically bonded together, which makes it a compound instead of an element."},
+
+      {type:"mc", difficulty:"hard", q:"Which best explains why elements are considered the \"basic building blocks\" of matter?", options:["They're always the biggest substances that exist","They can't be broken down into anything chemically simpler","They're always metals","They only exist in nature and are never created by reactions"], correct:1, explain:"What makes elements foundational is that they can't be broken down into anything chemically simpler — every other substance, like compounds and mixtures, is ultimately built from elements."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show an element.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#424242" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">C</text></svg>', label:"Carbon"},
+          {svg:'<svg viewBox="0 0 100 80"><line x1="50" y1="45" x2="25" y2="20" stroke="#12181A" stroke-width="3"/><line x1="50" y1="45" x2="75" y2="20" stroke="#12181A" stroke-width="3"/><circle cx="50" cy="48" r="20" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="50" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">O</text><circle cx="22" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="22" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text><circle cx="78" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="78" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text></svg>', label:"Water"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">O</text></svg>', label:"Oxygen"},
+          {svg:'<svg viewBox="0 0 80 80"><path d="M22 12 h36 v10 l8 42 a5 5 0 0 1-5 5 h-42 a5 5 0 0 1-5-5 l8-42 z" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="45" r="5" fill="#4FA8E8"/><circle cx="52" cy="55" r="5" fill="#E53935"/><circle cx="42" cy="65" r="5" fill="#F2C14E"/></svg>', label:"Air"}
+        ],
+        correctSet:[0,2],
+        explain:"Carbon and oxygen are both elements — each made of just one type of atom. Water is a compound (two different elements bonded), and air is a mixture of several different substances, so neither counts as an element."},
+      {type:"short", difficulty:"hard",
+        passage:"A friend says, \"Since carbon dioxide is found naturally all around us, it must be an element.\"",
+        q:"Explain why your friend is mistaken.", model:"Being naturally occurring doesn't make something an element — what matters is whether it's made of just one type of atom. Carbon dioxide is made of two different elements, carbon and oxygen, chemically bonded together, which makes it a compound, not an element, no matter how common it is in nature."}
     ]},
 
   molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Molecule",
@@ -1083,9 +1213,36 @@ const TERMS = {
       compare:"<b>Molecule vs. Compound</b> — a molecule is any group of bonded atoms; a compound is specifically a molecule made of two or more different elements." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What is a molecule?", options:["A single atom by itself","Two or more atoms bonded together","Only substances found in living things","A type of energy"], correct:1, explain:"A molecule forms whenever two or more atoms bond together, whether they're the same element or different elements."},
-      {type:"tf", q:"Every molecule is also a compound.", correct:false, explain:"Oxygen gas (O2) is a molecule but not a compound, since both atoms are the same element — a compound specifically requires two or more different elements."},
-      {type:"short", q:"Explain why water counts as both a molecule and a compound.", model:"Water is a molecule because it's made of atoms bonded together, and it's specifically a compound because those atoms — hydrogen and oxygen — are two different elements, not just one."}
+      {type:"mc", difficulty:"easy", q:"What is a molecule?", options:["A single atom by itself","Two or more atoms bonded together","Only substances found in living things","A type of energy"], correct:1, explain:"A molecule forms whenever two or more atoms bond together, whether they're the same element or different elements."},
+      {type:"tf", difficulty:"easy", q:"Every molecule is also a compound.", correct:false, explain:"Oxygen gas (O2) is a molecule but not a compound, since both atoms are the same element — a compound specifically requires two or more different elements."},
+      {type:"mc", difficulty:"easy", q:"Which of these is a molecule?", options:["A single hydrogen atom by itself","Oxygen gas (O2)","Empty space","Light"], correct:1, explain:"O2 is a molecule because it's made of two atoms bonded together — a single atom by itself doesn't count as a molecule."},
+
+      {type:"mc", difficulty:"medium",
+        q:"Which image shows a molecule?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="#12181A">He</text></svg>', label:"A Single Helium Atom"},
+          {svg:'<svg viewBox="0 0 100 60"><line x1="38" y1="30" x2="62" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="32" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="32" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text><circle cx="68" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="68" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text></svg>', label:"Oxygen Gas (O\u2082)"},
+          {svg:'<svg viewBox="0 0 80 80"><path d="M22 12 h36 v10 l8 42 a5 5 0 0 1-5 5 h-42 a5 5 0 0 1-5-5 l8-42 z" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="45" r="5" fill="#4FA8E8"/><circle cx="52" cy="55" r="5" fill="#E53935"/><circle cx="42" cy="65" r="5" fill="#F2C14E"/></svg>', label:"A Mixture"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#8D6E63" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">Fe</text></svg>', label:"A Single Iron Atom"}
+        ],
+        correct:1, explain:"Oxygen gas (O2) is a molecule — two atoms bonded together — even though both atoms are the same element. A single atom by itself, no matter which element, doesn't meet the requirement of two or more bonded atoms, and a mixture has no bonding at all."},
+      {type:"tf", difficulty:"medium", q:"Every compound is also a molecule.", correct:true, explain:"Since a compound requires atoms bonded together, and that bonding is exactly what makes something a molecule, every compound counts as a molecule too — just a more specific kind."},
+      {type:"short", difficulty:"medium", q:"Explain why every compound is a molecule, but not every molecule is a compound.", model:"A molecule just requires two or more atoms bonded together, whether they're the same element or different elements. A compound is more specific — it requires the bonded atoms to be different elements. So every compound meets the requirement for being a molecule, but plenty of molecules (like O2) don't meet the stricter requirement of being a compound."},
+
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the diagrams below that show a molecule (remember: two atoms of the SAME element bonded together still counts).",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 100 60"><line x1="38" y1="30" x2="62" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="32" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="32" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text><circle cx="68" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="68" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text></svg>', label:"O\u2082"},
+          {svg:'<svg viewBox="0 0 100 80"><line x1="50" y1="45" x2="25" y2="20" stroke="#12181A" stroke-width="3"/><line x1="50" y1="45" x2="75" y2="20" stroke="#12181A" stroke-width="3"/><circle cx="50" cy="48" r="20" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="50" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">O</text><circle cx="22" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="22" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text><circle cx="78" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="78" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text></svg>', label:"H\u2082O"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="#12181A">He</text></svg>', label:"A Single Helium Atom"},
+          {svg:'<svg viewBox="0 0 120 60"><line x1="38" y1="30" x2="60" y2="30" stroke="#12181A" stroke-width="3"/><line x1="60" y1="30" x2="82" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="30" cy="30" r="16" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="30" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">O</text><circle cx="60" cy="30" r="18" fill="#424242" stroke="#12181A" stroke-width="2"/><text x="60" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">C</text><circle cx="90" cy="30" r="16" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="90" y="35" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">O</text></svg>', label:"CO\u2082"}
+        ],
+        correctSet:[0,1,3],
+        explain:"O2, H2O, and CO2 are all molecules, since each shows two or more atoms bonded together — O2 counts even though both atoms are the same element. A single helium atom by itself isn't a molecule, since it takes at least two bonded atoms."},
+      {type:"short", difficulty:"hard",
+        passage:"A friend claims that only compounds count as molecules, and that O2 doesn't really count since it's \"just oxygen.\"",
+        q:"Explain why your friend is mistaken.", model:"A molecule only requires two or more atoms bonded together — it doesn't require different elements. Since O2 is two oxygen atoms bonded together, it fully meets the definition of a molecule, even though it's not a compound (which would require different elements)."},
+      {type:"mc", difficulty:"hard", q:"Which statement correctly compares molecules and compounds?", options:["All molecules are compounds","All compounds are molecules, but not all molecules are compounds","Molecules and compounds are completely unrelated ideas","Compounds are always made of just one atom"], correct:1, explain:"Since a compound requires atoms bonded together (which automatically makes it a molecule too), every compound is a molecule — but not every molecule (like O2) meets the stricter requirement of being a compound."}
     ]},
 
   chemicalChange: { grade:6, unit:"Introduction to Matter", standard:"PS1.B · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Chemistry", name:"Chemical Change",
@@ -2214,9 +2371,38 @@ const TERMS = {
       compare:"<b>Cell vs. Organ</b> — a cell is the smallest basic unit of life; many cells form tissues, and tissues form organs (like the heart), much bigger and more complex structures." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What is a cell?", options:["The largest structure in the human body","The basic building block of all living things","A type of energy","A chemical found only in plants"], correct:1, explain:"Cells are the smallest units that can carry out the basic functions of life, and every living thing is made of one or more cells."},
-      {type:"tf", q:"All cells in the human body look and function exactly the same.", correct:false, explain:"Different types of cells (like nerve cells, skin cells, and blood cells) look very different and perform very different jobs."},
-      {type:"short", q:"Explain why cells are often called the 'building blocks' of life.", model:"Cells are the smallest units that can carry out life's basic functions, and every living thing — from a single bacterium to a whole human body — is built from one or more cells working together, similar to how a building is built from individual bricks."}
+      {type:"mc", difficulty:"easy", q:"What is a cell?", options:["The largest structure in the human body","The basic building block of all living things","A type of energy","A chemical found only in plants"], correct:1, explain:"Cells are the smallest units that can carry out the basic functions of life, and every living thing is made of one or more cells."},
+      {type:"tf", difficulty:"easy", q:"All cells in the human body look and function exactly the same.", correct:false, explain:"Different types of cells (like nerve cells, skin cells, and blood cells) look very different and perform very different jobs."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows something made of cells?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Tree Cell"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 8 C30 8 15 32 15 42 a15 15 0 0 0 30 0 C45 32 30 8 30 8 Z" fill="#4FA8E8" stroke="#12181A" stroke-width="2"/></svg>', label:"A Water Droplet"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="12" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><g stroke="#F2C14E" stroke-width="3" stroke-linecap="round"><line x1="30" y1="4" x2="30" y2="12"/><line x1="30" y1="48" x2="30" y2="56"/><line x1="4" y1="30" x2="12" y2="30"/><line x1="48" y1="30" x2="56" y2="30"/></g></svg>', label:"A Beam of Sunlight"}
+        ],
+        correct:1, explain:"A tree, like all living things, is made of cells. A rock, a water droplet, and a beam of sunlight are all non-living and aren't made of cells at all."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Made of Cells?", headers:["Structure","Made of Cells?"], rows:[["Skin","Yes"],["Blood","Yes"],["A rock","No"],["Bone","Yes"]]},
+        q:"Based on the table, what's true of every living body structure?", options:["They're all made of cells","Only some are made of cells","They're all liquid","They're all the exact same type of cell"], correct:0, explain:"Every living structure listed in the table — skin, blood, and bone — is made of cells, unlike a rock, which is non-living and made of minerals, not cells."},
+      {type:"tf", difficulty:"medium", q:"A single bacterium is too simple to be considered made of cells.", correct:false, explain:"A single bacterium IS a cell — it's a complete, single-celled living thing, which still fully counts under cell theory."},
+      {type:"short", difficulty:"medium",
+        passage:"Under a microscope, a nerve cell looks long and thread-like, stretching out in a narrow line. A red blood cell, by contrast, looks like a tiny, round, flattened disc.",
+        q:"Explain why a nerve cell and a red blood cell can look so different, even though both are called 'cells.'", model:"Cells can be specialized for very different jobs — a nerve cell is long and thread-like so it can send electrical signals over a distance, while a red blood cell is small and disc-shaped so it can squeeze through blood vessels carrying oxygen — so even though both are cells, their different shapes reflect the very different functions they perform in the body."},
+
+      {type:"mc", difficulty:"hard", q:"Which best explains why doctors can often tell what type of tissue a sample came from just by looking at its cells under a microscope?", options:["All cells look identical no matter the tissue","Different types of cells have different shapes and structures suited to their specific job","Cells change appearance randomly","Tissue samples never actually contain cells"], correct:1, explain:"Different cell types are specialized with distinct shapes and structures matched to their function, which is exactly why trained observers can often identify tissue type just by examining the cells."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show something made of cells (living).",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Plant Cell"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 70 40"><ellipse cx="35" cy="20" rx="30" ry="16" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="20" r="8" fill="#E53935" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Human Cell"},
+          {svg:'<svg viewBox="0 0 60 60"><rect x="18" y="10" width="24" height="40" rx="3" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/></svg>', label:"A Plastic Block"}
+        ],
+        correctSet:[0,2],
+        explain:"A plant cell and a human cell are both actual cells, the basic building blocks of living things. A rock and a plastic block are non-living and aren't made of cells at all."},
+      {type:"short", difficulty:"hard", q:"Explain how cell theory connects a single bacterium to a massive whale, even though they look nothing alike.", model:"Cell theory states that all living things are made of one or more cells, and the cell is the basic unit of structure and function for both — so even though a bacterium is a single cell and a whale is made of trillions of specialized cells, they both share that same fundamental building block of life."}
     ]},
 
   organelle: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Organelle",
@@ -2250,9 +2436,38 @@ const TERMS = {
       compare:"<b>Nucleus vs. Organelle</b> — the nucleus is one specific, important organelle; an organelle is the broader category of small structures inside a cell, of which the nucleus is just one example." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What does the nucleus do?", options:["Produces energy for the cell","Stores the cell's genetic material and controls its activities","Captures sunlight for the cell","Forms the outer boundary of the cell"], correct:1, explain:"The nucleus specifically stores a cell's genetic material (DNA) and directs the cell's activities, acting like its control center."},
-      {type:"tf", q:"Every type of cell has a nucleus.", correct:false, explain:"Bacteria are simpler cells that lack a nucleus entirely, unlike more complex cells such as plant and animal cells."},
-      {type:"short", q:"Explain why the nucleus is often compared to a cell's control center.", model:"The nucleus stores the cell's genetic material (DNA), which contains the instructions the cell uses to carry out its activities, making it act like a control center directing what the rest of the cell does."}
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows a cell WITH a nucleus?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Plant Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><path d="M20 25 q10 -8 15 0 q5 8 15 0" fill="none" stroke="#4FA8E8" stroke-width="2"/></svg>', label:"A Bacterium"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 8 C30 8 15 32 15 42 a15 15 0 0 0 30 0 C45 32 30 8 30 8 Z" fill="#4FA8E8" stroke="#12181A" stroke-width="2"/></svg>', label:"A Water Droplet"}
+        ],
+        correct:0, explain:"The plant cell has a clear, enclosed nucleus (the small circle). Bacteria lack a true nucleus, keeping their genetic material loose in the cytoplasm instead — and a rock and water droplet aren't cells at all."},
+      {type:"tf", difficulty:"easy", q:"Every type of cell has a nucleus.", correct:false, explain:"Bacteria are simpler cells that lack a nucleus entirely, unlike more complex cells such as plant and animal cells."},
+      {type:"mc", difficulty:"easy", q:"What important material does the nucleus store inside a cell?", options:["Energy","The cell's genetic material (DNA)","Oxygen","Water"], correct:1, explain:"The nucleus stores a cell's DNA, using it to direct the cell's activities."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Does This Cell Have a Nucleus?", headers:["Cell Type","Has a Nucleus?"], rows:[["Human cell","Yes"],["Plant cell","Yes"],["Bacterium","No"]]},
+        q:"Based on the table, which type of organism's cells lack a nucleus?", options:["Humans","Plants","Bacteria","All of them"], correct:2, explain:"Bacteria are simpler cells (prokaryotes) that lack a nucleus, unlike human and plant cells, which are more complex (eukaryotic) cells with a nucleus."},
+      {type:"tf", difficulty:"medium", q:"Cells without a nucleus, like bacteria, can't be considered alive.", correct:false, explain:"Bacteria are very much alive, even without a nucleus — they're simpler cells that keep their genetic material loose in the cytoplasm instead of enclosed in a nucleus."},
+      {type:"short", difficulty:"medium", q:"Explain what it means for the nucleus to 'control the cell's activities.'", model:"The nucleus stores the cell's DNA, which contains detailed instructions for building proteins and carrying out the cell's functions — by controlling which instructions get used and when, the nucleus effectively directs everything else that happens in the cell."},
+
+      {type:"mc", difficulty:"hard", q:"Since bacteria lack a nucleus, where is their genetic material likely located instead?", options:["Nowhere — bacteria have no genetic material","Floating freely within the cell's cytoplasm","Outside the cell entirely","Inside a cell wall"], correct:1, explain:"Without a nucleus to enclose it, a bacterium's genetic material sits directly in the cytoplasm rather than being contained in a separate compartment."},
+      {type:"short", difficulty:"hard",
+        passage:"A cell biologist compares two cells: one where the nucleus has been carefully removed but the rest of the cell is intact, and another where a small amount of cytoplasm has been removed instead.",
+        q:"Which cell would likely be more damaged, and why?", model:"The cell missing its nucleus would likely be far more damaged, since the nucleus stores the cell's genetic instructions and directs nearly everything the cell does — losing it would leave the cell without the ability to control its own functions or reproduce. Losing a small amount of cytoplasm would be less severe, since cytoplasm is more like supportive filler material around the organelles."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the cell types below that HAVE a nucleus.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Human Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><path d="M20 25 q10 -8 15 0 q5 8 15 0" fill="none" stroke="#4FA8E8" stroke-width="2"/></svg>', label:"Bacterium"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#F2C14E" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Mushroom Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><path d="M20 25 q10 -8 15 0 q5 8 15 0" fill="none" stroke="#4FA8E8" stroke-width="2"/></svg>', label:"Another Bacterium Type"}
+        ],
+        correctSet:[0,2],
+        explain:"Human cells and mushroom (fungal) cells are both more complex eukaryotic cells that have a nucleus. Bacteria are simpler prokaryotic cells and lack a nucleus, keeping their genetic material loose in the cytoplasm instead."}
     ]},
 
   mitochondria: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Mitochondria",
@@ -2286,9 +2501,38 @@ const TERMS = {
       compare:"<b>Cell Membrane vs. Nucleus</b> — the cell membrane is the outer boundary controlling what enters and exits; the nucleus is the internal control center storing genetic material." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What does the cell membrane do?", options:["Stores genetic material","Controls what enters and exits the cell","Produces energy","Captures sunlight"], correct:1, explain:"The cell membrane is the outer boundary that selectively controls what substances can enter or leave the cell."},
-      {type:"tf", q:"The cell membrane blocks everything from entering or leaving the cell.", correct:false, explain:"The cell membrane is selectively permeable, meaning it lets certain substances pass through while blocking others."},
-      {type:"short", q:"Explain what it means that the cell membrane is 'selectively permeable.'", model:"Selectively permeable means the cell membrane allows some substances, like nutrients and oxygen, to pass through while blocking other substances, acting like a careful gatekeeper rather than a solid, sealed wall."}
+      {type:"mc", difficulty:"easy",
+        q:"Which image best represents a cell membrane's job?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 80 60"><rect x="6" y="10" width="68" height="40" rx="6" fill="none" stroke="#12181A" stroke-width="3" stroke-dasharray="6,3"/><circle cx="30" cy="30" r="6" fill="#66BB6A"/><circle cx="55" cy="20" r="6" fill="#A83932"/><line x1="50" y1="15" x2="60" y2="25" stroke="#A83932" stroke-width="3"/><line x1="60" y1="15" x2="50" y2="25" stroke="#A83932" stroke-width="3"/></svg>', label:"A Boundary That Lets Some Things In, Blocks Others"},
+          {svg:'<svg viewBox="0 0 80 60"><rect x="6" y="10" width="68" height="40" rx="6" fill="none" stroke="#12181A" stroke-width="6"/></svg>', label:"A Solid, Sealed Wall"},
+          {svg:'<svg viewBox="0 0 80 60"><circle cx="40" cy="30" r="10" fill="#F2C14E" stroke="#12181A" stroke-width="2"/></svg>', label:"An Open Space With No Boundary"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"}
+        ],
+        correct:0, explain:"The cell membrane is selectively permeable — it's a boundary that lets some substances pass through while blocking others, not a completely sealed wall or a wide-open space."},
+      {type:"tf", difficulty:"easy", q:"The cell membrane blocks everything from entering or leaving the cell.", correct:false, explain:"The cell membrane is selectively permeable, meaning it lets certain substances pass through while blocking others."},
+      {type:"mc", difficulty:"easy", q:"Which term describes how the cell membrane controls what passes through it?", options:["Rigid","Selectively permeable","Solid","Transparent"], correct:1, explain:"\"Selectively permeable\" means the membrane allows some substances through while blocking others — not a rigid, solid barrier."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"What Passes Through the Cell Membrane?", headers:["Substance","Passes Through?"], rows:[["Oxygen","Yes — needed by the cell"],["Nutrients","Yes — needed by the cell"],["Harmful toxins","Often blocked"],["Water","Yes, in controlled amounts"]]},
+        q:"Based on the table, what does 'selectively permeable' mean for a cell membrane?", options:["Nothing can pass through","Everything passes through equally","Some things are allowed through, others are blocked","Only water passes through"], correct:2, explain:"The table shows the membrane lets needed substances like oxygen and nutrients through while often blocking harmful ones — exactly what selectively permeable means."},
+      {type:"tf", difficulty:"medium", q:"Only plant cells have a cell membrane.", correct:false, explain:"Every cell, plant or animal, has a cell membrane — the cell wall (which only some cells have) is a separate, additional structure."},
+      {type:"short", difficulty:"medium",
+        passage:"A plant cell and an animal cell are placed side by side under a microscope. Both have a thin, flexible outer layer, but the plant cell also has an extra thick, rigid layer surrounding that thin layer.",
+        q:"Identify what that extra rigid layer is, and explain the difference between it and the thin layer both cells share.", model:"That extra rigid layer is the cell wall, found only in the plant cell. Every cell has a cell membrane, which controls what enters and exits the cell — but only some cells, like plant cells, also have a rigid cell wall surrounding the membrane for extra structure and support. A cell wall is an additional layer, not a replacement for the membrane."},
+
+      {type:"mc", difficulty:"hard", q:"A cell's membrane allows small molecules like oxygen to pass through easily, but blocks larger harmful molecules. What does this best demonstrate?", options:["The membrane is completely solid","The membrane is selectively permeable, controlling passage based on factors like size","The membrane has no real function","The membrane only blocks water"], correct:1, explain:"Letting some substances through while blocking others based on factors like size is exactly what it means for a membrane to be selectively permeable."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the structures below that EVERY cell has (not just some cells).",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="none" stroke="#12181A" stroke-width="2" stroke-dasharray="4,2"/></svg>', label:"Cell Membrane"},
+          {svg:'<svg viewBox="0 0 70 50"><rect x="8" y="8" width="54" height="34" rx="4" fill="none" stroke="#3E7D5A" stroke-width="5"/></svg>', label:"Cell Wall"},
+          {svg:'<svg viewBox="0 0 70 50"><circle cx="35" cy="25" r="12" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Nucleus"},
+          {svg:'<svg viewBox="0 0 70 50"><rect x="5" y="5" width="60" height="40" rx="4" fill="#F4F1E4" stroke="none"/><circle cx="20" cy="20" r="2" fill="#B0BEC5"/><circle cx="45" cy="30" r="2" fill="#B0BEC5"/><circle cx="30" cy="15" r="2" fill="#B0BEC5"/></svg>', label:"Cytoplasm"}
+        ],
+        correctSet:[0,3],
+        explain:"Every cell has a cell membrane and cytoplasm. The cell wall is only found in some cells (like plants), and the nucleus is missing from simpler cells like bacteria — so both of those are only found in SOME cells, not every cell."},
+      {type:"short", difficulty:"hard", q:"Explain why a cell membrane being 'selectively permeable' is actually more useful for a living cell than if it were either completely open or completely sealed.", model:"If the membrane were completely open, harmful substances could freely enter and damage the cell; if it were completely sealed, the cell couldn't get the nutrients and oxygen it needs to survive. Being selectively permeable lets the cell take in what it needs while still keeping harmful substances out, which is exactly the balance a living cell requires."}
     ]},
 
   chloroplast: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Chloroplast",
@@ -3077,9 +3321,38 @@ const TERMS = {
       compare:"<b>Proton vs. Neutron</b> — a proton has a positive charge and determines an element's identity; a neutron has no charge and adds mass without affecting identity." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What is a proton?", options:["A negatively charged particle","A positively charged particle found in the nucleus of an atom","A particle with no charge","A particle found outside the nucleus"], correct:1, explain:"A proton is specifically a positively charged particle located in an atom's nucleus."},
-      {type:"tf", q:"The number of protons in an atom can change without changing what element it is.", correct:false, explain:"Changing the number of protons actually changes what element the atom is — the number of protons defines an atom's identity."},
-      {type:"short", q:"Explain why a carbon atom with 6 protons is different from an oxygen atom with 8 protons.", model:"The number of protons in an atom's nucleus determines its identity as a specific element, so a carbon atom and an oxygen atom are fundamentally different elements simply because they have a different number of protons."}
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows a proton?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">+</text></svg>', label:"Positively Charged Particle"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">−</text></svg>', label:"Negatively Charged Particle"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#12181A">0</text></svg>', label:"No-Charge Particle"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><circle cx="40" cy="40" r="28" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="68" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"A Complete Atom"}
+        ],
+        correct:0, explain:"A proton is specifically the positively charged particle. Electrons are negatively charged, neutrons have no charge, and a complete atom includes all three types of particles together, not just one proton."},
+      {type:"tf", difficulty:"easy", q:"The number of protons in an atom can change without changing what element it is.", correct:false, explain:"Changing the number of protons actually changes what element the atom is — the number of protons defines an atom's identity."},
+      {type:"mc", difficulty:"easy", q:"Where are protons found within an atom?", options:["In the nucleus","Orbiting outside the nucleus","Nowhere — they don't exist inside atoms","Only in the electron cloud"], correct:0, explain:"Protons are located inside an atom's nucleus, alongside neutrons."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Protons and Element Identity", headers:["Element","Number of Protons"], rows:[["Hydrogen","1"],["Helium","2"],["Carbon","6"],["Oxygen","8"]]},
+        q:"Based on the table, what happens to an atom's identity if its proton count changes?", options:["Nothing changes","It becomes a completely different element","It becomes bigger but stays the same element","It turns into a compound"], correct:1, explain:"Since each element has its own specific number of protons, changing that number turns the atom into a different element entirely."},
+      {type:"tf", difficulty:"medium", q:"Two atoms with the exact same number of protons could be different elements.", correct:false, explain:"An atom's number of protons is exactly what determines its element — if two atoms have the same proton count, they're the same element."},
+      {type:"short", difficulty:"medium",
+        passage:"Two carbon atoms are compared: one has 6 neutrons, the other has 8 neutrons. Both atoms have 6 protons.",
+        q:"Explain why both atoms are still considered carbon, using what you know about protons and neutrons.", model:"Every atom of a given element has the exact same number of protons — that number is what's used to define and identify the element. Since both atoms have 6 protons, they're both carbon, even though their neutron counts differ. Neutron count varies between isotopes of the same element, so it isn't what determines identity."},
+
+      {type:"mc", difficulty:"hard", q:"If a nitrogen atom (7 protons) somehow gained one more proton, what would it become?", options:["A heavier nitrogen atom","An oxygen atom","A different isotope of nitrogen","Nothing would change"], correct:1, explain:"Gaining a proton changes the atomic number to 8, which is the defining proton count for oxygen — so the atom would actually become a different element."},
+      {type:"short", difficulty:"hard", q:"Explain the relationship between the number of protons in an atom and its atomic number.", model:"An atom's atomic number is literally defined as its number of protons — they're the same value. That's why atomic number is used to identify which element an atom is, since every atom of a given element has the exact same proton count."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show something with a POSITIVE overall charge.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">+</text></svg>', label:"A Single Proton"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">−</text></svg>', label:"A Single Electron"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="14" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">2p</text><circle cx="40" cy="40" r="30" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="70" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"An Atom That Lost an Electron (2 protons, 1 electron)"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#12181A">0</text></svg>', label:"A Single Neutron"}
+        ],
+        correctSet:[0,2],
+        explain:"A proton by itself is positively charged. An atom that has lost an electron now has more protons than electrons, giving it an overall positive charge too. A single electron is negative, and a neutron has no charge at all."}
     ]},
 
   neutron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Neutron",
@@ -3095,9 +3368,38 @@ const TERMS = {
       compare:"<b>Neutron vs. Proton</b> — a neutron has no electric charge; a proton has a positive charge and determines an element's identity." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What is a neutron?", options:["A positively charged particle","A particle with no electric charge found in the nucleus","A particle found outside the nucleus","A negatively charged particle"], correct:1, explain:"A neutron carries no electric charge and is found in the nucleus alongside protons."},
-      {type:"tf", q:"All atoms of the same element always have the exact same number of neutrons.", correct:false, explain:"Atoms of the same element can have different numbers of neutrons — these variations are called isotopes."},
-      {type:"short", q:"Explain what an isotope is, using the idea of neutrons.", model:"An isotope is a version of an element that has the same number of protons (keeping its identity as that element) but a different number of neutrons, which changes its mass without changing what element it is."}
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows a neutron?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#12181A">0</text></svg>', label:"No-Charge Particle"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">+</text></svg>', label:"Positively Charged Particle"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">−</text></svg>', label:"Negatively Charged Particle"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><circle cx="40" cy="40" r="28" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="68" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"A Complete Atom"}
+        ],
+        correct:0, explain:"A neutron is specifically the particle with no electric charge. Protons are positively charged, electrons are negatively charged, and a complete atom includes all three particle types together, not just one neutron."},
+      {type:"tf", difficulty:"easy", q:"All atoms of the same element always have the exact same number of neutrons.", correct:false, explain:"Atoms of the same element can have different numbers of neutrons — these variations are called isotopes."},
+      {type:"mc", difficulty:"easy", q:"Where are neutrons located in an atom?", options:["In the nucleus, alongside protons","Orbiting outside the nucleus","Nowhere in an atom","Only in the electron cloud"], correct:0, explain:"Neutrons are located in the nucleus, right alongside protons."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Carbon's Isotopes", headers:["Atom","Protons","Neutrons","Same Element?"], rows:[["Carbon-12","6","6","—"],["Carbon-13","6","7","—"]]},
+        q:"Based on the table, are Carbon-12 and Carbon-13 the same element?", options:["No, they're different elements","Yes, they're the same element (isotopes) with different neutron counts","Yes, but only because they have the same neutrons","No, because they have different masses"], correct:1, explain:"Since both have 6 protons, they're the same element (carbon) — they're isotopes, differing only in neutron count, which affects mass but not element identity."},
+      {type:"tf", difficulty:"medium", q:"All atoms of the same element always have the exact same mass.", correct:false, explain:"Atoms of the same element can have different numbers of neutrons (isotopes), giving them slightly different masses even though they're the same element."},
+      {type:"short", difficulty:"medium",
+        passage:"A student finds two atoms in a lab dataset, both labeled 'chlorine.' One has 18 neutrons, the other has 20 neutrons — but both have 17 protons.",
+        q:"Explain what these two atoms are called and why they can both still be chlorine despite the difference.", model:"These two atoms are isotopes of chlorine. An isotope is a version of an element's atom that has the same number of protons as every other atom of that element, but a different number of neutrons — since mass depends on both protons and neutrons, these isotopes have slightly different masses, but they're still both chlorine because their proton count is identical."},
+
+      {type:"mc", difficulty:"hard", q:"Why are neutrons important for a nucleus's stability, even though they don't affect which element an atom is?", options:["They don't matter at all","They add mass and help hold the nucleus together","They determine the atom's overall charge","They replace protons when needed"], correct:1, explain:"Neutrons add mass and help stabilize the nucleus, even though — unlike protons — they don't determine the atom's element identity."},
+      {type:"short", difficulty:"hard", q:"Two atoms have the same number of protons but different numbers of neutrons. Are they the same element? Are they identical? Explain.", model:"They are the same element, since element identity depends only on the number of protons. However, they aren't completely identical — having different numbers of neutrons makes them different isotopes of that element, with slightly different masses."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the statements below that are TRUE about neutrons.",
+        imageOptions:[
+          {label:"They carry no electric charge"},
+          {label:"They determine an atom's element identity"},
+          {label:"They are found in the nucleus"},
+          {label:"Every atom of an element always has the exact same neutron count"}
+        ],
+        correctSet:[0,2],
+        explain:"Neutrons truly have no charge and are found in the nucleus. But they do NOT determine element identity (protons do that), and their count can vary between atoms of the same element — that's what makes isotopes."}
     ]},
 
   electron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Electron",
@@ -3113,9 +3415,38 @@ const TERMS = {
       compare:"<b>Electron vs. Proton</b> — an electron is negatively charged and orbits outside the nucleus; a proton is positively charged and stays inside the nucleus." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What is an electron?", options:["A positively charged particle in the nucleus","A negatively charged particle that orbits the nucleus","A particle with no charge","A particle only found in metals"], correct:1, explain:"An electron is a negatively charged particle that orbits around the outside of an atom's nucleus."},
-      {type:"tf", q:"Electrons are located inside the nucleus, alongside protons and neutrons.", correct:false, explain:"Electrons are located outside the nucleus, orbiting around it — protons and neutrons are the particles found inside the nucleus."},
-      {type:"short", q:"Explain why a neutral atom has an equal number of protons and electrons.", model:"Protons carry a positive charge and electrons carry a negative charge, so for an atom to be electrically neutral overall, the number of positive protons has to exactly balance the number of negative electrons."}
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows an electron?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">−</text></svg>', label:"Negatively Charged Particle"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">+</text></svg>', label:"Positively Charged Particle"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#12181A">0</text></svg>', label:"No-Charge Particle"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><circle cx="40" cy="40" r="28" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="68" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"A Complete Atom"}
+        ],
+        correct:0, explain:"An electron is specifically the negatively charged particle. Protons are positively charged, neutrons have no charge, and a complete atom includes all three particle types together, not just one electron."},
+      {type:"tf", difficulty:"easy", q:"Electrons are located inside the nucleus, alongside protons and neutrons.", correct:false, explain:"Electrons are located outside the nucleus, orbiting around it — protons and neutrons are the particles found inside the nucleus."},
+      {type:"mc", difficulty:"easy", q:"In a neutral atom, how does the number of electrons compare to the number of protons?", options:["There are always more electrons","There are always more protons","They're equal","There's no relationship"], correct:2, explain:"In a neutral atom, the number of electrons exactly equals the number of protons, balancing out the overall charge."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Subatomic Particles", headers:["Particle","Charge","Location"], rows:[["Proton","Positive","Nucleus"],["Neutron","Neutral","Nucleus"],["Electron","Negative","Outside nucleus"]]},
+        q:"Based on the table, which particle is the odd one out in terms of location?", options:["Proton","Neutron","Electron","None — they're all in the same place"], correct:2, explain:"Protons and neutrons are both located in the nucleus, but electrons are located outside the nucleus, orbiting it — making electron the odd one out for location."},
+      {type:"tf", difficulty:"medium", q:"If an atom gains an extra electron, it still has a perfectly neutral charge.", correct:false, explain:"Gaining an extra electron gives the atom more negative charges than positive ones, making its overall charge negative rather than neutral."},
+      {type:"short", difficulty:"medium",
+        passage:"A neutral atom of lithium has 3 protons and 3 electrons.",
+        q:"Explain why this atom has no overall electric charge, even though it contains both positive and negative particles.", model:"This atom has an equal number of protons (positive) and electrons (negative) — 3 of each — so their opposite charges exactly cancel each other out, leaving the atom with no overall electric charge."},
+
+      {type:"mc", difficulty:"hard", q:"An atom loses one electron. What is the atom's overall charge now?", options:["Neutral","Positive","Negative","It has no charge either way"], correct:1, explain:"Losing an electron leaves the atom with more protons (positive) than electrons (negative), giving it an overall positive charge."},
+      {type:"short", difficulty:"hard", q:"Explain what happens to an atom's overall charge if it gains an extra electron, and why.", model:"If an atom gains an extra electron, it now has more negative charges (electrons) than positive charges (protons), so its overall charge becomes negative — the balance between protons and electrons that kept it neutral has been disrupted."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show something with a NEGATIVE overall charge.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">−</text></svg>', label:"A Single Electron"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">+</text></svg>', label:"A Single Proton"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><circle cx="40" cy="40" r="28" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="68" cy="40" r="4" fill="#4FA8E8"/><circle cx="12" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"An Atom That Gained an Electron (1 proton, 2 electrons)"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#12181A">0</text></svg>', label:"A Single Neutron"}
+        ],
+        correctSet:[0,2],
+        explain:"A single electron is negatively charged. An atom that has gained an extra electron now has more electrons than protons, giving it an overall negative charge too. A proton is positive, and a neutron has no charge at all."}
     ]},
 
   chemicalReaction: { grade:8, unit:"Chemical Reactions", standard:"PS1.B · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Chemistry", name:"Chemical Reaction",
@@ -3743,9 +4074,38 @@ const TERMS = {
       compare:"<b>Atom vs. Element</b> — an element is a substance made of only one type of atom (like all gold); an atom is the actual smallest unit/particle of that element." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", q:"What is an atom?", options:["The largest particle in the universe","The smallest unit of matter that keeps an element's properties","A type of chemical bond","A molecule made of two elements"], correct:1, explain:"Atoms are the smallest units that still count as a particular element — split them further and you lose that element's identity."},
-      {type:"tf", q:"Atoms are the smallest particles that exist, with nothing smaller inside them.", correct:false, explain:"Atoms are actually made of even smaller particles — protons, neutrons, and electrons — but atoms are the smallest unit that keeps an element's chemical identity."},
-      {type:"short", q:"Explain what would happen to a gold atom's identity if it were split into protons, neutrons, and electrons.", model:"Once a gold atom is split into its smaller parts, it no longer behaves as or counts as gold — those subatomic particles don't have the properties of gold on their own, which is why the atom is considered the smallest unit that keeps an element's identity."}
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows a whole atom?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="8" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><circle cx="40" cy="40" r="30" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="70" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"A Carbon Atom (Nucleus + Electron)"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Just a Proton"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Just an Electron"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Just a Neutron"}
+        ],
+        correct:0, explain:"A whole atom includes a nucleus (protons and neutrons) with electrons around it. A single proton, electron, or neutron by itself is just one subatomic particle, not a complete atom."},
+      {type:"tf", difficulty:"easy", q:"Atoms are the smallest particles that exist, with nothing smaller inside them.", correct:false, explain:"Atoms are actually made of even smaller particles — protons, neutrons, and electrons — but atoms are the smallest unit that keeps an element's chemical identity."},
+      {type:"mc", difficulty:"easy", q:"If you could split a single gold atom into its smaller parts, what would happen?", options:["It would still be gold, just smaller","It would no longer be gold","It would turn into a different metal of the same size","Nothing would change"], correct:1, explain:"Splitting an atom into its subatomic parts destroys the element's identity — those parts don't behave like gold on their own."},
+
+      {type:"mc", difficulty:"medium",
+        table:{title:"Inside the Atom", headers:["Particle","Found Inside the Atom?"], rows:[["Proton","Yes — in the nucleus"],["Neutron","Yes — in the nucleus"],["Electron","Yes — outside the nucleus"],["Molecule","No — molecules are made OF atoms"]]},
+        q:"Based on the table, which of these is NOT actually a part found inside an atom?", options:["Proton","Neutron","Electron","Molecule"], correct:3, explain:"A molecule is made of two or more atoms bonded together — it's not a part found inside a single atom, unlike protons, neutrons, and electrons."},
+      {type:"tf", difficulty:"medium", q:"An atom is the smallest possible unit of matter, with no smaller parts inside it.", correct:false, explain:"Atoms contain even smaller particles — protons, neutrons, and electrons — but atoms are the smallest unit that keeps an element's specific identity."},
+      {type:"short", difficulty:"medium",
+        passage:"A scientist proposes a thought experiment: take a single gold atom and carefully separate it into its individual protons, neutrons, and electrons.",
+        q:"Explain what would happen to the gold atom's identity in this thought experiment.", model:"Once a gold atom is split into its smaller parts, it no longer behaves as or counts as gold — those subatomic particles don't have the properties of gold on their own, which is why the atom is considered the smallest unit that keeps an element's identity."},
+
+      {type:"mc", difficulty:"hard", q:"Which best describes the relationship between atoms and elements?", options:["Every element is made of exactly one atom","An element is a substance made of only one type of atom","Atoms and elements are the same thing with different names","Elements are always bigger than atoms"], correct:1, explain:"An element is defined as a substance containing just one type of atom — a sample of an element can contain enormous numbers of that same type of atom."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show a subatomic PARTICLE (not a whole atom).",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Proton"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="8" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><circle cx="40" cy="40" r="30" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="70" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"A Complete Oxygen Atom"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#B0BEC5" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Neutron"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Electron"}
+        ],
+        correctSet:[0,2,3],
+        explain:"Protons, neutrons, and electrons are each a single subatomic particle — pieces that make up an atom. A complete oxygen atom includes a nucleus and electrons together, making it a whole atom, not just one particle."},
+      {type:"short", difficulty:"hard", q:"Explain why scientists say atoms are the smallest unit that keeps an element's identity, even though atoms themselves are made of smaller particles like protons and electrons.", model:"While protons, neutrons, and electrons are all smaller than an atom, none of them individually have the properties of a specific element — it's only the complete, assembled atom, with its specific combination of these particles, that displays the recognizable properties of an element like gold or oxygen."}
     ]},
 
   element: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element",
@@ -3804,15 +4164,30 @@ const TERMS = {
       {type:"mc", difficulty:"medium",
         table:{title:"Is It a Compound?", headers:["Substance","Elements Present","Chemically Bonded?"], rows:[["Water","Hydrogen, Oxygen","Yes"],["Salt water","Hydrogen, Oxygen, Sodium, Chlorine","No"],["Table salt (NaCl)","Sodium, Chlorine","Yes"],["Air","Nitrogen, Oxygen, Argon","No"]]},
         q:"Based on the table, which substances are compounds?", options:["Water and table salt","Salt water and air","All four substances","None of them"], correct:0, explain:"Water and table salt both involve elements that are chemically bonded together, which is what makes something a compound. Salt water and air are mixtures — their parts aren't chemically bonded."},
+      {type:"mc", difficulty:"medium",
+        q:"Which image shows a compound?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 100 80"><line x1="50" y1="45" x2="25" y2="20" stroke="#12181A" stroke-width="3"/><line x1="50" y1="45" x2="75" y2="20" stroke="#12181A" stroke-width="3"/><circle cx="50" cy="48" r="20" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="50" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">O</text><circle cx="22" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="22" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text><circle cx="78" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="78" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text></svg>', label:"Water (H\u2082O)"},
+          {svg:'<svg viewBox="0 0 80 80"><path d="M22 12 h36 v10 l8 42 a5 5 0 0 1-5 5 h-42 a5 5 0 0 1-5-5 l8-42 z" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="45" r="5" fill="#4FA8E8"/><circle cx="52" cy="55" r="5" fill="#E53935"/><circle cx="42" cy="65" r="5" fill="#F2C14E"/><circle cx="30" cy="60" r="4" fill="#8D6E63"/></svg>', label:"A Mixture"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="#8D6E63" stroke="#12181A" stroke-width="2"/><text x="30" y="36" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">Fe</text></svg>', label:"A Single Iron Atom"},
+          {svg:'<svg viewBox="0 0 100 60"><line x1="38" y1="30" x2="62" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="32" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="32" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text><circle cx="68" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="68" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text></svg>', label:"Oxygen Gas (O\u2082)"}
+        ],
+        correct:0, explain:"Water shows two different elements (hydrogen and oxygen) chemically bonded together — that's a compound. The mixture jar shows unbonded particles, a single iron atom is an element by itself, and O2 is two atoms of the SAME element bonded, which makes it a molecule but not a compound."},
       {type:"tf", difficulty:"medium", q:"A compound can be separated back into its original elements just by stirring, filtering, or letting it settle.", correct:false, explain:"Compounds require a chemical reaction to break apart, since their elements are chemically bonded — that's different from a mixture, which can often be separated by simple physical methods like filtering or evaporating."},
-      {type:"short", difficulty:"medium", q:"Explain why carbon dioxide (CO2) is a compound and not a mixture.", model:"Carbon dioxide is a compound because it's made of two different elements — carbon and oxygen — chemically bonded together in a fixed ratio (one carbon atom to two oxygen atoms), forming one new substance with its own properties, rather than being a physical combination of substances that keep their own separate identities."},
 
-      {type:"dragdrop", difficulty:"hard", q:"Sort each substance into Compound or Not a Compound (Element or Mixture).",
-        items:[{id:"water",label:"Water (H2O)"},{id:"oxygen",label:"Oxygen Gas (O2)"},{id:"salt",label:"Table Salt (NaCl)"},{id:"air",label:"Air"},{id:"iron",label:"Iron (Fe)"},{id:"co2",label:"Carbon Dioxide (CO2)"},{id:"saltwater",label:"Salt Water"},{id:"ammonia",label:"Ammonia (NH3)"}],
-        buckets:[{id:"compound",label:"Compound"},{id:"notcompound",label:"Not a Compound"}],
-        correctMap:{water:"compound",oxygen:"notcompound",salt:"compound",air:"notcompound",iron:"notcompound",co2:"compound",saltwater:"notcompound",ammonia:"compound"},
-        explain:"Water, table salt, carbon dioxide, and ammonia are all compounds — each combines two or more different elements chemically bonded in a fixed ratio. Oxygen gas and iron are single elements, and air and salt water are mixtures, not compounds."},
-      {type:"short", difficulty:"hard", q:"A student mixes iron filings and sulfur powder together — a magnet can still pull out the iron, and the mixture looks like a blend of gray and yellow specks. When the same iron and sulfur are heated together instead, they form a new gray solid called iron sulfide, and a magnet can no longer separate the iron out. Explain what's different about these two results, using the ideas of mixture and compound.", model:"Simply mixing the iron and sulfur creates a mixture — the iron keeps its own properties (like being magnetic), since nothing is chemically bonded. Heating them together causes a chemical reaction that bonds the iron and sulfur into a new compound, iron sulfide, with completely different properties (no longer magnetic) than either original element."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the diagrams below that show a compound.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 100 80"><line x1="50" y1="45" x2="25" y2="20" stroke="#12181A" stroke-width="3"/><line x1="50" y1="45" x2="75" y2="20" stroke="#12181A" stroke-width="3"/><circle cx="50" cy="48" r="20" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="50" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">O</text><circle cx="22" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="22" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text><circle cx="78" cy="18" r="12" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><text x="78" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#12181A">H</text></svg>', label:"Water (H\u2082O)"},
+          {svg:'<svg viewBox="0 0 100 60"><line x1="38" y1="30" x2="62" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="32" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="32" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text><circle cx="68" cy="30" r="18" fill="#E53935" stroke="#12181A" stroke-width="2"/><text x="68" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">O</text></svg>', label:"Oxygen Gas (O\u2082)"},
+          {svg:'<svg viewBox="0 0 100 60"><line x1="38" y1="30" x2="62" y2="30" stroke="#12181A" stroke-width="3"/><circle cx="32" cy="30" r="18" fill="#AB47BC" stroke="#12181A" stroke-width="2"/><text x="32" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Na</text><circle cx="68" cy="30" r="18" fill="#66BB6A" stroke="#12181A" stroke-width="2"/><text x="68" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Cl</text></svg>', label:"Sodium Chloride (NaCl)"},
+          {svg:'<svg viewBox="0 0 80 80"><path d="M22 12 h36 v10 l8 42 a5 5 0 0 1-5 5 h-42 a5 5 0 0 1-5-5 l8-42 z" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="45" r="5" fill="#4FA8E8"/><circle cx="52" cy="55" r="5" fill="#E53935"/><circle cx="42" cy="65" r="5" fill="#F2C14E"/><circle cx="30" cy="60" r="4" fill="#8D6E63"/></svg>', label:"A Mixture"}
+        ],
+        correctSet:[0,2],
+        explain:"Water and sodium chloride are compounds — each combines two different elements chemically bonded together. Oxygen gas is two atoms of the SAME element (not a compound), and the mixture shows unbonded particles, not a chemical bond at all."},
+      {type:"short", difficulty:"hard",
+        passage:"A student mixes iron filings and sulfur powder together — a magnet can still pull out the iron, and the mixture looks like a blend of gray and yellow specks. When the same iron and sulfur are heated together instead, they form a new gray solid called iron sulfide, and a magnet can no longer separate the iron out.",
+        q:"Explain what's different about these two results, using the ideas of mixture and compound.", model:"Simply mixing the iron and sulfur creates a mixture — the iron keeps its own properties (like being magnetic), since nothing is chemically bonded. Heating them together causes a chemical reaction that bonds the iron and sulfur into a new compound, iron sulfide, with completely different properties (no longer magnetic) than either original element."},
       {type:"mc", difficulty:"hard", q:"Which best explains why water (H2O) behaves completely differently than the hydrogen and oxygen gases it's made from?", options:["Water is actually a mixture, so its properties can vary","The elements are chemically bonded into a new compound, so it has entirely new properties","Water isn't really made of hydrogen and oxygen","Gases always change their properties whenever they're combined"], correct:1, explain:"Because hydrogen and oxygen are chemically bonded into the compound water, the result has its own new set of properties — that's the defining feature of a compound, not just a general rule about combining gases."}
     ]},
 
@@ -3829,7 +4204,15 @@ const TERMS = {
       compare:"<b>Cell Theory vs. Cell</b> — a cell is the actual building block itself; cell theory is the broader scientific idea explaining that all living things are built from cells." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", difficulty:"easy", q:"What does cell theory state?", options:["Only large organisms are made of cells","All living things are made of one or more cells","Cells only exist in plants","Cells are visible without a microscope"], correct:1, explain:"Cell theory specifically states that ALL living things — big or small, simple or complex — are made of one or more cells."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image best represents cell theory (all living things made of cells)?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Single Cell"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="12" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><g stroke="#F2C14E" stroke-width="3" stroke-linecap="round"><line x1="30" y1="4" x2="30" y2="12"/><line x1="30" y1="48" x2="30" y2="56"/></g></svg>', label:"A Beam of Light"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M30 8 C30 8 15 32 15 42 a15 15 0 0 0 30 0 C45 32 30 8 30 8 Z" fill="#4FA8E8" stroke="#12181A" stroke-width="2"/></svg>', label:"A Water Droplet"}
+        ],
+        correct:0, explain:"Cell theory is about living things being made of cells — a single cell is the basic unit it describes. A rock, a beam of light, and a water droplet are all non-living and fall outside what cell theory covers."},
       {type:"tf", difficulty:"easy", q:"According to cell theory, some living things are not made of cells.", correct:false, explain:"Cell theory holds that every living thing, without exception, is made of one or more cells — it's one of the foundational ideas in biology."},
       {type:"mc", difficulty:"easy", q:"According to cell theory, what is the basic unit of structure and function in living things?", options:["The organ","The cell","The tissue","The organism"], correct:1, explain:"Cell theory names the cell — not the organ, tissue, or whole organism — as the basic unit of structure and function shared by all living things."},
 
@@ -3837,14 +4220,21 @@ const TERMS = {
         table:{title:"Does Cell Theory Apply?", headers:["Object","Made of Cells?","Alive?","Cell Theory Applies?"], rows:[["Bacterium","Yes","Yes","Yes"],["Human","Yes","Yes","Yes"],["Rock","No","No","No"]]},
         q:"Based on the table, does cell theory apply to non-living things like rocks?", options:["Yes, because rocks are made of atoms","No, because rocks aren't made of cells and aren't alive","Yes, because everything is made of cells","It depends on the size of the rock"], correct:1, explain:"Cell theory only applies to living things — a rock isn't made of cells and isn't alive, so it falls outside what cell theory describes."},
       {type:"tf", difficulty:"medium", q:"Cell theory only applies to multicellular organisms, not single-celled ones.", correct:false, explain:"Cell theory applies to single-celled organisms too — a bacterium is a complete living thing made of exactly one cell, and cell theory covers it just as much as it covers a multicellular organism."},
-      {type:"short", difficulty:"medium", q:"Scientists studied many very different organisms under a microscope — from cork and pond water to animal tissue — before concluding that all living things are made of cells. Explain why looking at many different kinds of organisms, instead of just one, helped them arrive at cell theory as a general rule.", model:"Looking at only one organism could just mean that particular living thing happens to be made of cells — but finding cells in every different kind of organism they examined gave scientists evidence for a general pattern that applies to all living things, not just a one-off observation."},
+      {type:"short", difficulty:"medium",
+        passage:"Scientists studied many very different organisms under a microscope — from cork and pond water to animal tissue — before concluding that all living things are made of cells.",
+        q:"Explain why looking at many different kinds of organisms, instead of just one, helped scientists arrive at cell theory as a general rule.", model:"Looking at only one organism could just mean that particular living thing happens to be made of cells — but finding cells in every different kind of organism they examined gave scientists evidence for a general pattern that applies to all living things, not just a one-off observation."},
 
       {type:"mc", difficulty:"hard", q:"Modern cell theory also includes the idea that new cells arise from...", options:["Spontaneous generation out of non-living material","Existing cells dividing","Energy absorbed directly from sunlight","Non-living chemicals combining randomly"], correct:1, explain:"A key part of modern cell theory is that new cells only come from existing cells dividing — life doesn't spontaneously generate from non-living material."},
-      {type:"dragdrop", difficulty:"hard", q:"Sort each statement into Consistent with Cell Theory or Not Consistent with Cell Theory.",
-        items:[{id:"tree",label:"A tree is made of cells"},{id:"mud",label:"Life can spontaneously form from non-living mud"},{id:"bacterium",label:"A single bacterium is a complete living cell"},{id:"crystal",label:"Non-living crystals grow because their cells divide"},{id:"newcells",label:"New cells come only from existing cells dividing"},{id:"nolcells",label:"Some living things have no cells at all"}],
-        buckets:[{id:"consistent",label:"Consistent"},{id:"notconsistent",label:"Not Consistent"}],
-        correctMap:{tree:"consistent",mud:"notconsistent",bacterium:"consistent",crystal:"notconsistent",newcells:"consistent",nolcells:"notconsistent"},
-        explain:"Cell theory says all living things are made of cells and that new cells only come from existing cells dividing. Crystals aren't alive and don't have cells at all, and spontaneous generation of life from non-living material contradicts cell theory entirely."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show a living thing made of cells.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 40"><ellipse cx="35" cy="20" rx="30" ry="16" fill="#F2C14E" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="20" r="8" fill="#E53935" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Human Cell"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Bacterium"},
+          {svg:'<svg viewBox="0 0 60 60"><rect x="18" y="10" width="24" height="40" rx="3" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/></svg>', label:"A Plastic Block"}
+        ],
+        correctSet:[0,2],
+        explain:"A human cell and a bacterium are both actual cells — living things cell theory describes. A rock and a plastic block are non-living and fall outside what cell theory covers."},
       {type:"short", difficulty:"hard", q:"A friend says viruses must be alive and made of cells, since they can make people sick. Using cell theory, explain why most scientists don't consider viruses to be made of cells or fully alive.", model:"Viruses don't have their own cells — they lack the basic cell structures and can't carry out life processes on their own; they can only reproduce by hijacking a living host cell's machinery. Since cell theory requires living things to be made of one or more actual cells, and viruses aren't, most scientists don't classify viruses as fully alive."}
     ]},
 
@@ -3861,7 +4251,15 @@ const TERMS = {
       compare:"<b>Cell Wall vs. Cell Membrane</b> — every cell has a cell membrane controlling what enters and exits; only some cells, like plants, also have a rigid cell wall for extra structure and support." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", difficulty:"easy", q:"Which organism's cells would have a cell wall?", options:["A human","A dog","A plant","A shark"], correct:2, explain:"Cell walls are found in plant cells (along with some other organisms like fungi and bacteria), giving them a rigid, fixed shape — animal cells don't have them."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows a cell WITH a cell wall?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><rect x="8" y="8" width="54" height="34" rx="4" fill="#F4F1E4" stroke="#3E7D5A" stroke-width="5"/><circle cx="35" cy="25" r="8" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Plant Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="8" fill="#E53935" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Human Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="8" fill="#F2C14E" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Dog Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="8" fill="#66BB6A" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Fish Cell"}
+        ],
+        correct:0, explain:"Only plant cells (among these options) have a rigid cell wall — shown here as the thick green border. Human, dog, and fish cells only have a thin cell membrane, no cell wall."},
       {type:"tf", difficulty:"easy", q:"Both plant cells and animal cells have a cell wall.", correct:false, explain:"Only plant cells (and some other organisms) have a cell wall; animal cells have a cell membrane but no rigid cell wall surrounding it."},
       {type:"mc", difficulty:"easy", q:"What is the main job of a cell wall?", options:["To control exactly what enters and exits the cell","To give the cell a rigid, fixed shape and support","To produce energy for the cell","To store the cell's genetic material"], correct:1, explain:"A cell wall's main role is structural — it gives the cell a rigid, fixed shape and support, which is why plant cells hold such a boxy shape."},
 
@@ -3869,14 +4267,21 @@ const TERMS = {
         table:{title:"Plant Cell vs. Animal Cell Structures", headers:["Structure","Plant Cell","Animal Cell"], rows:[["Cell wall","Yes","No"],["Cell membrane","Yes","Yes"],["Chloroplast","Yes","No"]]},
         q:"Based on the table, which structure do BOTH plant and animal cells have?", options:["Cell wall only","Cell membrane only","Both cell wall and cell membrane","Neither"], correct:1, explain:"Every cell — plant or animal — has a cell membrane. The cell wall and chloroplast are only found in plant cells (and some other organisms)."},
       {type:"tf", difficulty:"medium", q:"A cell wall replaces the need for a cell membrane.", correct:false, explain:"A cell wall doesn't replace the cell membrane — it's an extra, rigid layer that surrounds the cell membrane, which is still there controlling what enters and exits."},
-      {type:"short", difficulty:"medium", q:"Explain why a wilted, droopy plant often becomes stiff and upright again within a few hours after being watered.", model:"As the plant absorbs water, pressure builds up inside each cell, pressing outward against the rigid cell wall — since the cell wall holds its shape under that pressure, the whole plant becomes firm and upright again instead of staying limp."},
+      {type:"short", difficulty:"medium",
+        passage:"A wilted, droopy plant is watered thoroughly. Within a few hours, the plant stands upright and firm again.",
+        q:"Explain why the plant becomes stiff and upright again after being watered, using what you know about cell walls.", model:"As the plant absorbs water, pressure builds up inside each cell, pressing outward against the rigid cell wall — since the cell wall holds its shape under that pressure, the whole plant becomes firm and upright again instead of staying limp."},
 
       {type:"mc", difficulty:"hard", q:"Mushrooms (fungi) also have cell walls, but made of a different material than plant cell walls. What does this suggest?", options:["Fungi are actually a type of plant","Cell walls can be made of different materials depending on the organism, but still serve the same supportive function","Fungi don't actually have cell walls","Cell walls only exist in plants"], correct:1, explain:"Different organisms can build their cell walls from different materials (plants use cellulose, fungi use chitin), but in both cases the cell wall still provides that same rigid structure and support."},
-      {type:"dragdrop", difficulty:"hard", q:"Sort each organism into Has a Cell Wall or No Cell Wall.",
-        items:[{id:"plant",label:"Plant"},{id:"human",label:"Human"},{id:"mushroom",label:"Mushroom (Fungus)"},{id:"dog",label:"Dog"},{id:"bacterium",label:"Bacterium"},{id:"fish",label:"Fish"}],
-        buckets:[{id:"haswall",label:"Has a Cell Wall"},{id:"nowall",label:"No Cell Wall"}],
-        correctMap:{plant:"haswall",human:"nowall",mushroom:"haswall",dog:"nowall",bacterium:"haswall",fish:"nowall"},
-        explain:"Plants, fungi (like mushrooms), and bacteria all have cell walls, even though they're made of different materials. Animals — like humans, dogs, and fish — don't have cell walls at all, only a cell membrane."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the organisms below whose cells have a cell wall.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><rect x="8" y="8" width="54" height="34" rx="4" fill="#F4F1E4" stroke="#3E7D5A" stroke-width="5"/></svg>', label:"Plant"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/></svg>', label:"Human"},
+          {svg:'<svg viewBox="0 0 70 50"><rect x="8" y="8" width="54" height="34" rx="4" fill="#F2C14E" stroke="#8D6E63" stroke-width="5"/></svg>', label:"Mushroom (Fungus)"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#FDFDFB" stroke="#12181A" stroke-width="2"/></svg>', label:"Dog"}
+        ],
+        correctSet:[0,2],
+        explain:"Plants and fungi (like mushrooms) both have cell walls, even though they're made of different materials (cellulose vs. chitin). Animals — like humans and dogs — don't have cell walls at all, only a cell membrane."},
       {type:"short", difficulty:"hard", q:"Explain why plant cells can safely take in a large amount of water without bursting, while an animal cell placed in the same amount of water might actually burst.", model:"A plant cell's rigid cell wall pushes back against the pressure created as water enters, stopping the cell from over-expanding and keeping it intact. An animal cell has no cell wall to resist that pressure, so if it takes in too much water, it can stretch too far and burst."}
     ]},
 
@@ -3893,7 +4298,15 @@ const TERMS = {
       compare:"<b>Cytoplasm vs. Organelle</b> — organelles are the specific working parts of a cell; cytoplasm is the fluid that fills the space around them and holds everything in place." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", difficulty:"easy", q:"What is cytoplasm?", options:["A hard outer shell around the cell","The thick fluid inside a cell that fills the space around its organelles","A type of organelle","The cell's genetic material"], correct:1, explain:"Cytoplasm is the gel-like fluid that fills the space around a cell's organelles — it's not an organelle itself, and it's not the cell's outer covering."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image best shows where cytoplasm is located in a cell?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="9" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><circle cx="18" cy="16" r="2" fill="#B0BEC5"/><circle cx="50" cy="32" r="2" fill="#B0BEC5"/><circle cx="22" cy="34" r="2" fill="#B0BEC5"/></svg>', label:"The Fluid Filling the Space Around the Nucleus"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="none" stroke="#12181A" stroke-width="2"/></svg>', label:"Only the Outer Edge of the Cell"},
+          {svg:'<svg viewBox="0 0 70 50"><circle cx="35" cy="25" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"Only Inside the Nucleus"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"}
+        ],
+        correct:0, explain:"Cytoplasm is the fluid that fills the interior space of the cell, surrounding the nucleus and other organelles — not just the outer edge, and not inside the nucleus itself."},
       {type:"tf", difficulty:"easy", q:"No chemical reactions happen in a cell's cytoplasm — it's just empty filler.", correct:false, explain:"Cytoplasm is far from empty filler — many important chemical reactions actually take place within it, in addition to it holding the organelles in place."},
       {type:"mc", difficulty:"easy", q:"Where is cytoplasm located within a cell?", options:["Outside the cell membrane","Inside the nucleus only","Filling the space between the cell membrane and the nucleus, around the organelles","It doesn't exist in real cells"], correct:2, explain:"Cytoplasm fills the interior of the cell, surrounding the organelles, between the cell membrane on the outside and the nucleus."},
 
@@ -3906,7 +4319,16 @@ const TERMS = {
       {type:"short", difficulty:"hard",
         animation:{caption:"A cell's organelles stay suspended in place within its cytoplasm.", frames:[{emoji:"🔵",label:"Nucleus"},{emoji:"🟢",label:"Mitochondria"},{emoji:"🟡",label:"Suspended in cytoplasm"}]},
         q:"Explain why a cell's organelles don't just sink to the bottom of the cell or drift out of place.", model:"The cytoplasm's thick, gel-like consistency holds the organelles suspended in position — it's not a thin liquid like water, so organelles stay roughly where they belong instead of settling or drifting freely."},
-      {type:"mc", difficulty:"hard", q:"A cell's cytoplasm is where enzymes break down large food molecules into smaller ones as an early step of releasing energy. This is part of which process?", options:["Photosynthesis","An early step of cellular respiration","The cell wall's function","Mitosis"], correct:1, explain:"Breaking down food molecules to release energy is part of cellular respiration, and one of its earliest steps actually happens right in the cytoplasm, before the process continues in the mitochondria."},
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show something with cytoplasm.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/><circle cx="35" cy="25" r="9" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/></svg>', label:"A Human Cell"},
+          {svg:'<svg viewBox="0 0 60 60"><path d="M15 45 L20 20 L35 12 L48 22 L45 45 Z" fill="#8D6E63" stroke="#12181A" stroke-width="2"/></svg>', label:"A Rock"},
+          {svg:'<svg viewBox="0 0 70 50"><ellipse cx="35" cy="25" rx="30" ry="20" fill="#F4F1E4" stroke="#12181A" stroke-width="2"/></svg>', label:"A Bacterium"},
+          {svg:'<svg viewBox="0 0 60 60"><rect x="18" y="10" width="24" height="40" rx="3" fill="#B0BEC5" stroke="#12181A" stroke-width="2"/></svg>', label:"A Plastic Block"}
+        ],
+        correctSet:[0,2],
+        explain:"Every cell has cytoplasm, whether it's a complex human cell or a simple bacterium. A rock and a plastic block are non-living and have no cytoplasm at all."},
       {type:"short", difficulty:"hard", q:"Compare the role of cytoplasm to the role of the cell membrane. How are they different?", model:"The cell membrane acts like a gatekeeper, controlling what substances enter and leave the cell. Cytoplasm, on the other hand, fills the interior space of the cell, suspending the organelles in place and hosting many of the chemical reactions that happen inside — it doesn't control what crosses into or out of the cell the way the membrane does."}
     ]},
 
@@ -3923,7 +4345,15 @@ const TERMS = {
       compare:"<b>Atomic Number vs. Atomic Mass</b> — atomic number counts only protons and defines the element; atomic mass is the combined weight of protons and neutrons together." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", difficulty:"easy", q:"What does an element's atomic number tell you?", options:["Its total mass","The number of neutrons only","The number of protons in its atoms","How many atoms are in a sample"], correct:2, explain:"Atomic number specifically counts the protons in an atom's nucleus — that number is what defines which element it is."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows an atom with atomic number 2?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">1p</text><circle cx="40" cy="40" r="28" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="68" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"1 Proton"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="12" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">2p</text><circle cx="40" cy="40" r="28" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="68" cy="40" r="4" fill="#4FA8E8"/><circle cx="12" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"2 Protons"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="16" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">6p</text><circle cx="40" cy="40" r="30" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="70" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"6 Protons"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="18" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">8p</text><circle cx="40" cy="40" r="32" fill="none" stroke="#12181A" stroke-width="1.5" stroke-dasharray="3,3"/><circle cx="72" cy="40" r="4" fill="#4FA8E8"/></svg>', label:"8 Protons"}
+        ],
+        correct:1, explain:"Atomic number equals the number of protons — an atom with 2 protons has an atomic number of 2 (that's helium)."},
       {type:"tf", difficulty:"easy", q:"Two atoms with different atomic numbers could still be the same element.", correct:false, explain:"An atom's atomic number (its proton count) is exactly what determines which element it is — a different atomic number always means a different element."},
       {type:"mc", difficulty:"easy", q:"An atom has 6 protons. What element is it?", options:["Oxygen","Carbon","Nitrogen","Hydrogen"], correct:1, explain:"Carbon's atomic number is 6, meaning every carbon atom has exactly 6 protons."},
 
@@ -3931,15 +4361,22 @@ const TERMS = {
         table:{title:"Atomic Number and Protons", headers:["Element","Atomic Number","Protons"], rows:[["Hydrogen","1","1"],["Helium","2","2"],["Carbon","6","6"],["Oxygen","8","8"]]},
         q:"Based on the table, what pattern do you notice between atomic number and proton count?", options:["They're always equal","Atomic number is always double the proton count","There's no relationship between them","Protons decrease as atomic number increases"], correct:0, explain:"The table shows atomic number and proton count are always exactly equal — that's not a coincidence, since atomic number is literally defined as the number of protons."},
       {type:"tf", difficulty:"medium", q:"If you could somehow add a proton to a carbon atom, it would still be carbon.", correct:false, explain:"Adding a proton would change the atom's atomic number, and since atomic number defines which element an atom is, that atom would no longer be carbon — it would become a different element (nitrogen)."},
-      {type:"short", difficulty:"medium", q:"Explain why changing the number of protons in an atom would actually change what element it is.", model:"An atom's atomic number — its element identity — is defined by its number of protons. Changing the proton count changes the atomic number itself, and since atomic number is what determines which element an atom is, the atom would become a completely different element."},
+      {type:"short", difficulty:"medium",
+        passage:"A student wonders: \"What if I could magically add one more proton to a nitrogen atom (which normally has 7 protons)?\"",
+        q:"Explain what would happen to the atom's identity in this scenario.", model:"An atom's atomic number — its element identity — is defined by its number of protons. Changing the proton count changes the atomic number itself, and since atomic number is what determines which element an atom is, the nitrogen atom would become a completely different element (oxygen, with 8 protons)."},
 
       {type:"mc", difficulty:"hard", q:"Which subatomic particle change would NOT change an atom's atomic number?", options:["Removing a proton","Adding a proton","Adding or removing a neutron","Removing all the protons"], correct:2, explain:"Atomic number only counts protons, so changing the number of neutrons doesn't affect it at all — that's actually how different isotopes of the same element exist, without changing which element it is."},
       {type:"short", difficulty:"hard", q:"Two atoms both have an atomic number of 17. Are they necessarily identical in every single way? Explain.", model:"They're the same element (chlorine), since atomic number only depends on protons — but they aren't necessarily identical in every way, because they could have different numbers of neutrons (making them different isotopes), which would give them slightly different atomic masses."},
-      {type:"dragdrop", difficulty:"hard", q:"Sort each element into Atomic Number Under 5 or Atomic Number 5 or More.",
-        items:[{id:"h",label:"Hydrogen (1)"},{id:"he",label:"Helium (2)"},{id:"c",label:"Carbon (6)"},{id:"o",label:"Oxygen (8)"},{id:"na",label:"Sodium (11)"}],
-        buckets:[{id:"under5",label:"Under 5"},{id:"fiveplus",label:"5 or More"}],
-        correctMap:{h:"under5",he:"under5",c:"fiveplus",o:"fiveplus",na:"fiveplus"},
-        explain:"Hydrogen (1) and Helium (2) both have atomic numbers under 5; Carbon (6), Oxygen (8), and Sodium (11) all have atomic numbers of 5 or more."}
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show atomic number 5 or greater.",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">1p</text></svg>', label:"Hydrogen (1)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="16" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">6p</text></svg>', label:"Carbon (6)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="12" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">2p</text></svg>', label:"Helium (2)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="20" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">11p</text></svg>', label:"Sodium (11)"}
+        ],
+        correctSet:[1,3],
+        explain:"Carbon (6) and Sodium (11) both have atomic numbers of 5 or greater. Hydrogen (1) and Helium (2) both have atomic numbers under 5."}
     ]},
 
   atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Mass", reflect:true,
@@ -3955,7 +4392,15 @@ const TERMS = {
       compare:"<b>Atomic Mass vs. Atomic Number</b> — atomic number is a fixed whole number counting only protons; atomic mass is an averaged, often decimal number reflecting protons and neutrons combined across isotopes." },
     media:{video:"",infographic:"",podcast:""},
     quiz:[
-      {type:"mc", difficulty:"easy", q:"What does atomic mass measure?", options:["Only the number of protons","Only the number of electrons","The average mass of an element's isotopes, based on protons and neutrons","The total number of atoms in a sample"], correct:2, explain:"Atomic mass reflects the average mass of all an element's naturally occurring isotopes, based on their combined protons and neutrons."},
+      {type:"mc", difficulty:"easy",
+        q:"Which image shows the isotope with the GREATER atomic mass?",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="16" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">6p 6n</text></svg>', label:"Carbon-12 (6 protons, 6 neutrons)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="19" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">6p 7n</text></svg>', label:"Carbon-13 (6 protons, 7 neutrons)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="12" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="8" font-weight="700" fill="#12181A">2p 2n</text></svg>', label:"Helium-4 (2 protons, 2 neutrons)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="7" font-weight="700" fill="#12181A">1p 0n</text></svg>', label:"Hydrogen-1 (1 proton, 0 neutrons)"}
+        ],
+        correct:1, explain:"Carbon-13 has the same number of protons as Carbon-12, but one extra neutron — since atomic mass reflects the combined protons and neutrons, Carbon-13 has the greater mass of these two carbon isotopes."},
       {type:"tf", difficulty:"easy", q:"Atomic mass is always a whole number.", correct:false, explain:"Atomic mass is usually a decimal, since it's an average across an element's different isotopes — it isn't simply a whole-number proton or neutron count."},
       {type:"mc", difficulty:"easy", q:"Atomic mass is based on which two particles combined?", options:["Protons and electrons","Protons and neutrons","Neutrons and electrons","Only neutrons"], correct:1, explain:"Atomic mass reflects the combined mass of an atom's protons and neutrons — electrons are so light they barely add to the total."},
 
@@ -3963,11 +4408,22 @@ const TERMS = {
         table:{title:"Carbon's Isotopes", headers:["Isotope","Protons","Neutrons","Mass"], rows:[["Carbon-12","6","6","12"],["Carbon-13","6","7","13"],["Average (Atomic Mass)","—","—","12.01"]]},
         q:"Based on the table, why is carbon's listed atomic mass (12.01) not a clean whole number?", options:["It's a typo in the periodic table","It's an average across carbon's naturally occurring isotopes","Electrons are being counted too","Protons vary between carbon atoms"], correct:1, explain:"Atomic mass is an average across an element's naturally occurring isotopes — since most carbon atoms are Carbon-12 but a small amount is Carbon-13, the average comes out to a decimal like 12.01, not a clean whole number."},
       {type:"tf", difficulty:"medium", q:"All atoms of the same element have exactly the same atomic mass.", correct:false, explain:"Atoms of the same element can have different numbers of neutrons (isotopes), which gives them slightly different masses — atomic mass is the average across all of them, not one fixed value for every single atom."},
-      {type:"short", difficulty:"medium", q:"Explain what an isotope is, using what you know about protons, neutrons, and atomic mass.", model:"An isotope is a version of an element's atom that has the same number of protons as every other atom of that element, but a different number of neutrons — since atomic mass depends on both protons and neutrons combined, different isotopes of the same element have slightly different masses, even though they're still the same element."},
+      {type:"short", difficulty:"medium",
+        passage:"A chemistry textbook lists two versions of the same element: one with 6 protons and 6 neutrons, and another with 6 protons and 8 neutrons.",
+        q:"Using what you know about protons, neutrons, and atomic mass, explain what these two versions are called and how they differ.", model:"These two versions are isotopes of the same element — they have the same number of protons as each other, but different numbers of neutrons. Since atomic mass depends on both protons and neutrons combined, these isotopes have different masses, even though they're still the same element."},
 
       {type:"mc", difficulty:"hard", q:"An element has an atomic number of 17 and an atomic mass of about 35.5. About how many neutrons does a typical atom of this element have?", options:["17","35.5","About 18","52"], correct:2, explain:"Since atomic mass is roughly protons plus neutrons, subtracting the atomic number (protons) from the atomic mass gives an estimate of the neutrons: 35.5 − 17 ≈ 18."},
       {type:"short", difficulty:"hard", q:"Explain how you could estimate the number of neutrons in an atom if you know its atomic number and its atomic mass.", model:"Since atomic mass is roughly the total of an atom's protons and neutrons combined, and atomic number tells you the number of protons, you can estimate the number of neutrons by subtracting the atomic number from the atomic mass."},
-      {type:"short", difficulty:"hard", q:"Two isotopes of the same element are compared. One has more neutrons than the other. Which one has the greater atomic mass, and why?", model:"The isotope with more neutrons has the greater atomic mass. Since both isotopes are the same element, they have the identical number of protons — the only thing that differs is the neutron count, and since atomic mass is the combined total of protons and neutrons, more neutrons means a greater atomic mass."}
+      {type:"selectall", difficulty:"hard",
+        q:"Select all the images below that show an isotope with a GREATER atomic mass than Carbon-12 (6 protons, 6 neutrons).",
+        imageOptions:[
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="19" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">6p 7n</text></svg>', label:"Carbon-13 (6 protons, 7 neutrons)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="12" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="8" font-weight="700" fill="#12181A">2p 2n</text></svg>', label:"Helium-4 (2 protons, 2 neutrons)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="22" fill="#E53935" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="8" font-weight="700" fill="#fff">6p 8n</text></svg>', label:"Carbon-14 (6 protons, 8 neutrons)"},
+          {svg:'<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="10" fill="#4FA8E8" stroke="#12181A" stroke-width="1.5"/><text x="40" y="44" text-anchor="middle" font-size="7" font-weight="700" fill="#12181A">1p 0n</text></svg>', label:"Hydrogen-1 (1 proton, 0 neutrons)"}
+        ],
+        correctSet:[0,2],
+        explain:"Carbon-13 (6p, 7n = mass 13) and Carbon-14 (6p, 8n = mass 14) both have more combined protons and neutrons than Carbon-12 (mass 12). Helium-4 and Hydrogen-1 both have far fewer total particles, so their masses are much smaller."}
     ]}
 
 };
@@ -4683,13 +5139,22 @@ function renderAnimationHTML(anim){
   </div>`;
 }
 
+function renderImageHTML(img){
+  if(!img) return '';
+  const items = img.items.map(it=>`<div class="quiz-image-item"><span class="quiz-image-svg">${it.svg}</span>${it.label?`<span class="quiz-image-item-label">${it.label}</span>`:''}</div>`).join('');
+  return `<div class="quiz-image-board">
+    ${img.caption?`<span class="qi-label">🖼️ ${img.caption}</span>`:''}
+    <div class="quiz-image-row">${items}</div>
+  </div>`;
+}
+
 function renderQuiz(){
   const t = TERMS[current];
   const pool = getQuizPool(t);
   if(quizIndex >= pool.length) quizIndex = 0;
   const q = pool[quizIndex];
   const quizPanel = document.getElementById('quizPanel');
-  const typeLabels = { mc:"Multiple Choice", tf:"True / False", short:"Short Answer", dragdrop:"Sort the Items" };
+  const typeLabels = { mc:"Multiple Choice", tf:"True / False", short:"Short Answer", dragdrop:"Sort the Items", selectall:"Select All That Apply" };
 
   const hasDifficulty = t.quiz.some(qq=>qq.difficulty);
   const diffChip = (key,label) => `<button data-diff="${key}" class="${quizDifficulty===key ? 'active diff-'+key : ''}">${label}</button>`;
@@ -4706,14 +5171,23 @@ function renderQuiz(){
     q.passage ? renderPassageHTML(q.passage) : '',
     q.table ? renderTableHTML(q.table) : '',
     q.chart ? renderChartHTML(q.chart) : '',
-    q.animation ? renderAnimationHTML(q.animation) : ''
+    q.animation ? renderAnimationHTML(q.animation) : '',
+    q.image ? renderImageHTML(q.image) : ''
   ].join('');
 
   let bodyHTML = '';
   if(q.type === 'mc'){
-    bodyHTML = `<div class="quiz-options" id="quizOptions">${q.options.map((opt,i)=>`<button class="opt-btn" data-i="${i}">${opt}</button>`).join('')}</div><div class="quiz-feedback" id="quizFeedback"></div>`;
+    if(q.imageOptions){
+      bodyHTML = `<div class="quiz-image-options" id="quizOptions">${q.imageOptions.map((opt,i)=>`<button class="img-opt-card" data-i="${i}"><span class="img-opt-svg">${opt.svg}</span><span class="img-opt-label">${opt.label}</span></button>`).join('')}</div><div class="quiz-feedback" id="quizFeedback"></div>`;
+    } else {
+      bodyHTML = `<div class="quiz-options" id="quizOptions">${q.options.map((opt,i)=>`<button class="opt-btn" data-i="${i}">${opt}</button>`).join('')}</div><div class="quiz-feedback" id="quizFeedback"></div>`;
+    }
   } else if(q.type === 'tf'){
     bodyHTML = `<div class="quiz-options tf" id="quizOptions"><button class="opt-btn" data-i="true">True</button><button class="opt-btn" data-i="false">False</button></div><div class="quiz-feedback" id="quizFeedback"></div>`;
+  } else if(q.type === 'selectall'){
+    const optList = q.imageOptions || q.options.map(o=>({label:o}));
+    const cardsHTML = optList.map((opt,i)=>`<button class="img-opt-card selectall-card" data-i="${i}">${opt.svg ? `<span class="img-opt-svg">${opt.svg}</span>` : ''}<span class="img-opt-label">${opt.label}</span><span class="selectall-check">✓</span></button>`).join('');
+    bodyHTML = `<div class="quiz-image-options" id="quizOptions">${cardsHTML}</div><p class="dd-hint">Tap every option that applies, then check your answer.</p><button class="check-btn" id="selectAllCheckBtn">Check My Answer</button><div class="quiz-feedback" id="quizFeedback"></div>`;
   } else if(q.type === 'dragdrop'){
     const chips = q.items.map(it=>`<button class="dd-chip" data-item="${it.id}">${it.label}</button>`).join('');
     const buckets = q.buckets.map(b=>`<div class="dd-bucket" data-bucket="${b.id}"><span class="dd-bucket-label">${b.label}</span><div class="dd-bucket-drop" data-bucket-drop="${b.id}"></div></div>`).join('');
@@ -4750,7 +5224,7 @@ function renderQuiz(){
   }
 
   if(q.type === 'mc' || q.type === 'tf'){
-    const opts = quizPanel.querySelectorAll('.opt-btn');
+    const opts = quizPanel.querySelectorAll('.opt-btn, .img-opt-card');
     const feedback = document.getElementById('quizFeedback');
     opts.forEach(btn=>{
       btn.addEventListener('click', ()=>{
@@ -4766,6 +5240,30 @@ function renderQuiz(){
         feedback.className = 'quiz-feedback show ' + (isRight ? 'right' : 'wrong');
         feedback.textContent = (isRight ? '✓ Nice work — ' : '✗ Not quite — ') + q.explain;
       });
+    });
+  } else if(q.type === 'selectall'){
+    const cards = quizPanel.querySelectorAll('.selectall-card');
+    const feedback = document.getElementById('quizFeedback');
+    cards.forEach(card=>{
+      card.addEventListener('click', ()=>{
+        card.classList.toggle('selected');
+      });
+    });
+    document.getElementById('selectAllCheckBtn').addEventListener('click', ()=>{
+      const correctSet = new Set(q.correctSet);
+      let allCorrect = true;
+      cards.forEach(card=>{
+        const i = parseInt(card.dataset.i);
+        const isSelected = card.classList.contains('selected');
+        const shouldBeSelected = correctSet.has(i);
+        card.classList.remove('correct','incorrect');
+        card.disabled = true;
+        if(isSelected && shouldBeSelected){ card.classList.add('correct'); }
+        else if(!isSelected && shouldBeSelected){ card.classList.add('incorrect'); allCorrect = false; }
+        else if(isSelected && !shouldBeSelected){ card.classList.add('incorrect'); allCorrect = false; }
+      });
+      feedback.className = 'quiz-feedback show ' + (allCorrect ? 'right' : 'wrong');
+      feedback.textContent = (allCorrect ? '✓ Nice work — ' : '✗ Not quite — ') + q.explain;
     });
   } else if(q.type === 'dragdrop'){
     const wrap = document.getElementById('dragdropWrap');
