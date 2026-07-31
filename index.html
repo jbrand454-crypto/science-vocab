@@ -4874,7 +4874,7 @@ function renderCard(){
     });
   }
 
-  cardEl.querySelectorAll('.actions button').forEach(btn=>{
+  cardEl.querySelectorAll('.actions button[data-alt]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const key = btn.dataset.alt;
       const reveal = document.getElementById('reveal');
@@ -4885,11 +4885,11 @@ function renderCard(){
         reveal.classList.remove('show');
         quizPanel.classList.remove('show');
         openReveal = null;
-        cardEl.querySelectorAll('.actions button').forEach(b=>b.classList.remove('on'));
+        cardEl.querySelectorAll('.actions button[data-alt]').forEach(b=>b.classList.remove('on'));
         return;
       }
       openReveal = key;
-      cardEl.querySelectorAll('.actions button').forEach(b=>b.classList.toggle('on', b.dataset.alt===key));
+      cardEl.querySelectorAll('.actions button[data-alt]').forEach(b=>b.classList.toggle('on', b.dataset.alt===key));
 
       if(key === 'quiz'){
         reveal.classList.remove('show');
