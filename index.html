@@ -280,6 +280,16 @@
 
   .media-row{display:flex;flex-wrap:wrap;gap:10px;}
 
+  .stay-curious-block{
+    margin:0 0 22px;background:#fdf8ec;border:1.5px solid var(--gold);border-radius:10px;
+    padding:18px 20px;
+  }
+  .stay-curious-badge{
+    display:inline-block;font-family:'Special Elite',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.1em;color:#fff;background:var(--gold);border-radius:12px;padding:3px 10px;margin-bottom:10px;
+  }
+  .stay-curious-block p{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink);}
+
   .reflect-block{
     margin-top:16px;background:#fdf8ec;border:1.5px solid var(--gold);border-radius:10px;
     padding:20px 22px;
@@ -937,7 +947,7 @@ const TERMS = {
       {type:"short", q:"Explain why a basketball has more volume than a golf ball, even though both are round.", model:"The basketball takes up much more three-dimensional space than the golf ball — even though they're the same shape, the basketball's larger size means it has a much bigger volume."}
     ]},
 
-  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Matter", galileo:true, reflect:true,
+  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Matter", galileo:true, reflect:true, entranceTicket:true,
     definition:"Matter is anything that has mass and takes up space.",
     example:"Air, water, rocks, and your own body are all matter — even though air is invisible, it still has mass and takes up space.",
     watch:"Just because something is invisible or feels weightless doesn't mean it isn't matter — air is a common example students overlook.",
@@ -1043,7 +1053,7 @@ const TERMS = {
       {type:"short", q:"Explain why salt from a mine and salt left behind after ocean water evaporates are considered the same substance.", model:"Both are sodium chloride with the exact same fixed chemical makeup — where the salt came from doesn't change what it fundamentally is."}
     ]},
 
-  physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Physical Property", galileo:true, reflect:true,
+  physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physics", name:"Physical Property", entranceTicket:true, galileo:true, reflect:true,
     definition:"A physical property is a characteristic of matter that can be observed or measured without changing what the substance actually is.",
     example:"Color, texture, density, and melting point are all physical properties of a substance.",
     watch:"Physical properties aren't the same as chemical properties, which describe how a substance reacts or changes into something new.",
@@ -1133,7 +1143,7 @@ const TERMS = {
       {type:"short", q:"Explain why flammability is a chemical property and not a physical property.", model:"Flammability describes how a substance reacts when exposed to fire — you can't see it just by looking at the substance; you only observe it once the substance actually burns and changes into new substances like ash, smoke, and gases."}
     ]},
 
-  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", galileo:true, aiCohost:"quinn", reflect:true,
+  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", entranceTicket:true, galileo:true, aiCohost:"quinn", reflect:true,
     definition:"An atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms.",
     example:"A single drop of water is made of billions and billions of atoms, far too small to see even with a regular microscope.",
     watch:"Atoms are so small you can't see even one with your own eyes, or with a typical microscope — but just like we talked about with matter, being invisible doesn't mean something isn't real.",
@@ -1212,7 +1222,7 @@ const TERMS = {
         explain:"A rock and a water droplet are both large enough to see with the naked eye. A single atom and a single molecule are both far too small — they require powerful tools like electron microscopes to observe."}
     ]},
 
-  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element", galileo:true,
+  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Element", entranceTicket:true, galileo:true,
     definition:"An element is a substance made of just one type of atom — it's already at its simplest, purest form and can't be broken down into anything simpler by ordinary means.",
     example:"Oxygen, gold, and carbon are all elements — each one made of just a single kind of atom, nothing else mixed in.",
     watch:"An element isn't the same as a compound. Water is made of two different elements — hydrogen and oxygen — joined together, so water itself is a compound, not an element. We'll get into how that joining works soon.",
@@ -1259,7 +1269,7 @@ const TERMS = {
         q:"Explain why your friend is mistaken.", model:"Being naturally occurring doesn't make something an element — what matters is whether it's made of just one type of atom. Carbon dioxide is made of two different elements, carbon and oxygen, chemically bonded together, which makes it a compound, not an element, no matter how common it is in nature."}
     ]},
 
-  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Molecule", galileo:true,
+  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Molecule", entranceTicket:true, galileo:true,
     definition:"A molecule forms when two or more atoms bond together — sometimes atoms of the same element, sometimes atoms of different elements entirely.",
     example:"Oxygen gas (O2) is a molecule made of two oxygen atoms bonded together. Water (H2O) is a molecule made of two hydrogen atoms and one oxygen atom bonded together.",
     watch:"A molecule is simply two or more atoms bonded together — that's the whole requirement. A compound is more specific: a compound is a molecule where the atoms are different elements. O2 is a molecule but not a compound (same element); water is both (different elements). Every compound is a molecule, but not every molecule is a compound — like how every square is a rectangle, but not every rectangle is a square.",
@@ -2417,7 +2427,7 @@ const TERMS = {
       {type:"short", q:"In your own words, explain what a plant produces during photosynthesis and why that matters for other living things.", model:"During photosynthesis, a plant produces sugar (its food) and releases oxygen as a byproduct. That oxygen matters because most living things, including humans, need to breathe it in to survive."}
     ]},
 
-  cell: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell", galileo:true,
+  cell: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell", entranceTicket:true, galileo:true,
     definition:"A cell is the basic building block of all living things — the smallest unit that can carry out the functions of life.",
     example:"Your skin, muscles, and blood are all made of different types of cells working together.",
     watch:"Not all cells look the same or do the same job — a nerve cell and a red blood cell function very differently, even though both are cells.",
@@ -2482,7 +2492,7 @@ const TERMS = {
       {type:"short", q:"Explain what an organelle is and give one example.", model:"An organelle is a small structure inside a cell that carries out a specific job to keep the cell working — for example, the mitochondria produces energy for the cell, acting like a tiny power plant inside it."}
     ]},
 
-  nucleus: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Nucleus", galileo:true,
+  nucleus: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Nucleus", entranceTicket:true, galileo:true,
     definition:"The nucleus is the organelle inside a cell that stores the cell's genetic material (DNA) and controls its activities.",
     example:"In a plant or animal cell, the nucleus acts like a control center, directing what the rest of the cell does.",
     watch:"Not every cell has a nucleus — bacteria, for example, are simpler cells that lack a nucleus entirely.",
@@ -2547,7 +2557,7 @@ const TERMS = {
       {type:"short", q:"Explain why muscle cells tend to have a large number of mitochondria.", model:"Muscle cells require a lot of energy to contract and move, and since mitochondria are responsible for converting nutrients into usable energy, muscle cells need many mitochondria to keep up with that high energy demand."}
     ]},
 
-  cellMembrane: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Membrane", galileo:true,
+  cellMembrane: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Membrane", entranceTicket:true, galileo:true,
     definition:"The cell membrane is the thin outer boundary that surrounds a cell and controls what enters and exits it.",
     example:"The cell membrane allows nutrients to enter a cell while keeping harmful substances out.",
     watch:"The cell membrane isn't a solid, sealed wall — it's selectively permeable, meaning it lets some things pass through while blocking others.",
@@ -3367,7 +3377,7 @@ const TERMS = {
       {type:"short", q:"Explain why elements in the same column of the periodic table often share similar properties.", model:"Elements are arranged in columns on the periodic table based on shared patterns in their atomic structure, particularly their outer electrons, which is exactly why elements in the same column tend to behave in similar chemical ways."}
     ]},
 
-  proton: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Proton", galileo:true,
+  proton: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Proton", entranceTicket:true, galileo:true,
     definition:"A proton is a positively charged particle found in the nucleus of an atom.",
     example:"A carbon atom has 6 protons in its nucleus, which is exactly what makes it carbon and not some other element.",
     watch:"The number of protons in an atom's nucleus is what determines which element it is — changing the number of protons would actually turn it into a completely different element.",
@@ -3414,7 +3424,7 @@ const TERMS = {
         explain:"A proton by itself is positively charged. An atom that has lost an electron now has more protons than electrons, giving it an overall positive charge too. A single electron is negative, and a neutron has no charge at all."}
     ]},
 
-  neutron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Neutron", galileo:true,
+  neutron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Neutron", entranceTicket:true, galileo:true,
     definition:"A neutron is a particle with no electric charge found in the nucleus of an atom, alongside protons.",
     example:"A typical carbon atom has 6 neutrons in addition to its 6 protons.",
     watch:"Neutrons don't affect an atom's identity as an element the way protons do — atoms of the same element can actually have different numbers of neutrons, called isotopes.",
@@ -3461,7 +3471,7 @@ const TERMS = {
         explain:"Neutrons truly have no charge and are found in the nucleus. But they do NOT determine element identity (protons do that), and their count can vary between atoms of the same element — that's what makes isotopes."}
     ]},
 
-  electron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Electron", galileo:true,
+  electron: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Electron", entranceTicket:true, galileo:true,
     definition:"An electron is a negatively charged particle that orbits the nucleus of an atom.",
     example:"A neutral atom has the same number of electrons as protons, balancing out its overall electric charge.",
     watch:"Electrons aren't found inside the nucleus like protons and neutrons — they exist in a cloud-like region surrounding the nucleus, constantly moving.",
@@ -4120,7 +4130,7 @@ const TERMS = {
       {type:"short", q:"Explain why the fossil record is considered an incomplete record of life's history.", model:"Fossilization requires very specific conditions, like being quickly buried in sediment, so most organisms that have ever lived decomposed completely without ever becoming a fossil — meaning the fossil record only captures a partial, incomplete sample of life's full history."}
     ]},
 
-  atom: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", galileo:true,
+  atom: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atom", entranceTicket:true, galileo:true,
     definition:"An atom is the smallest basic unit of matter that still has the properties of an element.",
     example:"A single gold atom is still gold — split it further and it stops being gold at all.",
     watch:"Atoms aren't the smallest particles that exist — atoms are made of even smaller parts (protons, neutrons, electrons), but atoms are the smallest unit that keeps an element's identity.",
@@ -4203,7 +4213,7 @@ const TERMS = {
       {type:"short", q:"Explain how chemical bonds allow water to form from hydrogen and oxygen.", model:"Chemical bonds form when hydrogen and oxygen atoms share electrons, linking them tightly together into a single water molecule (H2O) — that bonding force is what holds the atoms together as one new substance instead of staying as separate loose atoms."}
     ]},
 
-  compound: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Compound", galileo:true, reflect:true,
+  compound: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Compound", entranceTicket:true, galileo:true, reflect:true,
     definition:"A compound is a substance made of two or more different elements chemically bonded together in a fixed, specific ratio.",
     example:"Water (H2O) is a compound made of two hydrogen atoms bonded to one oxygen atom, always in that same 2-to-1 ratio.",
     watch:"A compound isn't the same as a mixture — in a compound, the elements are chemically bonded and lose their original properties (hydrogen and oxygen are both gases, but bonded together they form liquid water); a mixture just combines substances that keep their own separate properties.",
@@ -4250,7 +4260,7 @@ const TERMS = {
       {type:"mc", difficulty:"hard", q:"Which best explains why water (H2O) behaves completely differently than the hydrogen and oxygen gases it's made from?", options:["Water is actually a mixture, so its properties can vary","The elements are chemically bonded into a new compound, so it has entirely new properties","Water isn't really made of hydrogen and oxygen","Gases always change their properties whenever they're combined"], correct:1, explain:"Because hydrogen and oxygen are chemically bonded into the compound water, the result has its own new set of properties — that's the defining feature of a compound, not just a general rule about combining gases."}
     ]},
 
-  cellTheory: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-1", standardText:"Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.", domain:"life", label:"Biology", name:"Cell Theory", galileo:true, reflect:true,
+  cellTheory: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-1", standardText:"Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.", domain:"life", label:"Biology", name:"Cell Theory", entranceTicket:true, galileo:true, reflect:true,
     definition:"Cell theory is the widely accepted scientific explanation that all living things are made of one or more cells, and that the cell is the basic unit of structure and function in life.",
     example:"Whether you're looking at a single bacterium or a giant redwood tree, cell theory says both are built from the same basic building block — cells.",
     watch:"Cell theory isn't just an observation about one organism — it's a foundational rule scientists have found holds true for every living thing ever studied, from the simplest to the most complex.",
@@ -4297,7 +4307,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"A friend says viruses must be alive and made of cells, since they can make people sick. Using cell theory, explain why most scientists don't consider viruses to be made of cells or fully alive.", model:"Viruses don't have their own cells — they lack the basic cell structures and can't carry out life processes on their own; they can only reproduce by hijacking a living host cell's machinery. Since cell theory requires living things to be made of one or more actual cells, and viruses aren't, most scientists don't classify viruses as fully alive."}
     ]},
 
-  cellWall: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Wall", galileo:true, reflect:true,
+  cellWall: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cell Wall", entranceTicket:true, galileo:true, reflect:true,
     definition:"A cell wall is a rigid, supporting outer layer that surrounds the cells of plants and some other organisms, but not animal cells.",
     example:"A plant cell's cell wall gives it a fixed, boxy shape, which is why cut celery stays rigid instead of collapsing the way a soft animal cell would.",
     watch:"A cell wall isn't the same as a cell membrane — every cell has a cell membrane, but only certain cells, like plant cells, have the extra rigid cell wall surrounding it.",
@@ -4344,7 +4354,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"Explain why plant cells can safely take in a large amount of water without bursting, while an animal cell placed in the same amount of water might actually burst.", model:"A plant cell's rigid cell wall pushes back against the pressure created as water enters, stopping the cell from over-expanding and keeping it intact. An animal cell has no cell wall to resist that pressure, so if it takes in too much water, it can stretch too far and burst."}
     ]},
 
-  cytoplasm: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cytoplasm", galileo:true, reflect:true,
+  cytoplasm: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Biology", name:"Cytoplasm", entranceTicket:true, galileo:true, reflect:true,
     definition:"Cytoplasm is the thick, gel-like fluid inside a cell that fills the space around its organelles.",
     example:"If a cell's organelles are like furniture in a room, cytoplasm is the space filling the rest of the room around them.",
     watch:"Cytoplasm isn't just empty space inside a cell — it's an active fluid where many important chemical reactions actually take place, and it holds the organelles in position.",
@@ -4391,7 +4401,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"Compare the role of cytoplasm to the role of the cell membrane. How are they different?", model:"The cell membrane acts like a gatekeeper, controlling what substances enter and leave the cell. Cytoplasm, on the other hand, fills the interior space of the cell, suspending the organelles in place and hosting many of the chemical reactions that happen inside — it doesn't control what crosses into or out of the cell the way the membrane does."}
     ]},
 
-  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Number", galileo:true, reflect:true,
+  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Number", entranceTicket:true, galileo:true, reflect:true,
     definition:"The atomic number of an element is the number of protons found in the nucleus of its atoms.",
     example:"Every atom of hydrogen has exactly 1 proton, giving it an atomic number of 1; every atom of carbon has exactly 6 protons, giving it an atomic number of 6.",
     watch:"Atomic number isn't the same as atomic mass — atomic number only counts protons, while atomic mass reflects the combined weight of protons and neutrons together.",
@@ -4438,7 +4448,7 @@ const TERMS = {
         explain:"Carbon (6) and Sodium (11) both have atomic numbers of 5 or greater. Hydrogen (1) and Helium (2) both have atomic numbers under 5."}
     ]},
 
-  atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Mass", galileo:true, reflect:true,
+  atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Chemistry", name:"Atomic Mass", entranceTicket:true, galileo:true, reflect:true,
     definition:"Atomic mass is the average mass of all the naturally occurring isotopes of an element, based on the combined number of protons and neutrons in the nucleus.",
     example:"Carbon's atomic mass is about 12, reflecting its typical combination of 6 protons and 6 neutrons.",
     watch:"Atomic mass isn't the same as atomic number — atomic number only counts protons, while atomic mass reflects protons and neutrons combined, and it's often not a whole number since it's averaged across an element's isotopes.",
@@ -4844,6 +4854,12 @@ function renderCard(){
       <p class="snote">This is the standard "${t.name}" supports — it's a performance goal reached through classroom investigation and modeling over a full unit, not through vocabulary recall alone. This tool builds the foundation; the standard is met in class.</p>
       <p class="ssource">Source: the Next Generation Science Standards (NGSS), the national framework most states' science standards are built on (NGSS Lead States, 2013). Ohio's Learning Standards for Science use this same Disciplinary Core Idea code.</p>
     </div>
+    ${t.entranceTicket ? `
+    <div class="stay-curious-block" id="stayCuriousBlock">
+      <span class="stay-curious-badge">🧭 Stay Curious — Entrance Ticket</span>
+      <p>Before we dig in: what do you already know about <b>${t.name}</b>? Give an example if you can. What don't you know yet — what are you curious about? Bonus: can you think of a cool experiment involving ${t.name}?</p>
+    </div>
+    ` : ''}
 
     <div class="entry definition" id="entry-definition"><div class="entry-label"><span class="num">1</span>What It Means</div><p>${t.definition}</p></div>
     <div class="entry example" id="entry-example"><div class="entry-label"><span class="num">2</span>Real-World Example</div><p>${t.example}</p></div>
