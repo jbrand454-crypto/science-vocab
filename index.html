@@ -567,12 +567,20 @@
       <h3>How To Navigate</h3>
       <ul>
         <li><b>Grade tabs</b> (6 / 7 / 8 / All Grades) — pick a grade level to start.</li>
-        <li><b>🆕 New</b> — this week's 3 new vocabulary terms.</li>
-        <li><b>🔁 Review</b> — 3 older terms brought back for spaced repetition.</li>
-        <li><b>📚 Practice All</b> — every term taught so far this year (and, for 7th/8th grade, every term from earlier years too, since those grades are cumulatively responsible for prior content).</li>
-        <li>Each term card has a plain-English definition, an example, a common misconception, an analogy, a self-check question, and a Faith & Science in Action reflection — plus buttons to simplify, get another example, take a quiz, or compare to a related term.</li>
-        <li>"Explore More" holds an optional short video, infographic, or podcast per term, where available.</li>
+        <li><b>⏮ Last Week's Terms</b> — the previous week's 3 terms, for quick review.</li>
+        <li><b>📍 This Week's Terms</b> — this week's 3 new vocabulary terms, matching what's being taught in class right now.</li>
+        <li><b>⏭ Next Week's Terms</b> — a look ahead for students who like to work early. The written Field Guide entry is ready in advance; its optional video/podcast won't be live until that term's own week arrives.</li>
+        <li><b>📚 Practice All (Grades 6–8)</b> — every term built across all three grades, regardless of which grade tab is selected. Good for broad review or for a student curious about a sibling's material.</li>
+        <li><b>🎯 Practice Grade Only</b> — every term built for just one grade level, in one place.</li>
+        <li>Inside "Practice All," terms can be filtered by subject (Physical / Earth / Life Science) and then by the specific topic within it, for jumping straight to one unit.</li>
+        <li>Each term card walks through eight steps in order: <b>What It Means → Real-World Example → Common Mix-Up → Picture It This Way → Check Your Understanding → Practice</b> (simplify, another example, quiz, compare) <b>→ Explore More</b> (video, infographic, podcast) <b>→ Faith &amp; Science in Action</b>, with the graded Weekly Reflection following right after.</li>
       </ul>
+
+      <h3>🔭 A Note on "Ask Galileo"</h3>
+      <div class="highlight">Some terms show an optional "Ask Galileo" button in the Practice section. This is <i>not</i> a chatbot built into the site — clicking it shows a ready-made prompt that a student or parent can copy and paste into whatever AI tool their family already uses (ChatGPT, Claude, Gemini, etc.). Nothing is sent anywhere by Field Notes itself; the conversation happens entirely in the family's own AI tool, outside this site. The prompt is written to ask guiding questions rather than hand over answers, and it's explicitly instructed never to answer a quiz question directly or draft wording for the graded reflection. It's clearly optional — before using it, please get a parent or guardian's permission and confirm it fits your school's Acceptable Use Policy for technology.</div>
+
+      <h3>🤖 AI Cohosts</h3>
+      <p>On select terms, a "Meet Your AI Cohosts" button introduces one of several recurring AI-voiced characters (like Quinn Quark or Dr. Cora Cell) who appear periodically in the podcast to help explain a concept in their own voice. They're a fun, consistent presence across episodes — not a chat feature, and not connected to Galileo above.</p>
 
       <h3>✝️ A Note on Faith &amp; Science</h3>
       <p>Every term includes a short Faith & Science in Action reflection, connecting that science concept to Scripture and our Catholic tradition. These reflections aren't meant to be a finished answer — they're meant to open a conversation. We encourage parents and staff to sit with your student for a minute and talk through it together: ask what the connection means to them, whether they see it differently, or where else they've noticed God's hand in the natural world. Science and faith aren't in competition here — both are ways of encountering the same Creator, and some of the richest learning happens in that honest, unhurried conversation, not just in reading a screen alone.</p>
@@ -588,7 +596,7 @@
       <p>A bonus point is available for completing the reflection before the end of the school day on the second-to-last day of the school week — an incentive to work ahead rather than wait until the last minute, which also means most grading is already done well before the week ends. And a Content score of 1 (as opposed to 0, 2, or 3) isn't a final word — it's a signal that a response showed real effort but stayed shallow, and that student may be asked to revise with more depth before a final score is recorded.</p>
 
       <h3>🎧 Listen or Watch Anywhere</h3>
-      <p>Each term gets two different things, not two copies of the same thing: a short video (a quick science demo) and a podcast episode (scripture and personal reflection that goes further than the video does). Both are being collected into full libraries, so students and parents can watch or listen through the whole set like a regular show — in the car, on a walk, wherever's easiest.</p>
+      <p>Each term gets two different things, not two copies of the same thing: a short video (a quick science demo) and a podcast episode (scripture and personal reflection that goes further than the video does). On YouTube, the short science demos live in one playlist and the full-length podcast episodes live in another — use the "Shorts" or "Full Episodes" link below depending on which you're after. Everything is also being collected into full libraries, so students and parents can watch or listen through the whole set like a regular show — in the car, on a walk, wherever's easiest.</p>
       <p id="guideMediaLinks" class="footer-media"></p>
 
       <h3>Standards Alignment</h3>
@@ -701,7 +709,8 @@ const REFLECT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeKpy60g5FO8T
    in the footer and Parent Guide. Leave any as "" to keep that
    option hidden until it's ready.
    ============================================================ */
-const YOUTUBE_PLAYLIST_URL = "https://www.youtube.com/playlist?list=PLb41zH_EwwiM";
+const YOUTUBE_SHORTS_URL = "https://www.youtube.com/playlist?list=PLb41zH_EwwiM";
+const YOUTUBE_FULL_EPISODES_URL = "";
 const PODCAST_APPLE_URL = "";
 const PODCAST_SPOTIFY_URL = "https://open.spotify.com/show/033P0If4dVQjtZBvVwAgK3";
 const PODCAST_YOUTUBE_MUSIC_URL = "https://www.youtube.com/playlist?list=PLOvtX-Yxfw2E";
@@ -5561,9 +5570,12 @@ function renderWeekBadge(){
 renderWeekBadge();
 
 function renderFooterMedia(){
-  const playlist = YOUTUBE_PLAYLIST_URL
-    ? `<a href="${YOUTUBE_PLAYLIST_URL}" target="_blank" rel="noopener">🎥 YouTube</a>`
-    : `<span class="soon">🎥 YouTube (coming soon)</span>`;
+  const shorts = YOUTUBE_SHORTS_URL
+    ? `<a href="${YOUTUBE_SHORTS_URL}" target="_blank" rel="noopener">🎥 Shorts</a>`
+    : `<span class="soon">🎥 Shorts (coming soon)</span>`;
+  const fullEps = YOUTUBE_FULL_EPISODES_URL
+    ? `<a href="${YOUTUBE_FULL_EPISODES_URL}" target="_blank" rel="noopener">🎬 Full Episodes</a>`
+    : `<span class="soon">🎬 Full Episodes (coming soon)</span>`;
   const apple = PODCAST_APPLE_URL
     ? `<a href="${PODCAST_APPLE_URL}" target="_blank" rel="noopener">Apple</a>`
     : `<span class="soon">Apple</span>`;
@@ -5576,7 +5588,7 @@ function renderFooterMedia(){
   // Apple omitted from display for now (dropped since iPhone/Mac users can stream
   // Spotify/YouTube Music natively) — `apple` is still computed above, so to bring
   // it back just add ` <span class="sep">|</span> ${apple}` after ${ytmusic} below.
-  const html = `Subscribe: ${playlist} <span class="sep">·</span> 🎧 Podcast: ${spotify} <span class="sep">|</span> ${ytmusic}`;
+  const html = `Subscribe: ${shorts} <span class="sep">|</span> ${fullEps} <span class="sep">·</span> 🎧 Podcast: ${spotify} <span class="sep">|</span> ${ytmusic}`;
 
   const footerEl = document.getElementById('footerMedia');
   if(footerEl) footerEl.innerHTML = html;
