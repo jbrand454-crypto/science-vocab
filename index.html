@@ -249,6 +249,28 @@
   .entry.analogy .entry-label, .entry.analogy .entry-label .num{color:var(--blueprint);border-color:var(--blueprint);}
   .entry.analogy{background:#eef3f6;border-left:3px solid var(--blueprint);padding:10px 14px;border-radius:0 6px 6px 0;}
 
+  .section-label{display:flex;align-items:center;gap:8px;}
+  .section-label .num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink-soft);font-size:11px;color:var(--ink-soft);flex:none;text-transform:none;letter-spacing:0;font-family:'Atkinson Hyperlegible',sans-serif;}
+
+  /* PILOT: unified 1-8 flow (dashed separators + color + left bar on every step) */
+  .card.pilot-order .entry{border-radius:6px;margin-bottom:18px;}
+  .card.pilot-order .entry:last-of-type{margin-bottom:20px;}
+  .card.pilot-order .entry.definition{background:#f2f1ec;border:1.5px solid var(--muted-ink);padding:10px 14px;}
+  .card.pilot-order .entry.definition .entry-label,.card.pilot-order .entry.definition .entry-label .num{color:var(--muted-ink);border-color:var(--muted-ink);}
+  .card.pilot-order .entry.example{background:#eef4ee;border:1.5px solid var(--green);padding:10px 14px;}
+  .card.pilot-order .entry.example .entry-label,.card.pilot-order .entry.example .entry-label .num{color:var(--green);border-color:var(--green);}
+  .card.pilot-order .entry.watch{border:1.5px solid var(--red);}
+  .card.pilot-order .entry.analogy{border:1.5px solid var(--blueprint);}
+  .card.pilot-order .entry.check{border:1.5px solid var(--teal);}
+  .card.pilot-order .entry-section{padding:10px 14px 18px;border-radius:6px;margin-bottom:20px;}
+  .card.pilot-order .entry-section .section-label{border-top:none;padding-top:0;margin:0 0 10px;}
+  .card.pilot-order .entry-section.practice-section{background:#faf3e8;border:1.5px solid var(--gold-dark);}
+  .card.pilot-order .entry-section.practice-section .section-label,.card.pilot-order .entry-section.practice-section .section-label .num{color:var(--gold-dark);border-color:var(--gold-dark);}
+  .card.pilot-order .entry-section.explore-section{background:#eef0f4;border:1.5px solid var(--teal-dark);}
+  .card.pilot-order .entry-section.explore-section .section-label,.card.pilot-order .entry-section.explore-section .section-label .num{color:var(--teal-dark);border-color:var(--teal-dark);}
+  .card.pilot-order .entry.faith{background:#eef2f8;border:1.5px solid #1E3A5F;border-top:3px solid #1E3A5F;border-radius:6px;padding-top:14px;}
+  .card.pilot-order .entry.faith .entry-label,.card.pilot-order .entry.faith .entry-label .num{color:#1E3A5F;border-color:#1E3A5F;}
+
   .section-label{font-family:'Special Elite',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-soft);margin:26px 0 10px;padding-top:22px;border-top:1.5px dashed var(--line);}
 
   .actions{display:flex;flex-wrap:wrap;gap:10px;}
@@ -1113,16 +1135,7 @@ const TERMS = {
     alt:{ simpler:"An atom is a tiny building block that makes up everything around you.",
       example2:"Your own body is made of trillions of atoms, arranged into cells, tissues, and organs.",
       compare:"<b>Atom vs. Molecule</b> — an atom is one single tiny building block; a molecule is what you get when two or more atoms join together." },
-    media:{video:"https://youtube.com/shorts/ELdRm0yQzs8?feature=share",infographic:"https://jbrand454-crypto.github.io/science-vocab/6_1_Atom_Infographic.png",podcast:"https://youtu.be/jZU9xdZsrHM?si=fbbtWxBCrT31DFI6"},
-    videoTranscript:[
-      "Atoms are so small you can't see even one with your own eyes, or with a typical microscope — but just like we talked about with matter, being invisible doesn't mean something isn't real.",
-      "An atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms.",
-      "Think of atoms like the individual Lego bricks that make up an enormous Lego castle — you can't easily spot one single brick once it's part of the huge structure, but the whole castle is built entirely out of them.",
-      "A single drop of water is made of billions and billions of atoms, far too small to see even with a regular microscope.",
-      "Atoms are the smallest unit of an element that still behaves like that element, but inside, they've got even smaller particles, like protons, neutrons, and electrons.",
-      "Everything is made up of atoms, or it wouldn't exist. It wouldn't be something you could actually touch, whether it's a solid, liquid, or gas.",
-      "Hebrews chapter eleven, verse three, says that by faith we understand the universe was formed at God's command, so that what is seen was not made out of what was visible. Atoms are exactly that kind of hidden foundation — invisible building blocks behind absolutely everything we see."
-    ],
+    media:{video:"",infographic:"",podcast:"https://youtu.be/jZU9xdZsrHM?si=fbbtWxBCrT31DFI6"},
     podcastTitle:"Ep. 005* - The Unseen Foundation",
     podcastTranscript:[
       "Welcome to Faith and Science Field Notes Radio. If you noticed the star in today's episode title, that means you've found one of our special AI Co-Hosted episodes. Every fifth episode features an AI co-host as we explore both science and faith together, while also modeling the responsible use of AI — because it's something that isn't going away. We need to figure out how to use it the right way.",
@@ -1248,7 +1261,7 @@ const TERMS = {
     alt:{ simpler:"A molecule is what you get when two or more atoms join together.",
       example2:"Carbon dioxide (CO2) is a molecule made of one carbon atom and two oxygen atoms bonded together.",
       compare:"<b>Molecule vs. Compound</b> — a molecule is any group of bonded atoms; a compound is specifically a molecule made of two or more different elements." },
-    media:{video:"",infographic:"https://jbrand454-crypto.github.io/science-vocab/6_1_Molecule_Infographic.png",podcast:""},
+    media:{video:"",infographic:"",podcast:""},
     quiz:[
       {type:"mc", difficulty:"easy", q:"What is a molecule?", options:["A single atom by itself","Two or more atoms bonded together","Only substances found in living things","A type of energy"], correct:1, explain:"A molecule forms whenever two or more atoms bond together, whether they're the same element or different elements."},
       {type:"tf", difficulty:"easy", q:"Every molecule is also a compound.", correct:false, explain:"Oxygen gas (O2) is a molecule but not a compound, since both atoms are the same element — a compound specifically requires two or more different elements."},
@@ -4796,6 +4809,14 @@ function renderCard(){
     ? `<button class="back-to-topic-btn" id="backToTopicBtn">⬆ Back to topic</button>`
     : '';
 
+  // Rolled out site-wide (was piloted on Introduction to Matter only)
+  const useNewOrder = true;
+  cardEl.className = useNewOrder ? 'card pilot-order' : 'card';
+
+  const faithEntryHTML = `<div class="entry faith" id="entry-faith"><div class="entry-label"><span class="num">${useNewOrder ? 8 : 6}</span>✝️ Faith & Science in Action</div><p>${t.faith}</p></div>`;
+  const practiceLabelHTML = useNewOrder ? `<div class="section-label"><span class="num">6</span>Practice</div>` : `<div class="section-label">Practice</div>`;
+  const exploreLabelHTML = useNewOrder ? `<div class="section-label"><span class="num">7</span>Explore more</div>` : `<div class="section-label">Explore more</div>`;
+
   cardEl.innerHTML = `
     <div class="card-head">
       ${backButtonHTML}
@@ -4815,8 +4836,8 @@ function renderCard(){
       <p class="ssource">Source: the Next Generation Science Standards (NGSS), the national framework most states' science standards are built on (NGSS Lead States, 2013). Ohio's Learning Standards for Science use this same Disciplinary Core Idea code.</p>
     </div>
 
-    <div class="entry" id="entry-definition"><div class="entry-label"><span class="num">1</span>What It Means</div><p>${t.definition}</p></div>
-    <div class="entry" id="entry-example"><div class="entry-label"><span class="num">2</span>Real-World Example</div><p>${t.example}</p></div>
+    <div class="entry definition" id="entry-definition"><div class="entry-label"><span class="num">1</span>What It Means</div><p>${t.definition}</p></div>
+    <div class="entry example" id="entry-example"><div class="entry-label"><span class="num">2</span>Real-World Example</div><p>${t.example}</p></div>
     <div class="entry watch" id="entry-watch"><div class="entry-label"><span class="num">3</span>Common Mix-Up</div><p>${t.watch}</p></div>
     <div class="entry analogy" id="entry-analogy"><div class="entry-label"><span class="num">4</span>Picture It This Way</div><p>${t.analogy}</p></div>
     <div class="entry check" id="entry-check">
@@ -4825,9 +4846,10 @@ function renderCard(){
       <button class="check-btn" id="checkRevealBtn">💡 Show Model Answer</button>
       <div class="model-answer" id="checkModelAnswer"><b>Model answer:</b> ${t.checkAnswer || ''}</div>
     </div>
-    <div class="entry faith" id="entry-faith"><div class="entry-label"><span class="num">6</span>✝️ Faith & Science in Action</div><p>${t.faith}</p></div>
+    ${useNewOrder ? '' : faithEntryHTML}
 
-    <div class="section-label">Practice</div>
+    <div class="entry-section practice-section">
+    ${practiceLabelHTML}
     <div class="actions">
       <button data-alt="simpler">Explain it more simply</button>
       <button data-alt="example2">Give me another example</button>
@@ -4838,8 +4860,10 @@ function renderCard(){
     <div class="reveal" id="reveal"></div>
     <div class="quiz-panel" id="quizPanel"></div>
     ${t.galileo ? `<div class="galileo-panel" id="galileoPanel"></div>` : ''}
+    </div>
 
-    <div class="section-label">Explore more</div>
+    <div class="entry-section explore-section">
+    ${exploreLabelHTML}
     <p class="explore-more-subtitle">A short video demo of the science, or a podcast that goes further \u2014 scripture, reflection, and the faith connection the video doesn't cover.</p>
     ${mediaNoteHTML}
     <div class="media-row">
@@ -4851,6 +4875,8 @@ function renderCard(){
     </div>
     <div class="media-panel" id="mediaPanel"></div>
     ${t.aiCohost ? `<div class="ai-cohost-panel" id="aiCohostPanel"></div>` : ''}
+    </div>
+    ${useNewOrder ? faithEntryHTML : ''}
     ${reflectHTML}
 
     <div class="section-label">Navigate</div>
