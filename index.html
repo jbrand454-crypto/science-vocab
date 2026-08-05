@@ -538,7 +538,7 @@
 <div class="wrap">
   <header>
     <div class="brand-band">
-      <img src="fsfn-icon.png" alt="" class="brand-band-icon" aria-hidden="true">
+      <img src="fsfn-icon.png" alt="" class="brand-band-icon" id="radioIcon" aria-hidden="true">
       <div class="brand-band-word"><span class="bw-white">Faith &amp;</span> <span class="bw-blue">Science</span></div>
       <div class="brand-band-sub">Field Notes</div>
     </div>
@@ -6569,10 +6569,6 @@ function navigateTerm(dir){
   current = keys[idx];
   openReveal = null; openMedia = null; quizIndex = 0; quizDifficulty = "all";
   renderCatalog();
-
-  if(dir === 'random'){
-    cardEl.scrollIntoView({behavior:'smooth', block:'start'});
-  }
 }
 
 function renderMedia(key){
@@ -7209,6 +7205,41 @@ if('serviceWorker' in navigator){
     });
   });
 }
+</script>
+
+<!-- ============================================================
+     HIDDEN IDEA LOG TRIGGER — script logic.
+     Insert this whole <script> block right before the closing
+     </body> tag (must run after the #radioIcon element exists in
+     the DOM — placing it at the end of body, like here, is fine).
+
+     Behavior: click the Faith & Science Field Notes Radio icon in
+     the header 5 times within 2.5 seconds to be taken to the idea
+     log. It's a real, visible element that regular visitors have
+     no reason to click repeatedly, so this doesn't rely on finding
+     an invisible hotspot — and it avoids the mobile double-tap-to-
+     zoom interference and floating-button overlap issues that made
+     the old corner-tap version unreliable.
+     ============================================================ -->
+<script>
+(function(){
+  var trigger = document.getElementById('radioIcon');
+  if(!trigger) return;
+
+  var clickTimes = [];
+
+  trigger.addEventListener('click', function(){
+    var now = Date.now();
+    clickTimes.push(now);
+    // only keep clicks from the last 2.5 seconds
+    clickTimes = clickTimes.filter(function(t){ return now - t < 2500; });
+
+    if(clickTimes.length >= 5){
+      clickTimes = [];
+      window.location.href = 'idea-log/idea-log.html';
+    }
+  });
+})();
 </script>
 </body>
 </html>
