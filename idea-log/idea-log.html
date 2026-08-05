@@ -3195,7 +3195,12 @@ function unlockApp(){
   load();
 }
 
-if(localStorage.getItem(LOCK_KEY) === 'true'){
+if(hasClaudeStorage){
+  // Inside a Claude preview there's no "public visitor" risk to guard against —
+  // this is just you and Claude working on the code — so skip the lock entirely.
+  // The lock only activates once this file is hosted standalone (e.g. GitHub Pages).
+  unlockApp();
+}else if(localStorage.getItem(LOCK_KEY) === 'true'){
   // already unlocked on this device — skip straight to the app
   unlockApp();
 }else{
