@@ -14,6 +14,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Idea Log">
 
+<!-- Firebase: only used for standalone hosting (e.g. GitHub Pages) to sync
+     ideas across devices. Inside a Claude preview these simply won't load
+     (or won't be used even if they do) — see the useFirebase check further
+     down, which falls back to plain localStorage either way. -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Source+Sans+3:wght@400;500;600&display=swap');
 
@@ -1615,8 +1623,10 @@ const STORAGE_KEY = 'idea-log-entries';
 // Uses Claude's built-in artifact storage when this runs inside Claude.
 // Falls back to the browser's localStorage when hosted standalone (e.g. on GitHub Pages),
 // so the same file works in both places without any changes.
+// "let" (not "const") because this gets swapped out for a Firebase-backed
+// adapter after a successful sign-in — see initFirebaseSync() below.
 const hasClaudeStorage = typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function';
-const storageAdapter = hasClaudeStorage ? window.storage : {
+let storageAdapter = hasClaudeStorage ? window.storage : {
   async get(key){
     const value = localStorage.getItem(key);
     if(value === null) throw new Error('Not found');
@@ -1627,6 +1637,72 @@ const storageAdapter = hasClaudeStorage ? window.storage : {
     return { key, value };
   }
 };
+
+// --- Firebase (cross-device sync) ---
+// Only attempted when standalone (not inside a Claude preview) and only
+// ever used as an *upgrade* over localStorage — if anything here fails
+// (offline, SDK blocked, etc.) the app just keeps using localStorage,
+// so it never breaks the app, worst case it just doesn't sync.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAJOmsH52Pif8_1lLq6loetMNelgEV3UvY",
+  authDomain: "idea-log-cedcd.firebaseapp.com",
+  projectId: "idea-log-cedcd",
+  storageBucket: "idea-log-cedcd.firebasestorage.app",
+  messagingSenderId: "1043428233101",
+  appId: "1:1043428233101:web:ef981a0656838f32c5b7c4"
+};
+
+const useFirebase = !hasClaudeStorage && typeof firebase !== 'undefined';
+let firebaseDocRef = null;
+
+// Wraps a Firestore document so it matches the same get/set shape as the
+// localStorage adapter above — the rest of the app (load/save) never needs
+// to know or care which one is actually in use.
+function makeFirebaseAdapter(docRef){
+  return {
+    async get(key){
+      const snap = await docRef.get();
+      if(!snap.exists) throw new Error('Not found');
+      const data = snap.data();
+      if(!data || typeof data[key] === 'undefined') throw new Error('Not found');
+      return { key, value: data[key] };
+    },
+    async set(key, value){
+      await docRef.set({ [key]: value }, { merge: true });
+      return { key, value };
+    }
+  };
+}
+
+// Signs in anonymously, points storageAdapter at Firestore instead of
+// localStorage, and subscribes to live updates so a change made on one
+// device shows up on every other device automatically.
+async function initFirebaseSync(){
+  if(!useFirebase) return;
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    await firebase.auth().signInAnonymously();
+
+    firebaseDocRef = firebase.firestore().collection('ideaLog').doc('shared');
+    storageAdapter = makeFirebaseAdapter(firebaseDocRef);
+
+    // Live sync: any time the shared document changes — on this device or
+    // any other — reload local state from it and re-render. This includes
+    // our own writes echoing back, which is harmless (just a redundant,
+    // invisible re-render with identical data).
+    firebaseDocRef.onSnapshot(
+      (snap) => { if(snap.exists) load(); },
+      (err) => { console.log('Firebase sync listener error:', err); }
+    );
+
+    setStatus('Cloud sync connected', 2000);
+  }catch(err){
+    console.log('Firebase unavailable, using local-only storage on this device:', err);
+    setStatus('Cloud sync unavailable — using local storage', 3000);
+    // storageAdapter is left as whatever it already was (localStorage), so
+    // the app keeps working normally, it just won't sync across devices
+  }
+}
 
 // AI features (Generate Prompt, Generate Summary) call Claude directly.
 // Inside Claude Artifacts, the API key is handled automatically.
@@ -3275,8 +3351,9 @@ async function sha256Hex(text){
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function unlockApp(){
+async function unlockApp(){
   lockScreen.style.display = 'none';
+  await initFirebaseSync();
   load();
 }
 
