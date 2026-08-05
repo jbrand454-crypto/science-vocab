@@ -1869,6 +1869,18 @@ function fmtTime(ts){
 }
 
 function render(){
+  // If a special view (Working On It / Up Next / In The Hole) has just been
+  // emptied out — e.g. via "Clear All", or un-flagging the last item while
+  // looking at it — drop back to the normal view automatically instead of
+  // leaving the person stuck on an empty screen with only a manual Return.
+  if(specialViewActive){
+    const cfg = QUEUE_VIEWS[specialViewActive];
+    const stillHasItems = entries.some(e => e[cfg.flag] && !e.deleted);
+    if(!stillHasItems){
+      specialViewActive = null;
+    }
+  }
+
   renderQueueToolbars();
 
   if(specialViewActive){
