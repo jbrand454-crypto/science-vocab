@@ -58,6 +58,110 @@
 
   .cover-inner{ margin-left: 24px; }
 
+  .back-link{
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    margin-left: 24px;
+    padding: 4px 0;
+  }
+  .back-link:hover{ color: #fff; text-decoration: underline; }
+
+  .lock-screen{
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--kraft);
+    background-image: repeating-linear-gradient(115deg, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .lock-card{
+    background: #fbf8ee;
+    border: 1px solid var(--paper-line);
+    border-radius: 4px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    padding: 32px 28px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .lock-eyebrow{
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+
+  .lock-title{
+    font-family: 'Space Mono', monospace;
+    font-size: 24px;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+
+  .lock-sub{
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+  }
+
+  #lockForm{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lock-input{
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    padding: 10px 12px;
+    border: 1px solid var(--paper-line);
+    border-radius: 3px;
+    text-align: center;
+    outline: none;
+  }
+  .lock-input:focus{ border-color: var(--stamp-soft); }
+
+  .lock-submit{
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    padding: 10px;
+    background: var(--stamp);
+    color: #fbf6ea;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .lock-submit:hover{ background: var(--kraft-dark); }
+
+  .lock-error{
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--stamp);
+    margin: 14px 0 0;
+  }
+
+  .lock-back-link{
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    margin-top: 18px;
+  }
+  .lock-back-link:hover{ color: var(--stamp); text-decoration: underline; }
+
   .eyebrow{
     font-family: 'Space Mono', monospace;
     font-size: 11px;
@@ -1283,8 +1387,23 @@
 </head>
 <body>
 
+<div id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <p class="lock-eyebrow">Idea Log · Owner Only</p>
+    <h1 class="lock-title">Locked</h1>
+    <p class="lock-sub">Enter the password to continue.</p>
+    <form id="lockForm" autocomplete="off">
+      <input type="password" id="lockInput" class="lock-input" placeholder="Password" autocomplete="off" autofocus>
+      <button type="submit" class="lock-submit">Unlock</button>
+    </form>
+    <p class="lock-error" id="lockError" style="display:none;">Wrong password — try again.</p>
+    <a href="https://jbrand454-crypto.github.io/science-vocab/" class="lock-back-link">← Back to Science Vocab</a>
+  </div>
+</div>
+
 <div class="cover">
   <div class="stitch"></div>
+  <a href="https://jbrand454-crypto.github.io/science-vocab/" class="back-link" title="Back to Field Notes: Science Vocabulary">← Back to Science Vocab</a>
   <div class="cover-inner">
     <p class="eyebrow">Capture · Do Not Lose The Thread</p>
     <h1>Idea Log</h1>
@@ -2967,7 +3086,45 @@ importFileInput.addEventListener('change', async (ev) => {
   importFileInput.value = '';
 });
 
-load();
+// --- Password lock (lightweight, client-side only — see note in chat about its limits) ---
+const LOCK_PASSWORD_HASH = 'faa5af7cea8ae5022bcc38f8942164e92b1d713152ce3e2aa07725c836e009bd';
+const LOCK_KEY = 'idea-log-authed';
+const lockScreen = document.getElementById('lockScreen');
+const lockForm = document.getElementById('lockForm');
+const lockInput = document.getElementById('lockInput');
+const lockError = document.getElementById('lockError');
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function unlockApp(){
+  lockScreen.style.display = 'none';
+  load();
+}
+
+if(localStorage.getItem(LOCK_KEY) === 'true'){
+  // already unlocked on this device — skip straight to the app
+  unlockApp();
+}else{
+  lockInput.focus();
+}
+
+lockForm.addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const hash = await sha256Hex(lockInput.value);
+  if(hash === LOCK_PASSWORD_HASH){
+    localStorage.setItem(LOCK_KEY, 'true');
+    lockError.style.display = 'none';
+    unlockApp();
+  }else{
+    lockError.style.display = 'block';
+    lockInput.value = '';
+    lockInput.focus();
+  }
+});
 </script>
 
 </body>
