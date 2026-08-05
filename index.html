@@ -532,6 +532,23 @@
   .footer-media .soon{color:var(--line);font-style:italic;}
   .footer-media .sep{color:var(--line-soft);margin:0 4px;}
   @media (prefers-reduced-motion: reduce){.tab,.tab:hover{transition:none;}}
+  /* ============================================================
+     HIDDEN IDEA LOG TRIGGER — owner-only entry point.
+     A 32x32px invisible hit-area pinned to the bottom-right
+     corner of the viewport. No visual cue on purpose — no border,
+     no hover cursor change — so it never appears as a clickable
+     element to a regular visitor. Triple-click it (within 1.5s)
+     to open the idea log. A stray single click does nothing.
+     ============================================================ */
+  #ideaLogTrigger{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    z-index: 9999;
+    background: transparent;
+  }
 </style>
 </head>
 <body>
@@ -642,6 +659,14 @@
     </p>
   </footer>
 </div>
+
+<!-- ============================================================
+     HIDDEN IDEA LOG TRIGGER — insert this <div> anywhere in <body>.
+     It's fixed-position, so where it sits in the HTML doesn't
+     matter — it always renders pinned to the bottom-right corner
+     of the screen, invisible, on top of everything else.
+     ============================================================ -->
+<div id="ideaLogTrigger" aria-hidden="true"></div>
 
 <button id="backToBottomBtn" class="back-to-top-btn back-to-bottom-btn" aria-label="Jump to bottom">↓</button>
 <button id="backToTopBtn" class="back-to-top-btn" aria-label="Back to top">↑</button>
@@ -7205,6 +7230,39 @@ if('serviceWorker' in navigator){
     });
   });
 }
+</script>
+
+<!-- ============================================================
+     HIDDEN IDEA LOG TRIGGER — script logic.
+     Insert this whole <script> block right before the closing
+     </body> tag (anywhere after the trigger <div> exists in the
+     DOM is fine, since this runs on page load and just attaches
+     a click listener).
+
+     Behavior: click the invisible corner hit-area 3 times within
+     1.5 seconds to be taken to the idea log. A single stray click
+     — the kind a regular visitor might make without noticing
+     anything is there — does nothing at all.
+     ============================================================ -->
+<script>
+(function(){
+  var trigger = document.getElementById('ideaLogTrigger');
+  if(!trigger) return;
+
+  var clickTimes = [];
+
+  trigger.addEventListener('click', function(){
+    var now = Date.now();
+    clickTimes.push(now);
+    // only keep clicks from the last 1.5 seconds
+    clickTimes = clickTimes.filter(function(t){ return now - t < 1500; });
+
+    if(clickTimes.length >= 3){
+      clickTimes = [];
+      window.location.href = 'idea-log/idea-log.html';
+    }
+  });
+})();
 </script>
 </body>
 </html>
