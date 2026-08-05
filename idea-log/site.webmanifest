@@ -1,0 +1,25 @@
+{
+  "name": "Field Notes: Idea Log",
+  "short_name": "Idea Log",
+  "description": "A quick-capture idea backlog with folders, tags, priorities, and AI-assisted prompts and summaries.",
+  "start_url": "./idea-log.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ece5d3",
+  "theme_color": "#8a6f4b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
