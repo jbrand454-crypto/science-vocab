@@ -1123,6 +1123,36 @@
   .card-text[data-editable="1"]{ cursor: text; border-radius: 2px; }
   .card-text[data-editable="1"]:hover{ background: rgba(163,64,43,0.06); }
 
+  /* Truncate body text after 5 lines; works regardless of font-size or card
+     width since it clamps by line count, not pixel height. */
+  .card-text[data-clamp="1"]{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
+  }
+  .card-text[data-clamp="1"].expanded{
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .card-see-more{
+    display: block;
+    margin: 3px 0 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .card-see-more:hover{ color: var(--stamp); }
+
   .card-edit-input{
     width: 100%;
     font-family: 'Source Sans 3', sans-serif;
@@ -1688,6 +1718,7 @@ let captureFolderOverride = null; // null = follow the active folder tab; otherw
 let activeTagFilters = new Set();
 let specialViewActive = null; // null | 'working' | 'upnext' | 'hole'
 let visibleTrashIds = [];
+let expandedCardIds = new Set();
 
 const QUEUE_VIEWS = {
   working: {
@@ -1899,7 +1930,46 @@ function render(){
     card.addEventListener('dragend', onDragEnd);
   });
 
+  document.querySelectorAll('.card-see-more').forEach(btn => {
+    btn.addEventListener('click', onSeeMoreClick);
+  });
+  updateSeeMoreButtons();
+
   captureHint.textContent = '⌘/CTRL + ENTER TO CAPTURE';
+}
+
+function onSeeMoreClick(ev){
+  const id = ev.currentTarget.getAttribute('data-id');
+  const textEl = document.querySelector(`.card-text[data-id="${id}"]`);
+  if(!textEl) return;
+  const nowExpanded = textEl.classList.toggle('expanded');
+  if(nowExpanded){
+    expandedCardIds.add(id);
+    ev.currentTarget.textContent = 'See less';
+  }else{
+    expandedCardIds.delete(id);
+    ev.currentTarget.textContent = 'See more';
+    updateSeeMoreButtons();
+  }
+}
+
+function updateSeeMoreButtons(){
+  document.querySelectorAll('.card-text[data-clamp="1"]').forEach(textEl => {
+    const id = textEl.getAttribute('data-id');
+    const btn = document.querySelector(`.card-see-more[data-id="${id}"]`);
+    if(!btn) return;
+
+    if(textEl.classList.contains('expanded')){
+      btn.style.display = 'block';
+      btn.textContent = 'See less';
+      return;
+    }
+
+    // reading scrollHeight forces layout, so this only measures reliably
+    // once the element is actually in the DOM with its final width
+    const isTruncated = textEl.scrollHeight > textEl.clientHeight + 1;
+    btn.style.display = isTruncated ? 'block' : 'none';
+  });
 }
 
 function folderName(id){
@@ -2431,12 +2501,15 @@ function cardHtml(e, position, mode, badgeIcon){
     ? (e.working ? 'working' : (e.upNext ? 'up-next' : (e.inTheHole ? 'in-the-hole' : '')))
     : '';
 
+  const isExpanded = expandedCardIds.has(e.id);
+
   return `
     <div class="card ${mode === 'done' ? 'done' : ''} ${mode === 'trash' ? 'trashed' : ''} ${highlightClass}" ${draggable ? `draggable="true" data-id="${e.id}"` : ''}>
       ${draggable ? '<div class="drag-handle" title="Drag to reprioritize">⠿</div>' : ''}
       ${badge}
       <div class="card-body">
-        <div class="card-text" ${mode === 'open' ? `data-id="${e.id}" data-editable="1" title="Click to edit"` : ''}>${escapeHtml(e.text)}</div>
+        <div class="card-text ${isExpanded ? 'expanded' : ''}" data-id="${e.id}" data-clamp="1" ${mode === 'open' ? `data-editable="1" title="Click to edit"` : ''}>${escapeHtml(e.text)}</div>
+        <button type="button" class="card-see-more" data-id="${e.id}" style="display:none;">${isExpanded ? 'See less' : 'See more'}</button>
         <div class="card-meta">${metaLine}</div>
       </div>
       <div class="card-actions">
@@ -2501,6 +2574,11 @@ function startEditCard(id){
   if(!textEl || textEl.querySelector('textarea')) return;
   const entry = entries.find(e => e.id === id);
   if(!entry) return;
+
+  // lift the 5-line clamp while editing so the textarea isn't squeezed into it
+  textEl.classList.add('expanded');
+  const seeMoreBtn = document.querySelector(`.card-see-more[data-id="${id}"]`);
+  if(seeMoreBtn) seeMoreBtn.style.display = 'none';
 
   const original = entry.text;
   textEl.innerHTML = `<textarea class="card-edit-input">${escapeHtml(original)}</textarea>`;
