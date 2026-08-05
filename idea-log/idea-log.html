@@ -1254,6 +1254,31 @@
     margin-top: 18px;
     min-height: 14px;
   }
+
+  .data-footer{
+    text-align: center;
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--paper-line);
+  }
+
+  .data-link-btn{
+    background: none;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .data-link-btn:hover{ color: var(--stamp); text-decoration: underline; }
+
+  .data-sep{
+    color: var(--paper-line);
+    font-size: 10px;
+    margin: 0 2px;
+  }
 </style>
 </head>
 <body>
@@ -1378,6 +1403,13 @@
   </div>
 
   <div class="status" id="status"></div>
+
+  <div class="data-footer">
+    <button type="button" class="data-link-btn" id="exportDataBtn">⬇ Export Data</button>
+    <span class="data-sep">·</span>
+    <button type="button" class="data-link-btn" id="importDataBtn">⬆ Import Data</button>
+    <input type="file" id="importFileInput" accept="application/json" style="display:none;">
+  </div>
 </div>
 
 <script>
@@ -2872,6 +2904,65 @@ if(!hasClaudeStorage){
   apiKeyBtn.style.display = 'flex';
   apiKeyBtn.addEventListener('click', promptForApiKey);
 }
+
+// --- Backup / migrate data between hosts (e.g. Claude preview → live GitHub Pages) ---
+
+const exportDataBtn = document.getElementById('exportDataBtn');
+const importDataBtn = document.getElementById('importDataBtn');
+const importFileInput = document.getElementById('importFileInput');
+
+exportDataBtn.addEventListener('click', async () => {
+  try{
+    const result = await storageAdapter.get(STORAGE_KEY);
+    const dataStr = (result && result.value) ? result.value : JSON.stringify({
+      entries, folders, activeFolderId,
+      activePlatformFilters: [...activePlatformFilters],
+      activeTagFilters: [...activeTagFilters]
+    });
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `idea-log-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setStatus('Backup downloaded');
+  }catch(e){
+    setStatus('Nothing to export yet', 2500);
+  }
+});
+
+importDataBtn.addEventListener('click', () => importFileInput.click());
+
+importFileInput.addEventListener('change', async (ev) => {
+  const file = ev.target.files[0];
+  if(!file) return;
+
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!parsed || !Array.isArray(parsed.entries)){
+      throw new Error('Not a valid Idea Log backup file');
+    }
+
+    const count = parsed.entries.length;
+    const proceed = confirm(
+      `Import ${count} idea${count === 1 ? '' : 's'} from this backup?\n\nThis replaces everything currently in your idea log on this device — folders, tags, and filters included. This can't be undone.`
+    );
+    if(!proceed){ importFileInput.value = ''; return; }
+
+    await storageAdapter.set(STORAGE_KEY, text);
+    setStatus('Data imported — reloading…');
+    setTimeout(() => location.reload(), 700);
+  }catch(e){
+    setStatus('Could not import — check the file', 3000);
+  }
+
+  importFileInput.value = '';
+});
 
 load();
 </script>
