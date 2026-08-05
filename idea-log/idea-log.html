@@ -1295,7 +1295,7 @@
 <div class="wrap">
 
   <div class="capture">
-    <textarea id="input" placeholder="What's on deck? (e.g. add a quiz mode to the vocab tool)"></textarea>
+    <textarea id="input" placeholder="What's your idea? (e.g. add a quiz mode to the vocab tool)"></textarea>
 
     <div class="capture-folder-row">
       <span class="hint" style="margin-right:2px;">FOLDER:</span>
@@ -1568,6 +1568,7 @@ let captureTags = [];
 let captureFolderOverride = null; // null = follow the active folder tab; otherwise 'unfiled' or a folder id
 let activeTagFilters = new Set();
 let specialViewActive = null; // null | 'working' | 'upnext' | 'hole'
+let visibleTrashIds = [];
 
 const QUEUE_VIEWS = {
   working: {
@@ -1748,6 +1749,7 @@ function render(){
 
   trashWrap.style.display = specialViewActive ? 'none' : (trashed.length ? 'block' : 'none');
   trashList.innerHTML = trashed.map(e => cardHtml(e, null, 'trash')).join('');
+  visibleTrashIds = trashed.map(e => e.id);
 
   document.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', onAction);
@@ -2476,10 +2478,11 @@ async function onAction(ev){
 }
 
 emptyTrashBtn.addEventListener('click', async () => {
-  const trashedCount = entries.filter(e => e.deleted).length;
-  if(!trashedCount) return;
-  if(!confirm(`Permanently delete ${trashedCount} idea${trashedCount === 1 ? '' : 's'} in the trash? This can't be undone.`)) return;
-  entries = entries.filter(e => !e.deleted);
+  const count = visibleTrashIds.length;
+  if(!count) return;
+  if(!confirm(`Permanently delete ${count} idea${count === 1 ? '' : 's'} in the trash? This can't be undone.`)) return;
+  const idsToRemove = new Set(visibleTrashIds);
+  entries = entries.filter(e => !idsToRemove.has(e.id));
   render();
   setStatus('Trash emptied');
   await save();
