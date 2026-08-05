@@ -1413,6 +1413,44 @@
     font-size: 10px;
     margin: 0 2px;
   }
+
+  /* ============================================================
+     SCROLL TO TOP — fixed circular button, bottom-right corner.
+     Hidden by default; JS adds .visible once the page has been
+     scrolled down 300px, which is what triggers the fade/slide in.
+     ============================================================ */
+  #scrollTopBtn{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--stamp);
+    color: #fbf6ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.15s ease;
+    z-index: 500;
+  }
+  #scrollTopBtn.visible{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  #scrollTopBtn:hover{ background: var(--kraft-dark); }
+  #scrollTopBtn:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    #scrollTopBtn{ transition: opacity 0.15s ease; transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -1560,6 +1598,16 @@
     <input type="file" id="importFileInput" accept="application/json" style="display:none;">
   </div>
 </div>
+
+<!-- Scroll-to-top: fixed-position circular button, fades in after the page
+     has been scrolled down 300px. Sits outside .wrap so it's positioned
+     relative to the viewport, not the content column. -->
+<button id="scrollTopBtn" aria-label="Scroll to top" title="Scroll to top">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
 
 <script>
 const STORAGE_KEY = 'idea-log-entries';
@@ -3244,6 +3292,27 @@ lockForm.addEventListener('submit', async (ev) => {
     lockInput.focus();
   }
 });
+
+// --- Scroll to top ---
+(function(){
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+  const SHOW_AFTER_PX = 300;
+
+  function toggleScrollBtn(){
+    if(window.scrollY > SHOW_AFTER_PX){
+      scrollTopBtn.classList.add('visible');
+    }else{
+      scrollTopBtn.classList.remove('visible');
+    }
+  }
+
+  window.addEventListener('scroll', toggleScrollBtn, { passive: true });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  toggleScrollBtn();
+})();
 </script>
 
 </body>
