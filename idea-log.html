@@ -14,6 +14,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Idea Log">
 
+<!-- Firebase: only used for standalone hosting (e.g. GitHub Pages) to sync
+     ideas across devices. Inside a Claude preview these simply won't load
+     (or won't be used even if they do) — see the useFirebase check further
+     down, which falls back to plain localStorage either way. -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Source+Sans+3:wght@400;500;600&display=swap');
 
@@ -1413,6 +1421,44 @@
     font-size: 10px;
     margin: 0 2px;
   }
+
+  /* ============================================================
+     SCROLL TO TOP — fixed circular button, bottom-right corner.
+     Hidden by default; JS adds .visible once the page has been
+     scrolled down 300px, which is what triggers the fade/slide in.
+     ============================================================ */
+  #scrollTopBtn{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--stamp);
+    color: #fbf6ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.15s ease;
+    z-index: 500;
+  }
+  #scrollTopBtn.visible{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  #scrollTopBtn:hover{ background: var(--kraft-dark); }
+  #scrollTopBtn:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    #scrollTopBtn{ transition: opacity 0.15s ease; transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -1561,14 +1607,26 @@
   </div>
 </div>
 
+<!-- Scroll-to-top: fixed-position circular button, fades in after the page
+     has been scrolled down 300px. Sits outside .wrap so it's positioned
+     relative to the viewport, not the content column. -->
+<button id="scrollTopBtn" aria-label="Scroll to top" title="Scroll to top">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"></path>
+    <path d="M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+
 <script>
 const STORAGE_KEY = 'idea-log-entries';
 
 // Uses Claude's built-in artifact storage when this runs inside Claude.
 // Falls back to the browser's localStorage when hosted standalone (e.g. on GitHub Pages),
 // so the same file works in both places without any changes.
+// "let" (not "const") because this gets swapped out for a Firebase-backed
+// adapter after a successful sign-in — see initFirebaseSync() below.
 const hasClaudeStorage = typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function';
-const storageAdapter = hasClaudeStorage ? window.storage : {
+let storageAdapter = hasClaudeStorage ? window.storage : {
   async get(key){
     const value = localStorage.getItem(key);
     if(value === null) throw new Error('Not found');
@@ -1579,6 +1637,72 @@ const storageAdapter = hasClaudeStorage ? window.storage : {
     return { key, value };
   }
 };
+
+// --- Firebase (cross-device sync) ---
+// Only attempted when standalone (not inside a Claude preview) and only
+// ever used as an *upgrade* over localStorage — if anything here fails
+// (offline, SDK blocked, etc.) the app just keeps using localStorage,
+// so it never breaks the app, worst case it just doesn't sync.
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAJOmsH52Pif8_1lLq6loetMNelgEV3UvY",
+  authDomain: "idea-log-cedcd.firebaseapp.com",
+  projectId: "idea-log-cedcd",
+  storageBucket: "idea-log-cedcd.firebasestorage.app",
+  messagingSenderId: "1043428233101",
+  appId: "1:1043428233101:web:ef981a0656838f32c5b7c4"
+};
+
+const useFirebase = !hasClaudeStorage && typeof firebase !== 'undefined';
+let firebaseDocRef = null;
+
+// Wraps a Firestore document so it matches the same get/set shape as the
+// localStorage adapter above — the rest of the app (load/save) never needs
+// to know or care which one is actually in use.
+function makeFirebaseAdapter(docRef){
+  return {
+    async get(key){
+      const snap = await docRef.get();
+      if(!snap.exists) throw new Error('Not found');
+      const data = snap.data();
+      if(!data || typeof data[key] === 'undefined') throw new Error('Not found');
+      return { key, value: data[key] };
+    },
+    async set(key, value){
+      await docRef.set({ [key]: value }, { merge: true });
+      return { key, value };
+    }
+  };
+}
+
+// Signs in anonymously, points storageAdapter at Firestore instead of
+// localStorage, and subscribes to live updates so a change made on one
+// device shows up on every other device automatically.
+async function initFirebaseSync(){
+  if(!useFirebase) return;
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    await firebase.auth().signInAnonymously();
+
+    firebaseDocRef = firebase.firestore().collection('ideaLog').doc('shared');
+    storageAdapter = makeFirebaseAdapter(firebaseDocRef);
+
+    // Live sync: any time the shared document changes — on this device or
+    // any other — reload local state from it and re-render. This includes
+    // our own writes echoing back, which is harmless (just a redundant,
+    // invisible re-render with identical data).
+    firebaseDocRef.onSnapshot(
+      (snap) => { if(snap.exists) load(); },
+      (err) => { console.log('Firebase sync listener error:', err); }
+    );
+
+    setStatus('Cloud sync connected', 2000);
+  }catch(err){
+    console.log('Firebase unavailable, using local-only storage on this device:', err);
+    setStatus('Cloud sync unavailable — using local storage', 3000);
+    // storageAdapter is left as whatever it already was (localStorage), so
+    // the app keeps working normally, it just won't sync across devices
+  }
+}
 
 // AI features (Generate Prompt, Generate Summary) call Claude directly.
 // Inside Claude Artifacts, the API key is handled automatically.
@@ -1704,7 +1828,8 @@ const PLATFORMS = [
   { id: 'gemini-notebook', label: 'Gemini Notebook' },
   { id: 'chatgpt', label: 'ChatGPT' },
   { id: 'perplexity', label: 'Perplexity' },
-  { id: 'grok', label: 'Grok' }
+  { id: 'grok', label: 'Grok' },
+  { id: 'none', label: 'No Platform – General Idea' }
 ];
 
 let entries = [];
@@ -1820,6 +1945,18 @@ function fmtTime(ts){
 }
 
 function render(){
+  // If a special view (Working On It / Up Next / In The Hole) has just been
+  // emptied out — e.g. via "Clear All", or un-flagging the last item while
+  // looking at it — drop back to the normal view automatically instead of
+  // leaving the person stuck on an empty screen with only a manual Return.
+  if(specialViewActive){
+    const cfg = QUEUE_VIEWS[specialViewActive];
+    const stillHasItems = entries.some(e => e[cfg.flag] && !e.deleted);
+    if(!stillHasItems){
+      specialViewActive = null;
+    }
+  }
+
   renderQueueToolbars();
 
   if(specialViewActive){
@@ -2836,24 +2973,26 @@ dismissPromptBtn.addEventListener('click', () => {
 });
 
 // --- Speech to text ---
+// Android's browsers handle SpeechRecognition's "continuous" mode very
+// unreliably (a long-documented limitation, unrelated to the device's own
+// keyboard dictation, which uses a completely different, more mature
+// pipeline). Rather than fight that, this runs short single-utterance
+// sessions and automatically starts the next one the moment each ends —
+// which reads as continuous listening to the person using it, without
+// relying on the buggy mode at all.
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
 let baseText = '';
+let sessionFinalCommitted = false;
 
 if(SpeechRecognitionAPI){
   recognition = new SpeechRecognitionAPI();
-  recognition.continuous = true;
+  recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
 
   recognition.onresult = (event) => {
-    // Rebuild the transcript fresh from the whole results array every time,
-    // rather than trusting event.resultIndex to mark only "new" results.
-    // Android's speech engine reports resultIndex unreliably (often 0 every
-    // time), which caused already-finalized text to get reprocessed and
-    // appended again — this recompute-from-scratch approach can't duplicate,
-    // no matter how the browser reports indices.
     let finalText = '';
     let interimText = '';
 
@@ -2866,10 +3005,16 @@ if(SpeechRecognitionAPI){
       }
     }
 
+    // commit the finalized chunk from this session into baseText exactly
+    // once, so the restart in onend can't cause it to be added again
+    if(finalText.trim() && !sessionFinalCommitted){
+      sessionFinalCommitted = true;
+      baseText = (baseText ? baseText + ' ' : '') + finalText.trim();
+    }
+
     const parts = [];
     if(baseText) parts.push(baseText);
-    if(finalText.trim()) parts.push(finalText.trim());
-    if(interimText.trim()) parts.push(interimText.trim());
+    if(!sessionFinalCommitted && interimText.trim()) parts.push(interimText.trim());
 
     input.value = parts.join(' ');
     addBtn.disabled = input.value.trim().length === 0;
@@ -2877,15 +3022,23 @@ if(SpeechRecognitionAPI){
   };
 
   recognition.onerror = (event) => {
+    // "no-speech" just means a pause with nothing said — let onend restart
+    // the next session naturally instead of treating it as a real error
+    if(event.error === 'no-speech' || event.error === 'aborted'){
+      return;
+    }
     setStatus(event.error === 'not-allowed' ? 'Mic access denied' : 'Mic error — try again', 2500);
     stopListening();
   };
 
   recognition.onend = () => {
     if(isListening){
-      // browser auto-stopped (e.g. silence); drop out of listening state
-      isListening = false;
-      micBtn.classList.remove('listening');
+      sessionFinalCommitted = false;
+      try{
+        recognition.start();
+      }catch(e){
+        // already running somehow; ignore
+      }
     }
   };
 
@@ -2903,6 +3056,7 @@ if(SpeechRecognitionAPI){
 
 function startListening(){
   baseText = input.value.trim();
+  sessionFinalCommitted = false;
   isListening = true;
   micBtn.classList.add('listening');
   setStatus('Listening…', 0);
@@ -3197,8 +3351,9 @@ async function sha256Hex(text){
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function unlockApp(){
+async function unlockApp(){
   lockScreen.style.display = 'none';
+  await initFirebaseSync();
   load();
 }
 
@@ -3227,6 +3382,27 @@ lockForm.addEventListener('submit', async (ev) => {
     lockInput.focus();
   }
 });
+
+// --- Scroll to top ---
+(function(){
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+  const SHOW_AFTER_PX = 300;
+
+  function toggleScrollBtn(){
+    if(window.scrollY > SHOW_AFTER_PX){
+      scrollTopBtn.classList.add('visible');
+    }else{
+      scrollTopBtn.classList.remove('visible');
+    }
+  }
+
+  window.addEventListener('scroll', toggleScrollBtn, { passive: true });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  toggleScrollBtn();
+})();
 </script>
 
 </body>
