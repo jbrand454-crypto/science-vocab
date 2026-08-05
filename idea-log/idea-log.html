@@ -2836,49 +2836,72 @@ dismissPromptBtn.addEventListener('click', () => {
 });
 
 // --- Speech to text ---
+// Android's browsers handle SpeechRecognition's "continuous" mode very
+// unreliably (a long-documented limitation, unrelated to the device's own
+// keyboard dictation, which uses a completely different, more mature
+// pipeline). Rather than fight that, this runs short single-utterance
+// sessions and automatically starts the next one the moment each ends —
+// which reads as continuous listening to the person using it, without
+// relying on the buggy mode at all.
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
 let baseText = '';
+let sessionFinalCommitted = false;
 
 if(SpeechRecognitionAPI){
   recognition = new SpeechRecognitionAPI();
-  recognition.continuous = true;
+  recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
 
   recognition.onresult = (event) => {
-    let finalChunk = '';
-    let interimChunk = '';
+    let finalText = '';
+    let interimText = '';
 
-    for(let i = event.resultIndex; i < event.results.length; i++){
+    for(let i = 0; i < event.results.length; i++){
       const chunk = event.results[i][0].transcript;
       if(event.results[i].isFinal){
-        finalChunk += chunk;
+        finalText += chunk;
       }else{
-        interimChunk += chunk;
+        interimText += chunk;
       }
     }
 
-    if(finalChunk){
-      baseText = (baseText ? baseText + ' ' : '') + finalChunk.trim();
+    // commit the finalized chunk from this session into baseText exactly
+    // once, so the restart in onend can't cause it to be added again
+    if(finalText.trim() && !sessionFinalCommitted){
+      sessionFinalCommitted = true;
+      baseText = (baseText ? baseText + ' ' : '') + finalText.trim();
     }
 
-    input.value = (baseText ? baseText + ' ' : '') + interimChunk;
+    const parts = [];
+    if(baseText) parts.push(baseText);
+    if(!sessionFinalCommitted && interimText.trim()) parts.push(interimText.trim());
+
+    input.value = parts.join(' ');
     addBtn.disabled = input.value.trim().length === 0;
     genBtn.disabled = input.value.trim().length === 0;
   };
 
   recognition.onerror = (event) => {
+    // "no-speech" just means a pause with nothing said — let onend restart
+    // the next session naturally instead of treating it as a real error
+    if(event.error === 'no-speech' || event.error === 'aborted'){
+      return;
+    }
     setStatus(event.error === 'not-allowed' ? 'Mic access denied' : 'Mic error — try again', 2500);
     stopListening();
   };
 
   recognition.onend = () => {
     if(isListening){
-      // browser auto-stopped (e.g. silence); drop out of listening state
-      isListening = false;
-      micBtn.classList.remove('listening');
+      sessionFinalCommitted = false;
+      try{
+        recognition.start();
+      }catch(e){
+        // already running somehow; ignore
+      }
     }
   };
 
@@ -2896,6 +2919,7 @@ if(SpeechRecognitionAPI){
 
 function startListening(){
   baseText = input.value.trim();
+  sessionFinalCommitted = false;
   isListening = true;
   micBtn.classList.add('listening');
   setStatus('Listening…', 0);
