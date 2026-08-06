@@ -382,6 +382,60 @@
     transition:background .15s ease;
   }
   .journal-download-btn:hover{background:var(--ink);}
+  .journal-progress-card{
+    margin-top:16px;background:var(--paper-card);border:1.5px solid var(--line);border-radius:10px;
+    padding:16px 18px 14px;
+  }
+  .jp-label{
+    display:inline-block;font-family:'Special Elite',monospace;font-size:10px;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--ink-soft);margin-bottom:12px;
+  }
+  .jp-bar-track{position:relative;height:10px;background:#E9E4D6;border-radius:6px;margin:0 4px 28px;}
+  .jp-bar-fill{position:absolute;top:0;left:0;height:100%;background:var(--gold);border-radius:6px;transition:width .3s ease;}
+  .jp-milestone{position:absolute;top:-3px;transform:translateX(-50%);text-align:center;}
+  .jp-milestone-dot{
+    display:block;width:16px;height:16px;border-radius:50%;background:#fff;border:2.5px solid var(--line);
+    margin:0 auto;
+  }
+  .jp-milestone.reached .jp-milestone-dot{border-color:var(--gold);background:var(--gold);}
+  .jp-milestone-label{
+    display:block;font-family:'Special Elite',monospace;font-size:8.5px;color:var(--ink-soft);
+    margin-top:3px;white-space:nowrap;
+  }
+  .jp-stats{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink);margin-bottom:6px;}
+  .jp-stats span:first-child{font-weight:700;}
+  .jp-last{color:var(--ink-soft);font-size:12.5px;}
+  .jp-note{margin:6px 0 0;font-size:11.5px;font-style:italic;color:var(--ink-soft);line-height:1.4;}
+  .jp-manual-toggle{
+    display:block;background:none;border:none;padding:0;margin-top:10px;cursor:pointer;
+    font-family:'Atkinson Hyperlegible',sans-serif;font-size:12px;color:var(--teal-dark);
+    text-decoration:underline;text-align:left;
+  }
+  .jp-manual-toggle:hover{color:var(--gold);}
+  .jp-manual-form{
+    display:none;margin-top:12px;padding:14px;background:#fff;border:1px dashed var(--line);border-radius:8px;
+  }
+  .jp-manual-form.show{display:block;}
+  .jp-manual-label{
+    display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;
+  }
+  .jp-manual-input{
+    display:block;width:100%;max-width:220px;margin-top:4px;padding:7px 10px;font-size:13.5px;
+    font-family:'Atkinson Hyperlegible',sans-serif;border:1.5px solid var(--line);border-radius:6px;
+    box-sizing:border-box;color:var(--ink);
+  }
+  .jp-manual-btn-row{display:flex;gap:10px;margin-top:4px;}
+  .jp-manual-save{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:12.5px;
+    background:var(--gold);color:#fff;border:none;border-radius:16px;padding:8px 16px;cursor:pointer;
+    transition:background .15s ease;
+  }
+  .jp-manual-save:hover{background:var(--ink);}
+  .jp-manual-cancel{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:12.5px;
+    background:#fff;color:var(--ink-soft);border:1.5px solid var(--line);border-radius:16px;padding:7px 16px;cursor:pointer;
+  }
+  .jp-manual-cancel:hover{border-color:var(--ink-soft);}
   .media-row button{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:#fff;border:1.5px solid var(--teal);color:var(--teal);border-radius:20px;padding:9px 16px;cursor:pointer;transition:background .15s ease, color .15s ease;display:flex;align-items:center;gap:6px;}
   .media-row button:hover{background:var(--teal);color:#fff;}
   .media-row button.on{background:var(--teal);color:#fff;}
@@ -1069,7 +1123,7 @@ const TERMS = {
     ]},
 
 
-  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, pauseGate:true, journalToggle:true, faithBonus:true,
+  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
     definition:"Matter is anything that has mass and takes up space.",
     example:"Air, water, rocks, and your own body are all matter — even though air is invisible, it still has mass and takes up space.",
     watch:"Just because something is invisible or feels weightless doesn't mean it isn't matter — air is a common example students overlook.",
@@ -1253,7 +1307,7 @@ const TERMS = {
     ]},
 
 
-  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atom", ep:2, entranceTicket:true, galileo:true, aiCohost:"quinn", reflect:true, pauseGate:true, journalToggle:true, faithBonus:true,
+  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atom", ep:2, entranceTicket:true, galileo:true, aiCohost:"quinn", reflect:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
     definition:"An atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms.",
     example:"A single drop of water is made of billions and billions of atoms, far too small to see even with a regular microscope.",
     watch:"Atoms are so small you can't see even one with your own eyes, or with a typical microscope — but just like we talked about with matter, being invisible doesn't mean something isn't real.",
@@ -1379,7 +1433,7 @@ const TERMS = {
         q:"Explain why your friend is mistaken.", model:"Being naturally occurring doesn't make something an element — what matters is whether it's made of just one type of atom. Carbon dioxide is made of two different elements, carbon and oxygen, chemically bonded together, which makes it a compound, not an element, no matter how common it is in nature."}
     ]},
 
-  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Molecule", ep:3, reflect:true, journalToggle:true, entranceTicket:true, galileo:true, pauseGate:true, faithBonus:true,
+  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Molecule", ep:3, reflect:true, journalToggle:true, journalProgress:true, entranceTicket:true, galileo:true, pauseGate:true, faithBonus:true,
     definition:"A molecule forms when two or more atoms bond together — sometimes atoms of the same element, sometimes atoms of different elements entirely.",
     example:"Oxygen gas (O2) is a molecule made of two oxygen atoms bonded together. Water (H2O) is a molecule made of two hydrogen atoms and one oxygen atom bonded together.",
     watch:"A molecule is simply two or more atoms bonded together — that's the whole requirement. A compound is more specific: a compound is a molecule where the atoms are different elements. O2 is a molecule but not a compound (same element); water is both (different elements). Every compound is a molecule, but not every molecule is a compound — like how every square is a rectangle, but not every rectangle is a square.",
@@ -10437,6 +10491,79 @@ function renderCard(){
   const personalPromptHTML = `<p>This week's topic was <b>${t.name}</b>, and the Faith &amp; Science in Action question above invited you to sit with how that idea connects to your own life. Whenever you're ready, jot down your thoughts — there's no minimum length and nothing to score here. This is simply space to think it through honestly, at your own pace.</p>
     ${journalActionsHTML}`;
 
+  const MILESTONES = [
+    {ep: 86, label: 'Grade 6 Complete'},
+    {ep: 194, label: 'Grade 7 Complete'},
+    {ep: 316, label: 'Journey Complete'},
+  ];
+
+  function getJournalProgress(){
+    try {
+      const raw = localStorage.getItem('fsfn_journal_progress');
+      return raw ? JSON.parse(raw) : {maxEp: 0, lastEp: null, lastDate: null};
+    } catch(e){ return {maxEp: 0, lastEp: null, lastDate: null}; }
+  }
+  function saveJournalProgress(ep){
+    try {
+      const current = getJournalProgress();
+      const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+      const updated = {maxEp: Math.max(current.maxEp || 0, ep), lastEp: ep, lastDate: today};
+      localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
+      return updated;
+    } catch(e){ return {maxEp: ep, lastEp: ep, lastDate: ''}; }
+  }
+
+  function setJournalProgressManual(ep, dateStr){
+    try {
+      const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+      const updated = {maxEp: ep, lastEp: ep, lastDate: dateStr || today};
+      localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
+      return updated;
+    } catch(e){ return {maxEp: ep, lastEp: ep, lastDate: dateStr || ''}; }
+  }
+
+  function journalProgressHTML(){
+    const p = getJournalProgress();
+    const pct = Math.min(100, (p.maxEp / 316) * 100);
+    const lastLine = p.lastEp
+      ? `Last recorded: <b>EP.${String(p.lastEp).padStart(3,'0')}</b> on ${p.lastDate}`
+      : `No entries recorded yet on this device \u2014 tap Make a Journal Entry to start your streak`;
+    const milestoneMarks = MILESTONES.map(m => {
+      const leftPct = (m.ep / 316) * 100;
+      const reached = p.maxEp >= m.ep;
+      return `<div class="jp-milestone ${reached ? 'reached' : ''}" style="left:${leftPct}%;" title="${m.label} \u2014 EP.${String(m.ep).padStart(3,'0')}">
+        <span class="jp-milestone-dot"></span>
+        <span class="jp-milestone-label">EP.${m.ep}</span>
+      </div>`;
+    }).join('');
+    return `
+    <div class="journal-progress-card" id="journalProgressCard">
+      <span class="jp-label">📊 Journal Progress \u00b7 this device only</span>
+      <div class="jp-bar-track">
+        <div class="jp-bar-fill" style="width:${pct}%;"></div>
+        ${milestoneMarks}
+      </div>
+      <div class="jp-stats">
+        <span>${String(p.maxEp).padStart(3,'0')} of 316 episodes journaled</span>
+        <span class="jp-last">${lastLine}</span>
+      </div>
+      <button type="button" class="jp-manual-toggle" id="jpManualToggle">✏️ Journaling on paper or another device? Update your progress manually</button>
+      <div class="jp-manual-form" id="jpManualForm">
+        <label class="jp-manual-label">Episode number reached
+          <input type="number" id="jpManualEp" class="jp-manual-input" min="1" max="316" value="${p.maxEp || ''}" placeholder="e.g. 45">
+        </label>
+        <label class="jp-manual-label">Date (optional \u2014 defaults to today)
+          <input type="date" id="jpManualDate" class="jp-manual-input">
+        </label>
+        <div class="jp-manual-btn-row">
+          <button type="button" class="jp-manual-save" id="jpManualSave">Save Progress</button>
+          <button type="button" class="jp-manual-cancel" id="jpManualCancel">Cancel</button>
+        </div>
+      </div>
+      <p class="jp-note">Tracked only in this browser, on this device \u2014 nothing is sent anywhere. Miss a few weeks? No pressure, just pick back up whenever you're ready.</p>
+    </div>`;
+  }
+
   const reflectHTML = !t.reflect ? '' : (t.journalToggle ? `
     <div class="section-label">Weekly Reflection</div>
     <div class="reflect-block">
@@ -10537,6 +10664,7 @@ function renderCard(){
     </div>
     ${useNewOrder ? faithEntryHTML : ''}
     ${reflectHTML}
+    ${t.journalProgress ? journalProgressHTML() : ''}
 
     <div class="section-label">Navigate</div>
     <div class="nav-controls">
@@ -10582,6 +10710,48 @@ function renderCard(){
       panel.classList.toggle('show');
     });
   });
+
+  if(t.journalProgress){
+    cardEl.querySelectorAll('.reflect-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        saveJournalProgress(t.ep);
+        const card = document.getElementById('journalProgressCard');
+        if(card){
+          card.outerHTML = journalProgressHTML();
+          wireJournalProgressManualForm();
+        }
+      });
+    });
+    wireJournalProgressManualForm();
+  }
+
+  function wireJournalProgressManualForm(){
+    const toggle = document.getElementById('jpManualToggle');
+    const form = document.getElementById('jpManualForm');
+    const saveBtn = document.getElementById('jpManualSave');
+    const cancelBtn = document.getElementById('jpManualCancel');
+    if(!toggle) return;
+    toggle.addEventListener('click', ()=> form.classList.toggle('show'));
+    cancelBtn.addEventListener('click', ()=> form.classList.remove('show'));
+    saveBtn.addEventListener('click', ()=>{
+      const epInput = document.getElementById('jpManualEp');
+      const dateInput = document.getElementById('jpManualDate');
+      const ep = parseInt(epInput.value, 10);
+      if(!ep || ep < 1 || ep > 316){
+        epInput.style.borderColor = '#C0392B';
+        return;
+      }
+      let dateStr = '';
+      if(dateInput.value){
+        const d = new Date(dateInput.value + 'T00:00:00');
+        dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+      }
+      setJournalProgressManual(ep, dateStr);
+      const card = document.getElementById('journalProgressCard');
+      card.outerHTML = journalProgressHTML();
+      wireJournalProgressManualForm();
+    });
+  }
 
   const backToTopicBtn = document.getElementById('backToTopicBtn');
   if(backToTopicBtn){
