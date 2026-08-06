@@ -10489,8 +10489,7 @@ function renderCard(){
   let navText = '';
   if(keys.length){
     if(isPracticeAllView() && currentEp !== undefined && viewEps.length === keys.length){
-      const minEp = Math.min(...viewEps), maxEp = Math.max(...viewEps);
-      navText = `Term ${pad(currentEp)} of ${pad(minEp)}-${pad(maxEp)}`;
+      navText = `Term ${pad(currentEp)} of 316`;
     } else {
       navText = `Term ${idx+1} of ${keys.length}`;
     }
