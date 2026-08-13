@@ -85,6 +85,14 @@
 
   /* Grade + mode nav */
   .guide-trigger{text-align:center;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+  .site-mode-toggle{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .site-mode-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
+    background:var(--paper-card);border:1.5px solid var(--line);color:var(--ink-soft);
+    border-radius:18px;padding:8px 18px;cursor:pointer;transition:all .15s ease;
+  }
+  .site-mode-btn:hover{border-color:var(--gold);color:var(--ink);}
+  .site-mode-btn.active{background:var(--gold);border-color:var(--gold);color:#fff;}
   .week-badge{
     font-family:'Special Elite',monospace;font-size:12.5px;color:var(--ink-soft);
     background:var(--paper-card);border:1px solid var(--line);border-radius:14px;padding:7px 14px;
@@ -287,6 +295,9 @@
   .actions button.on{background:var(--gold);border-color:var(--gold);color:#fff;}
 
   .media-row{display:flex;flex-wrap:wrap;gap:10px;}
+  .media-row button.disabled{opacity:.45;cursor:not-allowed;}
+  .personal-media-fallback-note{font-size:12.5px;color:var(--ink-soft);font-style:italic;margin:8px 0 0;}
+  .personal-faith{margin-bottom:6px;}
 
   .stay-curious-block{
     margin:0 0 22px;background:#fdf8ec;border:1.5px solid var(--gold);border-radius:10px;
@@ -742,6 +753,7 @@
       <span class="week-badge" id="weekBadge"></span>
       <button class="guide-btn" id="guideBtn">📖 Parent &amp; Staff How-To Guide</button>
     </div>
+    <div class="site-mode-toggle" id="siteModeToggle"></div>
   </header>
 
   <div class="nav-block">
@@ -10248,6 +10260,49 @@ let quizAnswered = false;
 let pauseActive = false;
 let pauseGateKey = null;
 
+// Student vs Personal Use — site-wide view mode, persisted across visits.
+// Defaults to 'student' so existing bookmarks/podcast links into a specific
+// term always land on the full experience unless someone has explicitly
+// switched to Personal Use before.
+let siteMode = (function(){
+  try { return localStorage.getItem('fsfn_site_mode') === 'personal' ? 'personal' : 'student'; }
+  catch(e){ return 'student'; }
+})();
+
+function setSiteMode(mode){
+  if(mode !== 'student' && mode !== 'personal') return;
+  siteMode = mode;
+  try { localStorage.setItem('fsfn_site_mode', mode); } catch(e){}
+
+  if(siteMode === 'personal'){
+    // Personal visitors aren't on a classroom pacing schedule — default
+    // straight into free-browse rather than "this week's terms."
+    selMode = (selGrade === 'all') ? 'all' : 'allgrade';
+    selDomain = 'all';
+    selUnit = 'all';
+  } else {
+    selMode = (selGrade === 'all') ? 'all' : 'current';
+  }
+  resetSelectionState();
+  renderSiteModeToggle();
+  renderModeTabs();
+  renderDomainTabs();
+  renderUnitTabs();
+  renderCatalog();
+}
+
+function renderSiteModeToggle(){
+  const el = document.getElementById('siteModeToggle');
+  if(!el) return;
+  el.innerHTML = `
+    <button type="button" class="site-mode-btn ${siteMode==='student'?'active':''}" data-site-mode="student">🎓 Student</button>
+    <button type="button" class="site-mode-btn ${siteMode==='personal'?'active':''}" data-site-mode="personal">🌱 Personal Use</button>
+  `;
+  el.querySelectorAll('.site-mode-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> setSiteMode(btn.dataset.siteMode));
+  });
+}
+
 const gradeTabsEl = document.getElementById('gradeTabs');
 const modeTabsEl = document.getElementById('modeTabs');
 const domainTabsEl = document.getElementById('domainTabs');
@@ -10268,7 +10323,7 @@ function renderGradeTabs(){
   gradeTabsEl.querySelectorAll('button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       selGrade = btn.dataset.grade;
-      selMode = selGrade === 'all' ? 'all' : 'current';
+      selMode = selGrade === 'all' ? 'all' : (siteMode === 'personal' ? 'allgrade' : 'current');
       selDomain = 'all';
       selUnit = 'all';
       resetSelectionState();
@@ -10500,15 +10555,156 @@ function spotifyEmbedUrl(url){
 function isImageUrl(url){ return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(url); }
 function isAudioUrl(url){ return /\.(mp3|wav|m4a|ogg)(\?.*)?$/i.test(url); }
 
+// Journal Progress — top-level (not nested in renderCard) so both the
+// Student card and the Personal Use card can call these.
+const MILESTONES = [
+  {ep: 86, label: 'Grade 6 Complete', rangeStart: 1},
+  {ep: 194, label: 'Grade 7 Complete', rangeStart: 87},
+  {ep: 316, label: 'Journey Complete', rangeStart: 195},
+];
+
+// Parses input like "1-5, 87, 90-92" into a clean array of valid episode numbers (1–316).
+function parseEpisodeList(str){
+  const results = new Set();
+  (str || '').split(',').forEach(part => {
+    const token = part.trim();
+    if(!token) return;
+    const rangeMatch = token.match(/^(\d+)\s*-\s*(\d+)$/);
+    if(rangeMatch){
+      let a = parseInt(rangeMatch[1], 10), b = parseInt(rangeMatch[2], 10);
+      if(a > b) [a, b] = [b, a];
+      for(let n = a; n <= b; n++){ if(n >= 1 && n <= 316) results.add(n); }
+    } else {
+      const n = parseInt(token, 10);
+      if(!isNaN(n) && n >= 1 && n <= 316) results.add(n);
+    }
+  });
+  return Array.from(results);
+}
+
+function getJournalProgress(){
+  try {
+    const raw = localStorage.getItem('fsfn_journal_progress');
+    if(!raw) return { completedEps: [], lastAddedEp: null, lastAddedDate: null };
+    const parsed = JSON.parse(raw);
+    // Migrate old single-"maxEp" format (assumed sequential 1..maxEp) into the new list format.
+    if(parsed.completedEps === undefined && parsed.maxEp){
+      const migrated = [];
+      for(let n = 1; n <= parsed.maxEp; n++) migrated.push(n);
+      return { completedEps: migrated, lastAddedEp: parsed.lastEp || parsed.maxEp, lastAddedDate: parsed.lastDate || null };
+    }
+    return { completedEps: parsed.completedEps || [], lastAddedEp: parsed.lastAddedEp || null, lastAddedDate: parsed.lastAddedDate || null };
+  } catch(e){ return { completedEps: [], lastAddedEp: null, lastAddedDate: null }; }
+}
+
+function addCompletedEpisodes(epNumbers, dateStr){
+  try {
+    const existing = getJournalProgress();
+    const merged = new Set(existing.completedEps);
+    epNumbers.forEach(n => merged.add(n));
+    const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    const updated = {
+      completedEps: Array.from(merged).sort((a,b) => a - b),
+      lastAddedEp: Math.max(...epNumbers),
+      lastAddedDate: dateStr || today
+    };
+    localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
+    return updated;
+  } catch(e){ return getJournalProgress(); }
+}
+
+function journalProgressHTML(){
+  const p = getJournalProgress();
+  const doneCount = p.completedEps.length;
+  const pct = Math.min(100, (doneCount / 316) * 100);
+  const lastLine = p.lastAddedEp
+    ? `Last recorded: <b>EP.${String(p.lastAddedEp).padStart(3,'0')}</b> on ${p.lastAddedDate}`
+    : `No entries recorded yet on this device \u2014 tap Make a Journal Entry to start your streak`;
+  const completedSet = new Set(p.completedEps);
+  const milestoneMarks = MILESTONES.map(m => {
+    const leftPct = (m.ep / 316) * 100;
+    let reached = true;
+    for(let n = m.rangeStart; n <= m.ep; n++){ if(!completedSet.has(n)){ reached = false; break; } }
+    return `<div class="jp-milestone ${reached ? 'reached' : ''}" style="left:${leftPct}%;" title="${m.label} \u2014 EP.${String(m.ep).padStart(3,'0')}">
+      <span class="jp-milestone-dot"></span>
+      <span class="jp-milestone-label">EP.${m.ep}</span>
+    </div>`;
+  }).join('');
+  return `
+  <div class="journal-progress-card" id="journalProgressCard">
+    <span class="jp-label">📊 Journal Progress \u00b7 this device only</span>
+    <div class="jp-bar-track">
+      <div class="jp-bar-fill" style="width:${pct}%;"></div>
+      ${milestoneMarks}
+    </div>
+    <div class="jp-stats">
+      <span>${String(doneCount).padStart(3,'0')} of 316 episodes journaled</span>
+      <span class="jp-last">${lastLine}</span>
+    </div>
+    <button type="button" class="jp-manual-toggle" id="jpManualToggle">✏️ Journaling on paper, another device, or out of order? Update your progress manually</button>
+    <div class="jp-manual-form" id="jpManualForm">
+      <label class="jp-manual-label">Episodes completed <span class="jp-manual-hint">e.g. 1-5, 87, 90-92 \u2014 any order, gaps are fine</span>
+        <input type="text" id="jpManualEps" class="jp-manual-input" placeholder="e.g. 1-5, 87, 90-92">
+      </label>
+      <label class="jp-manual-label">Date (optional \u2014 defaults to today)
+        <input type="date" id="jpManualDate" class="jp-manual-input">
+      </label>
+      <div class="jp-manual-btn-row">
+        <button type="button" class="jp-manual-save" id="jpManualSave">Save Progress</button>
+        <button type="button" class="jp-manual-cancel" id="jpManualCancel">Cancel</button>
+      </div>
+      <p class="jp-manual-note" id="jpManualError" style="display:none;">Please enter at least one valid episode number (1–316).</p>
+    </div>
+    <p class="jp-note">Tracked only in this browser, on this device \u2014 nothing is sent anywhere. Miss a few weeks, or watching out of order? No pressure, just add whichever episodes you've done.</p>
+  </div>`;
+}
+
+function wireJournalProgressManualForm(){
+  const toggle = document.getElementById('jpManualToggle');
+  const form = document.getElementById('jpManualForm');
+  const saveBtn = document.getElementById('jpManualSave');
+  const cancelBtn = document.getElementById('jpManualCancel');
+  if(!toggle) return;
+  toggle.addEventListener('click', ()=> form.classList.toggle('show'));
+  cancelBtn.addEventListener('click', ()=> form.classList.remove('show'));
+  saveBtn.addEventListener('click', ()=>{
+    const epsInput = document.getElementById('jpManualEps');
+    const dateInput = document.getElementById('jpManualDate');
+    const errorNote = document.getElementById('jpManualError');
+    const epNumbers = parseEpisodeList(epsInput.value);
+    if(epNumbers.length === 0){
+      epsInput.style.borderColor = '#C0392B';
+      errorNote.style.display = 'block';
+      return;
+    }
+    epsInput.style.borderColor = '';
+    errorNote.style.display = 'none';
+    let dateStr = '';
+    if(dateInput.value){
+      const d = new Date(dateInput.value + 'T00:00:00');
+      dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    }
+    addCompletedEpisodes(epNumbers, dateStr);
+    const card = document.getElementById('journalProgressCard');
+    card.outerHTML = journalProgressHTML();
+    wireJournalProgressManualForm();
+  });
+}
+
 function renderCard(){
   if(!current){ cardEl.innerHTML = ''; return; }
   const t = TERMS[current];
 
-  if(t.pauseGate){
+  if(t.pauseGate && siteMode !== 'personal'){
     if(pauseGateKey !== current){ pauseGateKey = current; pauseActive = true; }
   } else {
     pauseActive = false;
     pauseGateKey = null;
+  }
+
+  if(siteMode === 'personal'){
+    renderPersonalCard(t);
+    return;
   }
 
   const backButtonHTML = isPracticeAllView()
@@ -10582,108 +10778,6 @@ function renderCard(){
 
   const personalPromptHTML = `<p>This week's topic was <b>${t.name}</b>, and the Faith &amp; Science in Action question above invited you to sit with how that idea connects to your own life. Whenever you're ready, jot down your thoughts — there's no minimum length and nothing to score here. This is simply space to think it through honestly, at your own pace.</p>
     ${journalActionsHTML('personal')}`;
-
-  const MILESTONES = [
-    {ep: 86, label: 'Grade 6 Complete', rangeStart: 1},
-    {ep: 194, label: 'Grade 7 Complete', rangeStart: 87},
-    {ep: 316, label: 'Journey Complete', rangeStart: 195},
-  ];
-
-  // Parses input like "1-5, 87, 90-92" into a clean array of valid episode numbers (1–316).
-  function parseEpisodeList(str){
-    const results = new Set();
-    (str || '').split(',').forEach(part => {
-      const token = part.trim();
-      if(!token) return;
-      const rangeMatch = token.match(/^(\d+)\s*-\s*(\d+)$/);
-      if(rangeMatch){
-        let a = parseInt(rangeMatch[1], 10), b = parseInt(rangeMatch[2], 10);
-        if(a > b) [a, b] = [b, a];
-        for(let n = a; n <= b; n++){ if(n >= 1 && n <= 316) results.add(n); }
-      } else {
-        const n = parseInt(token, 10);
-        if(!isNaN(n) && n >= 1 && n <= 316) results.add(n);
-      }
-    });
-    return Array.from(results);
-  }
-
-  function getJournalProgress(){
-    try {
-      const raw = localStorage.getItem('fsfn_journal_progress');
-      if(!raw) return { completedEps: [], lastAddedEp: null, lastAddedDate: null };
-      const parsed = JSON.parse(raw);
-      // Migrate old single-"maxEp" format (assumed sequential 1..maxEp) into the new list format.
-      if(parsed.completedEps === undefined && parsed.maxEp){
-        const migrated = [];
-        for(let n = 1; n <= parsed.maxEp; n++) migrated.push(n);
-        return { completedEps: migrated, lastAddedEp: parsed.lastEp || parsed.maxEp, lastAddedDate: parsed.lastDate || null };
-      }
-      return { completedEps: parsed.completedEps || [], lastAddedEp: parsed.lastAddedEp || null, lastAddedDate: parsed.lastAddedDate || null };
-    } catch(e){ return { completedEps: [], lastAddedEp: null, lastAddedDate: null }; }
-  }
-
-  function addCompletedEpisodes(epNumbers, dateStr){
-    try {
-      const current = getJournalProgress();
-      const merged = new Set(current.completedEps);
-      epNumbers.forEach(n => merged.add(n));
-      const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-      const updated = {
-        completedEps: Array.from(merged).sort((a,b) => a - b),
-        lastAddedEp: Math.max(...epNumbers),
-        lastAddedDate: dateStr || today
-      };
-      localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
-      return updated;
-    } catch(e){ return getJournalProgress(); }
-  }
-
-  function journalProgressHTML(){
-    const p = getJournalProgress();
-    const doneCount = p.completedEps.length;
-    const pct = Math.min(100, (doneCount / 316) * 100);
-    const lastLine = p.lastAddedEp
-      ? `Last recorded: <b>EP.${String(p.lastAddedEp).padStart(3,'0')}</b> on ${p.lastAddedDate}`
-      : `No entries recorded yet on this device \u2014 tap Make a Journal Entry to start your streak`;
-    const completedSet = new Set(p.completedEps);
-    const milestoneMarks = MILESTONES.map(m => {
-      const leftPct = (m.ep / 316) * 100;
-      let reached = true;
-      for(let n = m.rangeStart; n <= m.ep; n++){ if(!completedSet.has(n)){ reached = false; break; } }
-      return `<div class="jp-milestone ${reached ? 'reached' : ''}" style="left:${leftPct}%;" title="${m.label} \u2014 EP.${String(m.ep).padStart(3,'0')}">
-        <span class="jp-milestone-dot"></span>
-        <span class="jp-milestone-label">EP.${m.ep}</span>
-      </div>`;
-    }).join('');
-    return `
-    <div class="journal-progress-card" id="journalProgressCard">
-      <span class="jp-label">📊 Journal Progress \u00b7 this device only</span>
-      <div class="jp-bar-track">
-        <div class="jp-bar-fill" style="width:${pct}%;"></div>
-        ${milestoneMarks}
-      </div>
-      <div class="jp-stats">
-        <span>${String(doneCount).padStart(3,'0')} of 316 episodes journaled</span>
-        <span class="jp-last">${lastLine}</span>
-      </div>
-      <button type="button" class="jp-manual-toggle" id="jpManualToggle">✏️ Journaling on paper, another device, or out of order? Update your progress manually</button>
-      <div class="jp-manual-form" id="jpManualForm">
-        <label class="jp-manual-label">Episodes completed <span class="jp-manual-hint">e.g. 1-5, 87, 90-92 \u2014 any order, gaps are fine</span>
-          <input type="text" id="jpManualEps" class="jp-manual-input" placeholder="e.g. 1-5, 87, 90-92">
-        </label>
-        <label class="jp-manual-label">Date (optional \u2014 defaults to today)
-          <input type="date" id="jpManualDate" class="jp-manual-input">
-        </label>
-        <div class="jp-manual-btn-row">
-          <button type="button" class="jp-manual-save" id="jpManualSave">Save Progress</button>
-          <button type="button" class="jp-manual-cancel" id="jpManualCancel">Cancel</button>
-        </div>
-        <p class="jp-manual-note" id="jpManualError" style="display:none;">Please enter at least one valid episode number (1–316).</p>
-      </div>
-      <p class="jp-note">Tracked only in this browser, on this device \u2014 nothing is sent anywhere. Miss a few weeks, or watching out of order? No pressure, just add whichever episodes you've done.</p>
-    </div>`;
-  }
 
   const reflectHTML = !t.reflect ? '' : (t.journalToggle ? `
     <div class="section-label">Weekly Reflection</div>
@@ -10846,38 +10940,6 @@ function renderCard(){
     wireJournalProgressManualForm();
   }
 
-  function wireJournalProgressManualForm(){
-    const toggle = document.getElementById('jpManualToggle');
-    const form = document.getElementById('jpManualForm');
-    const saveBtn = document.getElementById('jpManualSave');
-    const cancelBtn = document.getElementById('jpManualCancel');
-    if(!toggle) return;
-    toggle.addEventListener('click', ()=> form.classList.toggle('show'));
-    cancelBtn.addEventListener('click', ()=> form.classList.remove('show'));
-    saveBtn.addEventListener('click', ()=>{
-      const epsInput = document.getElementById('jpManualEps');
-      const dateInput = document.getElementById('jpManualDate');
-      const errorNote = document.getElementById('jpManualError');
-      const epNumbers = parseEpisodeList(epsInput.value);
-      if(epNumbers.length === 0){
-        epsInput.style.borderColor = '#C0392B';
-        errorNote.style.display = 'block';
-        return;
-      }
-      epsInput.style.borderColor = '';
-      errorNote.style.display = 'none';
-      let dateStr = '';
-      if(dateInput.value){
-        const d = new Date(dateInput.value + 'T00:00:00');
-        dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-      }
-      addCompletedEpisodes(epNumbers, dateStr);
-      const card = document.getElementById('journalProgressCard');
-      card.outerHTML = journalProgressHTML();
-      wireJournalProgressManualForm();
-    });
-  }
-
   const backToTopicBtn = document.getElementById('backToTopicBtn');
   if(backToTopicBtn){
     backToTopicBtn.addEventListener('click', ()=>{
@@ -10972,6 +11034,10 @@ function renderCard(){
 
   const keys = getKeysForView();
   const idx = keys.indexOf(current);
+  wireNavControls(keys, idx);
+}
+
+function wireNavControls(keys, idx){
   const viewEps = keys.map(k => TERMS[k].ep).filter(e => e !== undefined);
   const currentEp = TERMS[current] ? TERMS[current].ep : undefined;
   const pad = n => String(n).padStart(3,'0');
@@ -10991,6 +11057,142 @@ function renderCard(){
   document.getElementById('prevTerm').addEventListener('click', ()=> navigateTerm('prev'));
   document.getElementById('nextTerm').addEventListener('click', ()=> navigateTerm('next'));
   document.getElementById('randomTerm').addEventListener('click', ()=> navigateTerm('random'));
+}
+
+// Simplified card for Personal Use visitors — Faith & Science in Action,
+// one video (mobile or desktop framing of the same content), a journal
+// entry link, and progress tracking. No 8-step lesson, no entrance
+// ticket gate, no quiz — those are classroom-pacing concepts that don't
+// apply to someone just here for the faith connection.
+function renderPersonalCard(t){
+  cardEl.className = 'card pilot-order personal-mode';
+  const backButtonHTML = isPracticeAllView()
+    ? `<button class="back-to-topic-btn" id="backToTopicBtn">⬆ Back to topic</button>`
+    : '';
+
+  const hasShort = !!(t.media && t.media.video && t.media.video.trim());
+  const hasFull = !!(t.media && t.media.videoFull && t.media.videoFull.trim());
+  const hasAnyWatch = hasShort || hasFull;
+
+  const watchSectionHTML = hasAnyWatch ? `
+    <div class="section-label">Watch</div>
+    <div class="media-row">
+      <button data-personal-media="mobile" class="${!hasShort ? 'disabled' : ''}" ${!hasShort ? 'disabled' : ''}>📱 Watch on Mobile</button>
+      <button data-personal-media="desktop" class="${!hasAnyWatch ? 'disabled' : ''}" ${!hasAnyWatch ? 'disabled' : ''}>🖥️ Watch on Desktop</button>
+    </div>
+    <div class="media-panel" id="personalMediaPanel"></div>
+  ` : `
+    <p class="no-media-note">📚 Video for this term hasn't been posted yet — check back soon, or switch to Student mode to see the full Field Entry.</p>
+  `;
+
+  cardEl.innerHTML = `
+    <div class="card-head">
+      ${backButtonHTML}
+      <span class="specimen-tag">Field Entry · Grade ${t.grade} · ${t.label}</span>
+      <h2>${t.name}</h2>
+    </div>
+    <div class="entry faith personal-faith" id="entry-faith">
+      <div class="entry-label">✝️ Faith &amp; Science in Action</div>
+      <p>${t.faith}</p>
+    </div>
+    ${watchSectionHTML}
+    <div class="section-label">Journal</div>
+    <div class="reflect-block personal-reflect">
+      <p>Whenever you're ready, jot down your thoughts on how <b>${t.name}</b> connects to your faith — there's no minimum length and nothing to score here.</p>
+      <div class="journal-btn-row">
+        <a class="reflect-btn" href="${REFLECT_FORM_URL || '#'}" target="_blank" rel="noopener">📝 Make a Journal Entry</a>
+      </div>
+    </div>
+    ${t.journalProgress ? journalProgressHTML() : ''}
+    <div class="section-label">Navigate</div>
+    <div class="nav-controls">
+      <button id="prevTerm">⬅ Previous</button>
+      <button id="randomTerm">🔀 Random Term</button>
+      <button id="nextTerm">Next ➡</button>
+      <span class="nav-position" id="navPosition"></span>
+    </div>
+  `;
+
+  const backToTopicBtn = document.getElementById('backToTopicBtn');
+  if(backToTopicBtn){
+    backToTopicBtn.addEventListener('click', ()=>{
+      const activeTab = catalogEl.querySelector('.tab.active');
+      if(activeTab){
+        activeTab.scrollIntoView({behavior:'smooth', block:'center'});
+      } else {
+        catalogEl.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  }
+
+  cardEl.querySelectorAll('.media-row button[data-personal-media]').forEach(btn=>{
+    if(btn.disabled) return;
+    btn.addEventListener('click', ()=>{
+      const kind = btn.dataset.personalMedia;
+      const panel = document.getElementById('personalMediaPanel');
+      if(openMedia === kind){
+        panel.classList.remove('show');
+        openMedia = null;
+        cardEl.querySelectorAll('.media-row button[data-personal-media]').forEach(b=>b.classList.remove('on'));
+        return;
+      }
+      openMedia = kind;
+      cardEl.querySelectorAll('.media-row button[data-personal-media]').forEach(b=>b.classList.toggle('on', b.dataset.personalMedia===kind));
+      renderPersonalMedia(t, kind);
+      panel.classList.add('show');
+    });
+  });
+
+  if(t.journalProgress){
+    cardEl.querySelectorAll('.reflect-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        addCompletedEpisodes([t.ep]);
+        const card = document.getElementById('journalProgressCard');
+        if(card){
+          card.outerHTML = journalProgressHTML();
+          wireJournalProgressManualForm();
+        }
+      });
+    });
+    wireJournalProgressManualForm();
+  }
+
+  const keys = getKeysForView();
+  const idx = keys.indexOf(current);
+  wireNavControls(keys, idx);
+}
+
+// kind: 'mobile' uses the Short (9:16); 'desktop' prefers a dedicated
+// long-form video (t.media.videoFull) but falls back to the Short if
+// one hasn't been added for this term yet, with a note explaining why.
+function renderPersonalMedia(t, kind){
+  const panel = document.getElementById('personalMediaPanel');
+  const shortUrl = (t.media && t.media.video) ? t.media.video.trim() : '';
+  const fullUrl = (t.media && t.media.videoFull) ? t.media.videoFull.trim() : '';
+
+  let url, usedFallback = false;
+  if(kind === 'mobile'){
+    url = shortUrl;
+  } else {
+    url = fullUrl || shortUrl;
+    usedFallback = !fullUrl && !!shortUrl;
+  }
+
+  if(!url){
+    panel.innerHTML = `<p class="media-empty">Nothing added yet for <b>${t.name}</b>.</p>`;
+    return;
+  }
+
+  const yt = youtubeEmbedUrl(url);
+  const playerHTML = yt
+    ? `<div class="media-embed"><iframe src="${yt}" title="${t.name} video" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`
+    : `<p class="media-empty">Link added, but it's not a recognized YouTube URL, so it can't be embedded directly.</p><a class="media-link" href="${url}" target="_blank" rel="noopener">Open video ↗</a>`;
+
+  const fallbackNoteHTML = usedFallback
+    ? `<p class="personal-media-fallback-note">A desktop-formatted version isn't posted yet for this term — showing the mobile version for now.</p>`
+    : '';
+
+  panel.innerHTML = playerHTML + fallbackNoteHTML;
 }
 
 function navigateTerm(dir){
@@ -11590,6 +11792,15 @@ renderGradeTabs();
 renderModeTabs();
 renderDomainTabs();
 renderUnitTabs();
+renderSiteModeToggle();
+if(siteMode === 'personal'){
+  // Restored from a previous visit — jump straight to free-browse instead
+  // of the default "current week" pacing view.
+  selMode = (selGrade === 'all') ? 'all' : 'allgrade';
+  renderModeTabs();
+  renderDomainTabs();
+  renderUnitTabs();
+}
 renderCatalog();
 
 
