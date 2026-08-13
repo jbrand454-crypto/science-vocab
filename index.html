@@ -480,6 +480,9 @@
     font-family:'Atkinson Hyperlegible',sans-serif;border:1.5px solid var(--line);border-radius:6px;
     box-sizing:border-box;color:var(--ink);
   }
+  #jpManualEps.jp-manual-input{max-width:340px;}
+  .jp-manual-hint{display:block;font-weight:400;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .jp-manual-note{color:#B23A2E;font-size:12.5px;margin:8px 0 0;}
   .jp-manual-btn-row{display:flex;gap:10px;margin-top:4px;}
   .jp-manual-save{
     font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:12.5px;
@@ -10712,45 +10715,73 @@ function renderCard(){
     ${journalActionsHTML('personal')}`;
 
   const MILESTONES = [
-    {ep: 86, label: 'Grade 6 Complete'},
-    {ep: 194, label: 'Grade 7 Complete'},
-    {ep: 316, label: 'Journey Complete'},
+    {ep: 86, label: 'Grade 6 Complete', rangeStart: 1},
+    {ep: 194, label: 'Grade 7 Complete', rangeStart: 87},
+    {ep: 316, label: 'Journey Complete', rangeStart: 195},
   ];
+
+  // Parses input like "1-5, 87, 90-92" into a clean array of valid episode numbers (1–316).
+  function parseEpisodeList(str){
+    const results = new Set();
+    (str || '').split(',').forEach(part => {
+      const token = part.trim();
+      if(!token) return;
+      const rangeMatch = token.match(/^(\d+)\s*-\s*(\d+)$/);
+      if(rangeMatch){
+        let a = parseInt(rangeMatch[1], 10), b = parseInt(rangeMatch[2], 10);
+        if(a > b) [a, b] = [b, a];
+        for(let n = a; n <= b; n++){ if(n >= 1 && n <= 316) results.add(n); }
+      } else {
+        const n = parseInt(token, 10);
+        if(!isNaN(n) && n >= 1 && n <= 316) results.add(n);
+      }
+    });
+    return Array.from(results);
+  }
 
   function getJournalProgress(){
     try {
       const raw = localStorage.getItem('fsfn_journal_progress');
-      return raw ? JSON.parse(raw) : {maxEp: 0, lastEp: null, lastDate: null};
-    } catch(e){ return {maxEp: 0, lastEp: null, lastDate: null}; }
-  }
-  function saveJournalProgress(ep){
-    try {
-      const current = getJournalProgress();
-      const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-      const updated = {maxEp: Math.max(current.maxEp || 0, ep), lastEp: ep, lastDate: today};
-      localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
-      return updated;
-    } catch(e){ return {maxEp: ep, lastEp: ep, lastDate: ''}; }
+      if(!raw) return { completedEps: [], lastAddedEp: null, lastAddedDate: null };
+      const parsed = JSON.parse(raw);
+      // Migrate old single-"maxEp" format (assumed sequential 1..maxEp) into the new list format.
+      if(parsed.completedEps === undefined && parsed.maxEp){
+        const migrated = [];
+        for(let n = 1; n <= parsed.maxEp; n++) migrated.push(n);
+        return { completedEps: migrated, lastAddedEp: parsed.lastEp || parsed.maxEp, lastAddedDate: parsed.lastDate || null };
+      }
+      return { completedEps: parsed.completedEps || [], lastAddedEp: parsed.lastAddedEp || null, lastAddedDate: parsed.lastAddedDate || null };
+    } catch(e){ return { completedEps: [], lastAddedEp: null, lastAddedDate: null }; }
   }
 
-  function setJournalProgressManual(ep, dateStr){
+  function addCompletedEpisodes(epNumbers, dateStr){
     try {
+      const current = getJournalProgress();
+      const merged = new Set(current.completedEps);
+      epNumbers.forEach(n => merged.add(n));
       const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-      const updated = {maxEp: ep, lastEp: ep, lastDate: dateStr || today};
+      const updated = {
+        completedEps: Array.from(merged).sort((a,b) => a - b),
+        lastAddedEp: Math.max(...epNumbers),
+        lastAddedDate: dateStr || today
+      };
       localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
       return updated;
-    } catch(e){ return {maxEp: ep, lastEp: ep, lastDate: dateStr || ''}; }
+    } catch(e){ return getJournalProgress(); }
   }
 
   function journalProgressHTML(){
     const p = getJournalProgress();
-    const pct = Math.min(100, (p.maxEp / 316) * 100);
-    const lastLine = p.lastEp
-      ? `Last recorded: <b>EP.${String(p.lastEp).padStart(3,'0')}</b> on ${p.lastDate}`
+    const doneCount = p.completedEps.length;
+    const pct = Math.min(100, (doneCount / 316) * 100);
+    const lastLine = p.lastAddedEp
+      ? `Last recorded: <b>EP.${String(p.lastAddedEp).padStart(3,'0')}</b> on ${p.lastAddedDate}`
       : `No entries recorded yet on this device \u2014 tap Submit Journal Entry to start your streak`;
+    const completedSet = new Set(p.completedEps);
     const milestoneMarks = MILESTONES.map(m => {
       const leftPct = (m.ep / 316) * 100;
-      const reached = p.maxEp >= m.ep;
+      let reached = true;
+      for(let n = m.rangeStart; n <= m.ep; n++){ if(!completedSet.has(n)){ reached = false; break; } }
       return `<div class="jp-milestone ${reached ? 'reached' : ''}" style="left:${leftPct}%;" title="${m.label} \u2014 EP.${String(m.ep).padStart(3,'0')}">
         <span class="jp-milestone-dot"></span>
         <span class="jp-milestone-label">EP.${m.ep}</span>
@@ -10764,13 +10795,13 @@ function renderCard(){
         ${milestoneMarks}
       </div>
       <div class="jp-stats">
-        <span>${String(p.maxEp).padStart(3,'0')} of 316 episodes journaled</span>
+        <span>${String(doneCount).padStart(3,'0')} of 316 episodes journaled</span>
         <span class="jp-last">${lastLine}</span>
       </div>
-      <button type="button" class="jp-manual-toggle" id="jpManualToggle">✏️ Journaling on paper or another device? Update your progress manually</button>
+      <button type="button" class="jp-manual-toggle" id="jpManualToggle">✏️ Journaling on paper, another device, or out of order? Update your progress manually</button>
       <div class="jp-manual-form" id="jpManualForm">
-        <label class="jp-manual-label">Episode number reached
-          <input type="number" id="jpManualEp" class="jp-manual-input" min="1" max="316" value="${p.maxEp || ''}" placeholder="e.g. 45">
+        <label class="jp-manual-label">Episodes completed <span class="jp-manual-hint">e.g. 1-5, 87, 90-92 \u2014 any order, gaps are fine</span>
+          <input type="text" id="jpManualEps" class="jp-manual-input" placeholder="e.g. 1-5, 87, 90-92">
         </label>
         <label class="jp-manual-label">Date (optional \u2014 defaults to today)
           <input type="date" id="jpManualDate" class="jp-manual-input">
@@ -10779,8 +10810,9 @@ function renderCard(){
           <button type="button" class="jp-manual-save" id="jpManualSave">Save Progress</button>
           <button type="button" class="jp-manual-cancel" id="jpManualCancel">Cancel</button>
         </div>
+        <p class="jp-manual-note" id="jpManualError" style="display:none;">Please enter at least one valid episode number (1–316).</p>
       </div>
-      <p class="jp-note">Tracked only in this browser, on this device \u2014 nothing is sent anywhere. Miss a few weeks? No pressure, just pick back up whenever you're ready.</p>
+      <p class="jp-note">Tracked only in this browser, on this device \u2014 nothing is sent anywhere. Miss a few weeks, or watching out of order? No pressure, just add whichever episodes you've done.</p>
     </div>`;
   }
 
@@ -11060,7 +11092,7 @@ function renderCard(){
       btn.disabled = true;
 
       if(t.journalProgress){
-        saveJournalProgress(t.ep);
+        addCompletedEpisodes([t.ep]);
         const card = document.getElementById('journalProgressCard');
         if(card){
           card.outerHTML = journalProgressHTML();
@@ -11083,19 +11115,23 @@ function renderCard(){
     toggle.addEventListener('click', ()=> form.classList.toggle('show'));
     cancelBtn.addEventListener('click', ()=> form.classList.remove('show'));
     saveBtn.addEventListener('click', ()=>{
-      const epInput = document.getElementById('jpManualEp');
+      const epsInput = document.getElementById('jpManualEps');
       const dateInput = document.getElementById('jpManualDate');
-      const ep = parseInt(epInput.value, 10);
-      if(!ep || ep < 1 || ep > 316){
-        epInput.style.borderColor = '#C0392B';
+      const errorNote = document.getElementById('jpManualError');
+      const epNumbers = parseEpisodeList(epsInput.value);
+      if(epNumbers.length === 0){
+        epsInput.style.borderColor = '#C0392B';
+        errorNote.style.display = 'block';
         return;
       }
+      epsInput.style.borderColor = '';
+      errorNote.style.display = 'none';
       let dateStr = '';
       if(dateInput.value){
         const d = new Date(dateInput.value + 'T00:00:00');
         dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
       }
-      setJournalProgressManual(ep, dateStr);
+      addCompletedEpisodes(epNumbers, dateStr);
       const card = document.getElementById('journalProgressCard');
       card.outerHTML = journalProgressHTML();
       wireJournalProgressManualForm();
