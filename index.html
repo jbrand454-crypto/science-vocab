@@ -904,13 +904,13 @@ const SCHOOL_DOMAIN = "stmary.doyocs.org";
 
 let currentAuth = null; // { idToken, name, email } once signed in
 
-function restoreAuthFromSession(){
+function restoreAuthFromStorage(){
   try {
-    const raw = sessionStorage.getItem('fsfn_auth');
+    const raw = localStorage.getItem('fsfn_auth');
     if(raw) currentAuth = JSON.parse(raw);
   } catch(e){ currentAuth = null; }
 }
-restoreAuthFromSession();
+restoreAuthFromStorage();
 
 function decodeJwtPayload(token){
   try {
@@ -936,13 +936,13 @@ function handleGoogleCredentialResponse(response){
     return;
   }
   currentAuth = { idToken: response.credential, name: payload.name, email: payload.email };
-  try { sessionStorage.setItem('fsfn_auth', JSON.stringify(currentAuth)); } catch(e){}
+  try { localStorage.setItem('fsfn_auth', JSON.stringify(currentAuth)); } catch(e){}
   renderCard();
 }
 
 function signOutGoogle(){
   currentAuth = null;
-  try { sessionStorage.removeItem('fsfn_auth'); } catch(e){}
+  try { localStorage.removeItem('fsfn_auth'); } catch(e){}
   if(window.google && google.accounts && google.accounts.id){
     google.accounts.id.disableAutoSelect();
   }
@@ -11707,6 +11707,9 @@ renderCatalog();
 (function waitForGoogleIdentity(attemptsLeft){
   if(window.google && google.accounts && google.accounts.id){
     initGoogleSignIn();
+    // The first card render likely happened before this library was ready,
+    // so its sign-in button container is still empty — re-render to draw it.
+    if(current) renderCard();
     return;
   }
   if(attemptsLeft <= 0) return;
