@@ -513,6 +513,10 @@
     display:block;font-family:'Special Elite',monospace;font-size:8.5px;color:var(--ink-soft);
     margin-top:3px;white-space:nowrap;
   }
+  .jp-milestone-goal{
+    display:block;font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:8.5px;
+    color:var(--gold-dark);margin-top:2px;white-space:nowrap;
+  }
   .jp-stats{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink);margin-bottom:6px;}
   .jp-stats span:first-child{font-weight:700;}
   .jp-last{color:var(--ink-soft);font-size:12.5px;}
@@ -550,6 +554,20 @@
     background:#fff;color:var(--ink-soft);border:1.5px solid var(--line);border-radius:16px;padding:7px 16px;cursor:pointer;
   }
   .jp-manual-cancel:hover{border-color:var(--ink-soft);}
+  .jp-manual-divider{border-top:1px dashed var(--line);margin:16px 0;}
+  .jp-manual-remove-save{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:12.5px;
+    background:#fff;color:#B23A2E;border:1.5px solid #B23A2E;border-radius:16px;padding:7px 16px;cursor:pointer;
+    transition:all .15s ease;
+  }
+  .jp-manual-remove-save:hover{background:#B23A2E;color:#fff;}
+  .jp-reset-btn{
+    display:block;width:100%;box-sizing:border-box;font-family:'Atkinson Hyperlegible',sans-serif;
+    font-weight:700;font-size:12.5px;background:#fff;color:#B23A2E;border:1.5px dashed #B23A2E;
+    border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .15s ease;text-align:center;
+  }
+  .jp-reset-btn:hover{background:#fdf0ee;}
+  .jp-reset-btn.armed{background:#B23A2E;color:#fff;border-style:solid;}
   .media-row button{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:#fff;border:1.5px solid var(--teal);color:var(--teal);border-radius:20px;padding:9px 16px;cursor:pointer;transition:background .15s ease, color .15s ease;display:flex;align-items:center;gap:6px;}
   .media-row button:hover{background:var(--teal);color:#fff;}
   .media-row button.on{background:var(--teal);color:#fff;}
@@ -10781,32 +10799,75 @@ function parseEpisodeList(str){
 function getJournalProgress(){
   try {
     const raw = localStorage.getItem('fsfn_journal_progress');
-    if(!raw) return { completedEps: [], lastAddedEp: null, lastAddedDate: null };
+    if(!raw) return { completedEps: [], lastAddedEp: null, lastAddedDate: null, milestoneGoals: {} };
     const parsed = JSON.parse(raw);
     // Migrate old single-"maxEp" format (assumed sequential 1..maxEp) into the new list format.
     if(parsed.completedEps === undefined && parsed.maxEp){
       const migrated = [];
       for(let n = 1; n <= parsed.maxEp; n++) migrated.push(n);
-      return { completedEps: migrated, lastAddedEp: parsed.lastEp || parsed.maxEp, lastAddedDate: parsed.lastDate || null };
+      return { completedEps: migrated, lastAddedEp: parsed.lastEp || parsed.maxEp, lastAddedDate: parsed.lastDate || null, milestoneGoals: {} };
     }
-    return { completedEps: parsed.completedEps || [], lastAddedEp: parsed.lastAddedEp || null, lastAddedDate: parsed.lastAddedDate || null };
-  } catch(e){ return { completedEps: [], lastAddedEp: null, lastAddedDate: null }; }
+    return {
+      completedEps: parsed.completedEps || [],
+      lastAddedEp: parsed.lastAddedEp || null,
+      lastAddedDate: parsed.lastAddedDate || null,
+      milestoneGoals: parsed.milestoneGoals || {}
+    };
+  } catch(e){ return { completedEps: [], lastAddedEp: null, lastAddedDate: null, milestoneGoals: {} }; }
 }
 
-function addCompletedEpisodes(epNumbers, dateStr){
-  try {
-    const existing = getJournalProgress();
-    const merged = new Set(existing.completedEps);
-    epNumbers.forEach(n => merged.add(n));
-    const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-    const updated = {
-      completedEps: Array.from(merged).sort((a,b) => a - b),
-      lastAddedEp: Math.max(...epNumbers),
-      lastAddedDate: dateStr || today
-    };
-    localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated));
-    return updated;
-  } catch(e){ return getJournalProgress(); }
+function saveJournalProgressState(updated){
+  try { localStorage.setItem('fsfn_journal_progress', JSON.stringify(updated)); } catch(e){}
+  return updated;
+}
+
+function addCompletedEpisodes(epNumbers){
+  const existing = getJournalProgress();
+  const merged = new Set(existing.completedEps);
+  epNumbers.forEach(n => merged.add(n));
+  const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  return saveJournalProgressState({
+    ...existing,
+    completedEps: Array.from(merged).sort((a,b) => a - b),
+    lastAddedEp: Math.max(...epNumbers),
+    lastAddedDate: today
+  });
+}
+
+function removeCompletedEpisodes(epNumbers){
+  const existing = getJournalProgress();
+  const remaining = new Set(existing.completedEps);
+  epNumbers.forEach(n => remaining.delete(n));
+  return saveJournalProgressState({
+    ...existing,
+    completedEps: Array.from(remaining).sort((a,b) => a - b)
+  });
+}
+
+function resetAllProgress(){
+  // Deliberately keeps milestoneGoals — those are a personal commitment,
+  // not "progress," so a reset shouldn't wipe goal dates someone set.
+  const existing = getJournalProgress();
+  return saveJournalProgressState({
+    completedEps: [],
+    lastAddedEp: null,
+    lastAddedDate: null,
+    milestoneGoals: existing.milestoneGoals
+  });
+}
+
+function setMilestoneGoal(ep, dateStr){
+  const existing = getJournalProgress();
+  const goals = { ...existing.milestoneGoals };
+  if(dateStr) goals[ep] = dateStr; else delete goals[ep];
+  return saveJournalProgressState({ ...existing, milestoneGoals: goals });
+}
+
+function formatIsoDateDisplay(iso){
+  if(!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
 }
 
 function journalProgressHTML(){
@@ -10821,11 +10882,19 @@ function journalProgressHTML(){
     const leftPct = (m.ep / 316) * 100;
     let reached = true;
     for(let n = m.rangeStart; n <= m.ep; n++){ if(!completedSet.has(n)){ reached = false; break; } }
+    const goalIso = p.milestoneGoals[m.ep];
+    const goalHTML = goalIso ? `<span class="jp-milestone-goal">\ud83c\udfaf ${formatIsoDateDisplay(goalIso)}</span>` : '';
     return `<div class="jp-milestone ${reached ? 'reached' : ''}" style="left:${leftPct}%;" title="${m.label} \u2014 EP.${String(m.ep).padStart(3,'0')}">
       <span class="jp-milestone-dot"></span>
       <span class="jp-milestone-label">EP.${m.ep}</span>
+      ${goalHTML}
     </div>`;
   }).join('');
+  const goalInputsHTML = MILESTONES.map(m => `
+    <label class="jp-manual-label">${m.label} \u2014 EP.${String(m.ep).padStart(3,'0')}
+      <input type="date" id="jpGoalEp${m.ep}" class="jp-manual-input" value="${p.milestoneGoals[m.ep] || ''}">
+    </label>
+  `).join('');
   return `
   <div class="journal-progress-card" id="journalProgressCard">
     <span class="jp-label">📊 Journal Progress \u00b7 this device only</span>
@@ -10837,20 +10906,42 @@ function journalProgressHTML(){
       <span>${String(doneCount).padStart(3,'0')} of 316 episodes journaled</span>
       <span class="jp-last">${lastLine}</span>
     </div>
+
     <button type="button" class="jp-manual-toggle" id="jpManualToggle">✏️ Journaling on paper, another device, or out of order? Update your progress manually</button>
     <div class="jp-manual-form" id="jpManualForm">
       <label class="jp-manual-label">Episodes completed <span class="jp-manual-hint">e.g. 1-5, 87, 90-92 \u2014 any order, gaps are fine</span>
         <input type="text" id="jpManualEps" class="jp-manual-input" placeholder="e.g. 1-5, 87, 90-92">
-      </label>
-      <label class="jp-manual-label">Date (optional \u2014 defaults to today)
-        <input type="date" id="jpManualDate" class="jp-manual-input">
       </label>
       <div class="jp-manual-btn-row">
         <button type="button" class="jp-manual-save" id="jpManualSave">Save Progress</button>
         <button type="button" class="jp-manual-cancel" id="jpManualCancel">Cancel</button>
       </div>
       <p class="jp-manual-note" id="jpManualError" style="display:none;">Please enter at least one valid episode number (1–316).</p>
+
+      <div class="jp-manual-divider"></div>
+
+      <label class="jp-manual-label">Mark episodes incomplete <span class="jp-manual-hint">Marked something by mistake? Remove it here.</span>
+        <input type="text" id="jpManualRemoveEps" class="jp-manual-input" placeholder="e.g. 1-5, 87, 90-92">
+      </label>
+      <div class="jp-manual-btn-row">
+        <button type="button" class="jp-manual-remove-save" id="jpManualRemoveSave">Mark Incomplete</button>
+      </div>
+      <p class="jp-manual-note" id="jpManualRemoveError" style="display:none;">Please enter at least one valid episode number (1–316).</p>
+
+      <div class="jp-manual-divider"></div>
+
+      <button type="button" class="jp-reset-btn" id="jpResetBtn">🗑️ Reset All Progress</button>
     </div>
+
+    <button type="button" class="jp-manual-toggle" id="jpGoalsToggle">🎯 Set goal dates for your milestones</button>
+    <div class="jp-manual-form" id="jpGoalsForm">
+      ${goalInputsHTML}
+      <div class="jp-manual-btn-row">
+        <button type="button" class="jp-manual-save" id="jpGoalsSave">Save Goals</button>
+        <button type="button" class="jp-manual-cancel" id="jpGoalsCancel">Cancel</button>
+      </div>
+    </div>
+
     <p class="jp-note">Tracked only in this browser, on this device \u2014 nothing is sent anywhere. Miss a few weeks, or watching out of order? No pressure, just add whichever episodes you've done.</p>
   </div>`;
 }
@@ -10861,11 +10952,12 @@ function wireJournalProgressManualForm(){
   const saveBtn = document.getElementById('jpManualSave');
   const cancelBtn = document.getElementById('jpManualCancel');
   if(!toggle) return;
+
   toggle.addEventListener('click', ()=> form.classList.toggle('show'));
   cancelBtn.addEventListener('click', ()=> form.classList.remove('show'));
+
   saveBtn.addEventListener('click', ()=>{
     const epsInput = document.getElementById('jpManualEps');
-    const dateInput = document.getElementById('jpManualDate');
     const errorNote = document.getElementById('jpManualError');
     const epNumbers = parseEpisodeList(epsInput.value);
     if(epNumbers.length === 0){
@@ -10875,16 +10967,73 @@ function wireJournalProgressManualForm(){
     }
     epsInput.style.borderColor = '';
     errorNote.style.display = 'none';
-    let dateStr = '';
-    if(dateInput.value){
-      const d = new Date(dateInput.value + 'T00:00:00');
-      dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
-    }
-    addCompletedEpisodes(epNumbers, dateStr);
-    const card = document.getElementById('journalProgressCard');
+    addCompletedEpisodes(epNumbers);
+    refreshJournalProgressCard();
+  });
+
+  const removeSaveBtn = document.getElementById('jpManualRemoveSave');
+  if(removeSaveBtn){
+    removeSaveBtn.addEventListener('click', ()=>{
+      const epsInput = document.getElementById('jpManualRemoveEps');
+      const errorNote = document.getElementById('jpManualRemoveError');
+      const epNumbers = parseEpisodeList(epsInput.value);
+      if(epNumbers.length === 0){
+        epsInput.style.borderColor = '#C0392B';
+        errorNote.style.display = 'block';
+        return;
+      }
+      epsInput.style.borderColor = '';
+      errorNote.style.display = 'none';
+      removeCompletedEpisodes(epNumbers);
+      refreshJournalProgressCard();
+    });
+  }
+
+  const resetBtn = document.getElementById('jpResetBtn');
+  if(resetBtn){
+    let resetArmed = false;
+    let resetArmTimer = null;
+    resetBtn.addEventListener('click', ()=>{
+      if(!resetArmed){
+        resetArmed = true;
+        resetBtn.textContent = '⚠️ Click again to confirm \u2014 this can\'t be undone';
+        resetBtn.classList.add('armed');
+        resetArmTimer = setTimeout(()=>{
+          resetArmed = false;
+          resetBtn.textContent = '🗑️ Reset All Progress';
+          resetBtn.classList.remove('armed');
+        }, 4000);
+        return;
+      }
+      clearTimeout(resetArmTimer);
+      resetAllProgress();
+      refreshJournalProgressCard();
+    });
+  }
+
+  const goalsToggle = document.getElementById('jpGoalsToggle');
+  const goalsForm = document.getElementById('jpGoalsForm');
+  const goalsSave = document.getElementById('jpGoalsSave');
+  const goalsCancel = document.getElementById('jpGoalsCancel');
+  if(goalsToggle){
+    goalsToggle.addEventListener('click', ()=> goalsForm.classList.toggle('show'));
+    goalsCancel.addEventListener('click', ()=> goalsForm.classList.remove('show'));
+    goalsSave.addEventListener('click', ()=>{
+      MILESTONES.forEach(m => {
+        const input = document.getElementById(`jpGoalEp${m.ep}`);
+        if(input) setMilestoneGoal(m.ep, input.value || null);
+      });
+      refreshJournalProgressCard();
+    });
+  }
+}
+
+function refreshJournalProgressCard(){
+  const card = document.getElementById('journalProgressCard');
+  if(card){
     card.outerHTML = journalProgressHTML();
     wireJournalProgressManualForm();
-  });
+  }
 }
 
 function renderCard(){
@@ -11126,11 +11275,7 @@ function renderCard(){
     cardEl.querySelectorAll('.reflect-btn').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         addCompletedEpisodes([t.ep]);
-        const card = document.getElementById('journalProgressCard');
-        if(card){
-          card.outerHTML = journalProgressHTML();
-          wireJournalProgressManualForm();
-        }
+        refreshJournalProgressCard();
       });
     });
     wireJournalProgressManualForm();
@@ -11362,11 +11507,7 @@ function renderPersonalCard(t){
   function trackPersonalJournalProgress(){
     if(!t.journalProgress) return;
     addCompletedEpisodes([t.ep]);
-    const card = document.getElementById('journalProgressCard');
-    if(card){
-      card.outerHTML = journalProgressHTML();
-      wireJournalProgressManualForm();
-    }
+    refreshJournalProgressCard();
   }
 
   document.getElementById('personalJournalEmail').addEventListener('click', ()=>{
