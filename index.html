@@ -290,6 +290,14 @@
   .ep-badge{display:inline-block;font-family:'Special Elite',monospace;font-weight:400;font-size:10.5px;letter-spacing:.06em;color:#fff;background:var(--gold);border-radius:4px;padding:2px 6px;margin-right:6px;vertical-align:middle;}
   .tab:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--line-soft);}
   .tab.active{border-color:var(--teal);background:#fff;box-shadow:4px 4px 0 var(--teal);transform:translate(-2px,-2px);}
+  .tab.locked{opacity:.6;filter:grayscale(55%);}
+  .tab.locked:hover{transform:none;box-shadow:2px 2px 0 var(--line-soft);}
+  .tab-lock-overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(244,241,228,.6);border-radius:6px;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12.5px;
+    color:var(--gold-dark);text-align:center;padding:6px;
+  }
   .empty-note{text-align:center;color:var(--ink-soft);font-size:14.5px;padding:20px;font-family:'Special Elite',monospace;}
 
   .card{background:var(--paper-card);border:1.5px solid var(--line);border-radius:10px;padding:32px clamp(20px,4vw,44px);position:relative;box-shadow:6px 6px 0 var(--line-soft);}
@@ -301,6 +309,19 @@
     font-family:'Atkinson Hyperlegible',sans-serif;font-size:13px;cursor:pointer;
   }
   .back-to-topic-btn:hover{ border-color:var(--teal); color:var(--teal); }
+  .locked-demo-block{
+    text-align:center;padding:44px 20px;background:var(--paper-card);
+    border:2px dashed var(--gold-dark);border-radius:10px;
+  }
+  .locked-demo-icon{font-size:40px;margin-bottom:10px;}
+  .locked-demo-block h3{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;
+    color:var(--teal-dark);margin:0 0 10px;
+  }
+  .locked-demo-block p{
+    font-size:14.5px;color:var(--ink);max-width:480px;margin:0 auto 22px;line-height:1.55;
+  }
+  .locked-demo-btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
   .back-to-top-btn{
     position:fixed;right:20px;bottom:24px;z-index:500;
     width:48px;height:48px;border-radius:50%;
@@ -10881,6 +10902,24 @@ function getKeysForView(){
   return keys;
 }
 
+// Demo preview boundary — the "demo316" identity (from the Student Access
+// Demo button) only gets full functionality on Grade 6, Weeks 1–2 (3 terms
+// per week, so episodes 1–6). Everything else shows locked with a clear
+// purchase/access-code path. This never affects a real student identity —
+// any code other than the literal demo one gets full access, same as today.
+const DEMO_UNLOCKED_GRADE = 6;
+const DEMO_UNLOCKED_MAX_EP = 6;
+
+function isDemoStudentIdentity(){
+  return siteMode === 'student' && !!studentIdentity &&
+    (studentIdentity.code || '').trim().toLowerCase() === 'demo316';
+}
+
+function isTermLockedForDemo(t){
+  if(!isDemoStudentIdentity()) return false;
+  return !(t.grade === DEMO_UNLOCKED_GRADE && t.ep != null && t.ep <= DEMO_UNLOCKED_MAX_EP);
+}
+
 function renderCatalog(){
   const keys = getKeysForView();
   if(keys.length === 0){
@@ -10896,9 +10935,11 @@ function renderCatalog(){
   catalogEl.innerHTML = keys.map(key => {
     const t = TERMS[key];
     const epLabel = t.ep ? `<span class="ep-badge">EP.${String(t.ep).padStart(3,'0')}</span> ` : '';
-    return `<button class="tab ${key===current?'active':''}" data-key="${key}">
+    const locked = isTermLockedForDemo(t);
+    return `<button class="tab ${key===current?'active':''} ${locked?'locked':''}" data-key="${key}">
       <span class="tag">Grade ${t.grade} · ${t.label}</span>
       ${epLabel}${t.name}
+      ${locked ? `<span class="tab-lock-overlay">🔒 Get Access</span>` : ''}
     </button>`;
   }).join('');
 
@@ -11195,9 +11236,55 @@ function refreshJournalProgressCard(){
   }
 }
 
+// Shown instead of the real card when a demo identity hits locked content.
+function renderLockedDemoCard(t){
+  cardEl.className = 'card pilot-order locked-demo-card';
+  const backButtonHTML = isPracticeAllView()
+    ? `<button class="back-to-topic-btn" id="backToTopicBtn">⬆ Back to topic</button>`
+    : '';
+
+  cardEl.innerHTML = `
+    <div class="card-head">
+      ${backButtonHTML}
+      <span class="specimen-tag">Field Entry · Grade ${t.grade} · ${t.label}</span>
+      <h2>${t.name}</h2>
+    </div>
+    <div class="locked-demo-block">
+      <div class="locked-demo-icon">🔒</div>
+      <h3>Start Your Journey</h3>
+      <p>You're viewing the free preview of Faith &amp; Science Field Notes — Grade 6, Weeks 1–2. <b>${t.name}</b> is part of the full Student Access experience.</p>
+      <div class="locked-demo-btn-row">
+        <a id="lockedDemoPurchaseBtn" class="student-access-purchase-btn" href="#" target="_blank" rel="noopener">💳 Purchase Student Access — $3.16</a>
+        <button type="button" id="lockedDemoOfferingBtn" class="offering-plate-claim-btn">🙏 Use or Check for an Access Code</button>
+      </div>
+    </div>
+  `;
+
+  const backToTopicBtn = document.getElementById('backToTopicBtn');
+  if(backToTopicBtn){
+    backToTopicBtn.addEventListener('click', ()=>{
+      const activeTab = catalogEl.querySelector('.tab.active');
+      if(activeTab){
+        activeTab.scrollIntoView({behavior:'smooth', block:'center'});
+      } else {
+        catalogEl.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  }
+  const lockedPurchaseBtn = document.getElementById('lockedDemoPurchaseBtn');
+  if(lockedPurchaseBtn) lockedPurchaseBtn.href = STUDENT_ACCESS_PURCHASE_URL;
+  const lockedOfferingBtn = document.getElementById('lockedDemoOfferingBtn');
+  if(lockedOfferingBtn) lockedOfferingBtn.addEventListener('click', openOfferingPlateClaimOverlay);
+}
+
 function renderCard(){
   if(!current){ cardEl.innerHTML = ''; return; }
   const t = TERMS[current];
+
+  if(isTermLockedForDemo(t)){
+    renderLockedDemoCard(t);
+    return;
+  }
 
   if(t.pauseGate && siteMode !== 'personal'){
     if(pauseGateKey !== current){ pauseGateKey = current; pauseActive = true; }
