@@ -133,6 +133,26 @@
     background:#eef4f2;border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 6px 6px 0;
     font-size:14.5px;line-height:1.55;margin:10px 0;
   }
+  .student-id-label{
+    display:block;font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13px;
+    color:var(--ink);margin-bottom:14px;
+  }
+  .student-id-input{
+    display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px 12px;
+    font-family:'Atkinson Hyperlegible',sans-serif;font-size:14.5px;color:var(--ink);
+    background:#fff;border:1.5px solid var(--line);border-radius:8px;
+  }
+  .student-id-input:focus{outline:none;border-color:var(--gold);}
+  .student-id-error{color:#B23A2E;font-size:13px;margin:-4px 0 12px;}
+  .student-id-btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;}
+  .student-id-current{
+    text-align:center;font-size:12.5px;color:var(--ink-soft);margin-top:8px;
+  }
+  .student-id-current button{
+    background:none;border:none;color:var(--ink-soft);text-decoration:underline;cursor:pointer;
+    font-family:'Atkinson Hyperlegible',sans-serif;font-size:12.5px;padding:0;
+  }
+  .student-id-current button:hover{color:var(--gold);}
   .grade-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;}
   .grade-tabs button{
     font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
@@ -159,6 +179,21 @@
     font-size:15px;color:var(--ink);outline:none;
   }
   #searchInput:focus{ border-color:var(--teal); }
+  .ep-range-wrap{ display:none; justify-content:center; margin-top:10px; }
+  .ep-range-wrap.show{ display:flex; }
+  #epRangeSelect{
+    width:100%;max-width:420px;padding:9px 14px;border-radius:999px;
+    border:1px solid var(--line);background:#fff;font-family:'Atkinson Hyperlegible',sans-serif;
+    font-size:14px;color:var(--ink);outline:none;cursor:pointer;
+  }
+  #epRangeSelect:focus{ border-color:var(--teal); }
+  .nav-block.personal-simplified #gradeTabs,
+  .nav-block.personal-simplified #modeTabs,
+  .nav-block.personal-simplified #domainTabs,
+  .nav-block.personal-simplified #unitTabs,
+  .nav-block.personal-simplified #mediaNote{
+    display:none !important;
+  }
   .media-row-note{
     font-size:12.5px;font-style:italic;color:var(--ink-soft);margin:0 0 10px;
   }
@@ -298,6 +333,11 @@
   .media-row button.disabled{opacity:.45;cursor:not-allowed;}
   .personal-media-fallback-note{font-size:12.5px;color:var(--ink-soft);font-style:italic;margin:8px 0 0;}
   .personal-faith{margin-bottom:6px;}
+  .personal-journal-privacy-note{
+    font-size:12.5px;color:var(--ink-soft);background:var(--paper-card);border:1px dashed var(--line);
+    border-radius:8px;padding:8px 12px;margin:0 0 14px !important;
+  }
+  .personal-journal-actions{flex-wrap:wrap;}
 
   .stay-curious-block{
     margin:0 0 22px;background:#fdf8ec;border:1.5px solid var(--gold);border-radius:10px;
@@ -749,19 +789,23 @@
     </div>
     <h1>Journey Guide</h1>
     <p class="brand-tagline">Stay curious. Test ideas. Seek wisdom.</p>
-    <div class="guide-trigger">
+    <div class="guide-trigger" id="guideTrigger">
       <span class="week-badge" id="weekBadge"></span>
       <button class="guide-btn" id="guideBtn">📖 Parent &amp; Staff How-To Guide</button>
     </div>
     <div class="site-mode-toggle" id="siteModeToggle"></div>
+    <div class="student-id-current" id="studentIdCurrent"></div>
   </header>
 
-  <div class="nav-block">
+  <div class="nav-block" id="navBlock">
     <div class="grade-tabs" id="gradeTabs"></div>
     <div class="mode-tabs" id="modeTabs"></div>
     <div class="mode-tabs" id="domainTabs"></div>
     <div class="mode-tabs unit-tabs" id="unitTabs"></div>
     <p class="media-note" id="mediaNote"></p>
+    <div class="ep-range-wrap" id="epRangeWrap">
+      <select id="epRangeSelect"></select>
+    </div>
     <div class="search-wrap" id="searchWrap">
       <input type="text" id="searchInput" placeholder="🔍 Search all terms by name…">
     </div>
@@ -836,6 +880,38 @@
 
       <h3>Updated Weekly</h3>
       <p>The "New" and "Review" terms rotate every week to match what's being taught in class, so this stays a living companion to instruction rather than a static list.</p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="studentIdOverlay">
+    <div class="modal-card">
+      <h2>🎓 Welcome, Student!</h2>
+      <div class="modal-sub">One-time setup for this device</div>
+      <p>Enter your class code, name, and grade. This is saved only on this device, so you won't be asked again here — and it's what gets used whenever you submit an Entrance Ticket or Journal Entry, so you don't have to retype it each time.</p>
+      <form id="studentIdForm">
+        <label class="student-id-label">Class Code
+          <input type="text" id="studentIdCode" class="student-id-input" placeholder="e.g. beaver621" required>
+        </label>
+        <label class="student-id-label">First Name
+          <input type="text" id="studentIdFirstName" class="student-id-input" required>
+        </label>
+        <label class="student-id-label">Last Name
+          <input type="text" id="studentIdLastName" class="student-id-input" required>
+        </label>
+        <label class="student-id-label">Grade
+          <select id="studentIdGrade" class="student-id-input" required>
+            <option value="">Select grade…</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+          </select>
+        </label>
+        <p id="studentIdError" class="student-id-error" style="display:none;">Please fill in all four fields.</p>
+        <div class="student-id-btn-row">
+          <button type="submit" class="continue-journey-btn">✅ Continue to Student Mode</button>
+          <button type="button" class="review-journal-btn" id="studentIdCancel">Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -10250,6 +10326,7 @@ let selMode = "current";
 let selDomain = "all";
 let selUnit = "all";
 let selSearch = "";
+let selEpRange = "all";
 let current = null;
 let openReveal = null;
 let openMedia = null;
@@ -10261,13 +10338,51 @@ let pauseActive = false;
 let pauseGateKey = null;
 
 // Student vs Personal Use — site-wide view mode, persisted across visits.
-// Defaults to 'student' so existing bookmarks/podcast links into a specific
-// term always land on the full experience unless someone has explicitly
-// switched to Personal Use before.
+// Defaults to 'personal' — the public-facing, safe landing experience for
+// anyone arriving fresh (podcast link, social post, search). Student mode
+// only activates once someone deliberately switches AND completes the
+// one-time student ID entry below; after that it's remembered.
 let siteMode = (function(){
-  try { return localStorage.getItem('fsfn_site_mode') === 'personal' ? 'personal' : 'student'; }
-  catch(e){ return 'student'; }
+  try { return localStorage.getItem('fsfn_site_mode') === 'student' ? 'student' : 'personal'; }
+  catch(e){ return 'personal'; }
 })();
+
+// One-time student identity — code, name, grade — collected the first time
+// someone switches to Student mode on a given device. NOT validated against
+// any roster (no backend, nothing to keep in sync with enrollment). It's
+// purely so a device only has to enter this once, and so submissions carry
+// a consistent name instead of retyping it every time.
+let studentIdentity = (function(){
+  try {
+    const raw = localStorage.getItem('fsfn_student_identity');
+    return raw ? JSON.parse(raw) : null;
+  } catch(e){ return null; }
+})();
+
+function saveStudentIdentity(identity){
+  studentIdentity = identity;
+  try { localStorage.setItem('fsfn_student_identity', JSON.stringify(identity)); } catch(e){}
+}
+
+function clearStudentIdentity(){
+  studentIdentity = null;
+  try { localStorage.removeItem('fsfn_student_identity'); } catch(e){}
+}
+
+// Safety net: Student mode should never be active without an identity —
+// covers the edge case of a device that had 'student' saved from before
+// this identity feature existed.
+if(siteMode === 'student' && !studentIdentity){
+  siteMode = 'personal';
+  try { localStorage.setItem('fsfn_site_mode', 'personal'); } catch(e){}
+}
+
+function applyPersonalSimplifiedChrome(){
+  const navBlock = document.getElementById('navBlock');
+  if(navBlock) navBlock.classList.toggle('personal-simplified', siteMode === 'personal');
+  const guideTrigger = document.getElementById('guideTrigger');
+  if(guideTrigger) guideTrigger.style.display = (siteMode === 'personal') ? 'none' : '';
+}
 
 function setSiteMode(mode){
   if(mode !== 'student' && mode !== 'personal') return;
@@ -10283,6 +10398,8 @@ function setSiteMode(mode){
   } else {
     selMode = (selGrade === 'all') ? 'all' : 'current';
   }
+  selEpRange = 'all';
+  applyPersonalSimplifiedChrome();
   resetSelectionState();
   renderSiteModeToggle();
   renderModeTabs();
@@ -10295,12 +10412,53 @@ function renderSiteModeToggle(){
   const el = document.getElementById('siteModeToggle');
   if(!el) return;
   el.innerHTML = `
-    <button type="button" class="site-mode-btn ${siteMode==='student'?'active':''}" data-site-mode="student">🎓 Student</button>
     <button type="button" class="site-mode-btn ${siteMode==='personal'?'active':''}" data-site-mode="personal">🌱 Personal Use</button>
+    <button type="button" class="site-mode-btn ${siteMode==='student'?'active':''}" data-site-mode="student">🎓 Student</button>
   `;
   el.querySelectorAll('.site-mode-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=> setSiteMode(btn.dataset.siteMode));
+    btn.addEventListener('click', ()=> handleSiteModeClick(btn.dataset.siteMode));
   });
+
+  const identityEl = document.getElementById('studentIdCurrent');
+  if(identityEl){
+    if(siteMode === 'student' && studentIdentity){
+      identityEl.innerHTML = `👋 ${studentIdentity.firstName} ${studentIdentity.lastName} · Grade ${studentIdentity.grade} <button type="button" id="studentIdEditBtn">Not you?</button>`;
+      const editBtn = document.getElementById('studentIdEditBtn');
+      if(editBtn) editBtn.addEventListener('click', openStudentIdModal);
+    } else {
+      identityEl.innerHTML = '';
+    }
+  }
+}
+
+function handleSiteModeClick(mode){
+  if(mode === 'student' && !studentIdentity){
+    openStudentIdModal();
+    return;
+  }
+  setSiteMode(mode);
+}
+
+function openStudentIdModal(){
+  const overlay = document.getElementById('studentIdOverlay');
+  if(!overlay) return;
+  const codeInput = document.getElementById('studentIdCode');
+  const firstInput = document.getElementById('studentIdFirstName');
+  const lastInput = document.getElementById('studentIdLastName');
+  const gradeInput = document.getElementById('studentIdGrade');
+  if(studentIdentity){
+    codeInput.value = studentIdentity.code || '';
+    firstInput.value = studentIdentity.firstName || '';
+    lastInput.value = studentIdentity.lastName || '';
+    gradeInput.value = studentIdentity.grade || '';
+  }
+  document.getElementById('studentIdError').style.display = 'none';
+  overlay.classList.add('show');
+}
+
+function closeStudentIdModal(){
+  const overlay = document.getElementById('studentIdOverlay');
+  if(overlay) overlay.classList.remove('show');
 }
 
 const gradeTabsEl = document.getElementById('gradeTabs');
@@ -10336,9 +10494,31 @@ function renderGradeTabs(){
   });
 }
 
+// Episode-range chunks (1–20, 21–40, ... up to 316) so browsing the full
+// catalog doesn't mean scrolling through all 316 terms at once.
+const EP_RANGE_CHUNK_SIZE = 20;
+const EP_RANGES = (function(){
+  const ranges = [];
+  for(let start = 1; start <= 316; start += EP_RANGE_CHUNK_SIZE){
+    const end = Math.min(start + EP_RANGE_CHUNK_SIZE - 1, 316);
+    ranges.push({ start, end, key: `${start}-${end}` });
+  }
+  return ranges;
+})();
+
+function renderEpRangeOptions(){
+  const select = document.getElementById('epRangeSelect');
+  if(!select) return;
+  const options = [`<option value="all">All Episodes (EP.001–316)</option>`]
+    .concat(EP_RANGES.map(r => `<option value="${r.key}">EP.${String(r.start).padStart(3,'0')}–${String(r.end).padStart(3,'0')}</option>`));
+  select.innerHTML = options.join('');
+  select.value = selEpRange;
+}
+
 function renderMediaNote(){
   const note = document.getElementById('mediaNote');
   const searchWrap = document.getElementById('searchWrap');
+  const epRangeWrap = document.getElementById('epRangeWrap');
   if(searchWrap){
     if(isPracticeAllView()){
       searchWrap.classList.add('show');
@@ -10348,6 +10528,18 @@ function renderMediaNote(){
         selSearch = '';
         const input = document.getElementById('searchInput');
         if(input) input.value = '';
+      }
+    }
+  }
+  if(epRangeWrap){
+    if(isPracticeAllView()){
+      epRangeWrap.classList.add('show');
+    } else {
+      epRangeWrap.classList.remove('show');
+      if(selEpRange !== 'all'){
+        selEpRange = 'all';
+        const select = document.getElementById('epRangeSelect');
+        if(select) select.value = 'all';
       }
     }
   }
@@ -10495,6 +10687,10 @@ function getKeysForView(){
   if(isPracticeAllView() && selSearch.trim() !== ''){
     const q = selSearch.trim().toLowerCase();
     keys = keys.filter(k => TERMS[k].name.toLowerCase().includes(q));
+  }
+  if(isPracticeAllView() && selEpRange !== 'all'){
+    const [rangeStart, rangeEnd] = selEpRange.split('-').map(Number);
+    keys = keys.filter(k => TERMS[k].ep != null && TERMS[k].ep >= rangeStart && TERMS[k].ep <= rangeEnd);
   }
   if(isPracticeAllView()){
     keys = keys.slice().sort((a,b) => {
@@ -11099,9 +11295,15 @@ function renderPersonalCard(t){
     <div class="section-label">Journal</div>
     <div class="reflect-block personal-reflect">
       <p>Whenever you're ready, jot down your thoughts on how <b>${t.name}</b> connects to your faith — there's no minimum length and nothing to score here.</p>
-      <div class="journal-btn-row">
-        <a class="reflect-btn" href="${REFLECT_FORM_URL || '#'}" target="_blank" rel="noopener">📝 Make a Journal Entry</a>
+      <p class="personal-journal-privacy-note">🔒 This is just for you — nothing here is sent to a teacher or stored anywhere on this site. Email yourself a copy, download it, or copy it to paste into your own notes app or paper journal.</p>
+      <textarea id="personalJournalInput" class="entrance-response-textarea" placeholder="Write your reflection here..."></textarea>
+      <div id="personalJournalValidation" class="entrance-validation-note" style="display:none;">Write something first, then pick how you'd like to keep it.</div>
+      <div class="journal-btn-row personal-journal-actions">
+        <button type="button" id="personalJournalEmail" class="reflect-btn">📧 Email Me a Copy</button>
+        <button type="button" id="personalJournalDownload" class="journal-download-btn">⬇️ Download a Copy</button>
+        <button type="button" id="personalJournalCopy" class="review-journal-btn">📋 Copy to Clipboard</button>
       </div>
+      <div id="personalJournalConfirm" class="entrance-submit-note" style="display:none;"></div>
     </div>
     ${t.journalProgress ? journalProgressHTML() : ''}
     <div class="section-label">Navigate</div>
@@ -11143,19 +11345,82 @@ function renderPersonalCard(t){
     });
   });
 
-  if(t.journalProgress){
-    cardEl.querySelectorAll('.reflect-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        addCompletedEpisodes([t.ep]);
-        const card = document.getElementById('journalProgressCard');
-        if(card){
-          card.outerHTML = journalProgressHTML();
-          wireJournalProgressManualForm();
-        }
-      });
-    });
-    wireJournalProgressManualForm();
+  const personalJournalInput = document.getElementById('personalJournalInput');
+  const personalJournalValidation = document.getElementById('personalJournalValidation');
+  const personalJournalConfirm = document.getElementById('personalJournalConfirm');
+
+  function getPersonalJournalTextOrWarn(){
+    const text = personalJournalInput.value.trim();
+    if(!text){
+      personalJournalValidation.style.display = 'block';
+      return null;
+    }
+    personalJournalValidation.style.display = 'none';
+    return text;
   }
+
+  function trackPersonalJournalProgress(){
+    if(!t.journalProgress) return;
+    addCompletedEpisodes([t.ep]);
+    const card = document.getElementById('journalProgressCard');
+    if(card){
+      card.outerHTML = journalProgressHTML();
+      wireJournalProgressManualForm();
+    }
+  }
+
+  document.getElementById('personalJournalEmail').addEventListener('click', ()=>{
+    const text = getPersonalJournalTextOrWarn();
+    if(!text) return;
+    const dateStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const subject = `Faith & Science Journal — ${t.name}`;
+    const body = `${t.name} — ${dateStr}\n\n${text}\n\n—\nFaith & Science Field Notes (Personal Use)`;
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+    personalJournalConfirm.textContent = '📧 Opening your email app — address it to yourself (or anyone you\'d like) and hit send.';
+    personalJournalConfirm.style.display = 'block';
+    trackPersonalJournalProgress();
+  });
+
+  document.getElementById('personalJournalDownload').addEventListener('click', ()=>{
+    const text = getPersonalJournalTextOrWarn();
+    if(!text) return;
+    const dateStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const fileText = `${t.name} — ${dateStr}\n\n${text}\n`;
+    const blob = new Blob([fileText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${t.name.replace(/\s+/g,'_')}_Journal_${dateStr.replace(/[\s,]+/g,'_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    personalJournalConfirm.textContent = '⬇️ Downloaded — saved wherever your browser keeps downloads.';
+    personalJournalConfirm.style.display = 'block';
+    trackPersonalJournalProgress();
+  });
+
+  document.getElementById('personalJournalCopy').addEventListener('click', ()=>{
+    const text = getPersonalJournalTextOrWarn();
+    if(!text) return;
+    const dateStr = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+    const copyText = `${t.name} — ${dateStr}\n\n${text}`;
+    const finish = (ok) => {
+      personalJournalConfirm.textContent = ok
+        ? '📋 Copied — paste it into your notes app, journal, or anywhere you'+"'"+'d like.'
+        : 'Couldn\'t copy automatically — select the text above and copy it manually.';
+      personalJournalConfirm.style.display = 'block';
+      if(ok) trackPersonalJournalProgress();
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(copyText).then(()=>finish(true)).catch(()=>finish(false));
+    } else {
+      finish(false);
+    }
+  });
+
+  wireJournalProgressManualForm();
 
   const keys = getKeysForView();
   const idx = keys.indexOf(current);
@@ -11192,7 +11457,27 @@ function renderPersonalMedia(t, kind){
     ? `<p class="personal-media-fallback-note">A desktop-formatted version isn't posted yet for this term — showing the mobile version for now.</p>`
     : '';
 
-  panel.innerHTML = playerHTML + fallbackNoteHTML;
+  // Same recording either way (mobile Short or desktop Full), so the same
+  // transcript applies regardless of which one is showing.
+  let transcriptHTML = '';
+  if(t.videoTranscript && t.videoTranscript.length){
+    const paragraphs = t.videoTranscript.map(p => `<p>${p}</p>`).join('');
+    transcriptHTML = `
+      <button class="transcript-btn" id="personalTranscriptBtn">📄 Show Transcript</button>
+      <div class="transcript-text" id="personalTranscriptText">${paragraphs}</div>
+    `;
+  }
+
+  panel.innerHTML = playerHTML + fallbackNoteHTML + transcriptHTML;
+
+  if(t.videoTranscript && t.videoTranscript.length){
+    document.getElementById('personalTranscriptBtn').addEventListener('click', ()=>{
+      const box = document.getElementById('personalTranscriptText');
+      const btn = document.getElementById('personalTranscriptBtn');
+      const isShown = box.classList.toggle('show');
+      btn.textContent = isShown ? '📄 Hide Transcript' : '📄 Show Transcript';
+    });
+  }
 }
 
 function navigateTerm(dir){
@@ -11788,6 +12073,16 @@ if(searchInput){
   });
 }
 
+renderEpRangeOptions();
+const epRangeSelect = document.getElementById('epRangeSelect');
+if(epRangeSelect){
+  epRangeSelect.addEventListener('change', ()=>{
+    selEpRange = epRangeSelect.value;
+    openReveal = null; openMedia = null; quizIndex = 0; quizDifficulty = "all";
+    renderCatalog();
+  });
+}
+
 renderGradeTabs();
 renderModeTabs();
 renderDomainTabs();
@@ -11797,6 +12092,7 @@ if(siteMode === 'personal'){
   // Restored from a previous visit — jump straight to free-browse instead
   // of the default "current week" pacing view.
   selMode = (selGrade === 'all') ? 'all' : 'allgrade';
+  applyPersonalSimplifiedChrome();
   renderModeTabs();
   renderDomainTabs();
   renderUnitTabs();
@@ -11821,8 +12117,41 @@ guideOverlay.addEventListener('click', (e)=>{
   if(e.target === guideOverlay) guideOverlay.classList.remove('show');
 });
 document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape') guideOverlay.classList.remove('show');
+  if(e.key === 'Escape'){
+    guideOverlay.classList.remove('show');
+    closeStudentIdModal();
+  }
 });
+
+const studentIdOverlay = document.getElementById('studentIdOverlay');
+const studentIdForm = document.getElementById('studentIdForm');
+const studentIdCancel = document.getElementById('studentIdCancel');
+if(studentIdForm){
+  studentIdForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const code = document.getElementById('studentIdCode').value.trim();
+    const firstName = document.getElementById('studentIdFirstName').value.trim();
+    const lastName = document.getElementById('studentIdLastName').value.trim();
+    const grade = document.getElementById('studentIdGrade').value;
+    const errorEl = document.getElementById('studentIdError');
+    if(!code || !firstName || !lastName || !grade){
+      errorEl.style.display = 'block';
+      return;
+    }
+    errorEl.style.display = 'none';
+    saveStudentIdentity({ code, firstName, lastName, grade });
+    closeStudentIdModal();
+    setSiteMode('student');
+  });
+}
+if(studentIdCancel){
+  studentIdCancel.addEventListener('click', closeStudentIdModal);
+}
+if(studentIdOverlay){
+  studentIdOverlay.addEventListener('click', (e)=>{
+    if(e.target === studentIdOverlay) closeStudentIdModal();
+  });
+}
 
 // Back to top: appears once the page has scrolled down a bit
 const backToTopBtn = document.getElementById('backToTopBtn');
