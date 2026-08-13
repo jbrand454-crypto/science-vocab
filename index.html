@@ -409,6 +409,20 @@
     margin:-4px 0 12px;
   }
   .journal-word-count.enough{color:var(--teal-dark);font-weight:700;}
+  .gsi-auth-block{margin-bottom:14px;}
+  .gsi-signed-in-row{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    font-family:'Atkinson Hyperlegible',sans-serif;font-size:14px;color:var(--ink);
+    background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px;
+  }
+  .gsi-signed-in-row b{color:var(--teal-dark);}
+  .gsi-signout-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:12.5px;
+    background:#fff;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:14px;
+    padding:5px 12px;cursor:pointer;transition:all .15s ease;
+  }
+  .gsi-signout-btn:hover{border-color:var(--gold);color:var(--ink);}
+  .gsi-signin-note{font-size:13px;color:var(--ink-soft);margin:0 0 8px;}
   .journal-progress-card{
     margin-top:16px;background:var(--paper-card);border:1.5px solid var(--line);border-radius:10px;
     padding:16px 18px 14px;
@@ -690,6 +704,7 @@
   .footer-media .sep{color:var(--line-soft);margin:0 4px;}
   @media (prefers-reduced-motion: reduce){.tab,.tab:hover{transition:none;}}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -868,6 +883,105 @@
    ============================================================ */
 const REFLECT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeKpy60g5FO8Ta_OyUkRnEUsrfNgLK3PXa6cr4nbXyrw-J2iw/viewform?usp=publish-editor";
 const JOURNAL_ENTRY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxd-X1gzpmwD72bPRO_wZAJr-5U3I1GxbrfcCW0ceWfMQqQeB2R2wM6Dth_-xlyjrQK/exec";
+
+/* ============================================================
+   GOOGLE SIGN-IN (Entrance Ticket + Weekly Reflection)
+
+   Restricts submission to signed-in @stmary.doyocs.org accounts.
+   The ID token (a signed JWT) is decoded client-side ONLY for
+   showing "Signed in as ___" in the UI. The real security check
+   happens server-side in Apps Script's doPost(), which verifies
+   the token against Google, confirms the domain, and uses the
+   VERIFIED name/email from Google \u2014 never the client-decoded
+   copy \u2014 when writing to the Sheet.
+
+   Setup: Google Cloud Console \u2192 OAuth Client ID (Web application)
+   \u2192 Authorized JavaScript origin: https://jbrand454-crypto.github.io
+   Paste the resulting Client ID below.
+   ============================================================ */
+const GOOGLE_CLIENT_ID = "844245099577-kbh8qfmk070lbkcicqo4nqd63vtqrdjb.apps.googleusercontent.com";
+const SCHOOL_DOMAIN = "stmary.doyocs.org";
+
+let currentAuth = null; // { idToken, name, email } once signed in
+
+function restoreAuthFromSession(){
+  try {
+    const raw = sessionStorage.getItem('fsfn_auth');
+    if(raw) currentAuth = JSON.parse(raw);
+  } catch(e){ currentAuth = null; }
+}
+restoreAuthFromSession();
+
+function decodeJwtPayload(token){
+  try {
+    const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    const json = decodeURIComponent(atob(base64).split('').map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return JSON.parse(json);
+  } catch(e){ return null; }
+}
+
+function isAuthValid(){
+  if(!currentAuth || !currentAuth.idToken) return false;
+  const payload = decodeJwtPayload(currentAuth.idToken);
+  if(!payload || !payload.exp) return false;
+  return (payload.exp * 1000) > Date.now();
+}
+
+function handleGoogleCredentialResponse(response){
+  const payload = decodeJwtPayload(response.credential);
+  if(!payload || payload.hd !== SCHOOL_DOMAIN){
+    alert(`Please sign in with your @${SCHOOL_DOMAIN} school account.`);
+    return;
+  }
+  currentAuth = { idToken: response.credential, name: payload.name, email: payload.email };
+  try { sessionStorage.setItem('fsfn_auth', JSON.stringify(currentAuth)); } catch(e){}
+  renderCard();
+}
+
+function signOutGoogle(){
+  currentAuth = null;
+  try { sessionStorage.removeItem('fsfn_auth'); } catch(e){}
+  if(window.google && google.accounts && google.accounts.id){
+    google.accounts.id.disableAutoSelect();
+  }
+  renderCard();
+}
+
+function initGoogleSignIn(){
+  if(!window.google || !google.accounts || !google.accounts.id) return;
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredentialResponse,
+    hd: SCHOOL_DOMAIN,
+    auto_select: false
+  });
+}
+
+function renderGoogleAuthBlock(containerId){
+  if(isAuthValid()){
+    return `<div class="gsi-auth-block">
+      <div class="gsi-signed-in-row">
+        \ud83d\udc64 Signed in as <b>${currentAuth.name}</b>
+        <button type="button" class="gsi-signout-btn" data-signout="1">Sign out</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="gsi-auth-block">
+    <p class="gsi-signin-note">Sign in with your school Google account to submit a response.</p>
+    <div id="${containerId}"></div>
+  </div>`;
+}
+
+function wireGoogleAuthBlock(containerId){
+  if(isAuthValid()) return;
+  const el = document.getElementById(containerId);
+  if(el && window.google && google.accounts && google.accounts.id){
+    google.accounts.id.renderButton(el, { theme: 'outline', size: 'large', text: 'signin_with' });
+  }
+}
+
 
 /* ============================================================
    FULL MEDIA LIBRARY LINKS (optional)
@@ -10450,20 +10564,20 @@ function renderCard(){
       <div class="stay-curious-block gated" id="stayCuriousBlock">
         <span class="stay-curious-badge">🧭 Stay Curious — Entrance Ticket</span>
         <p>Before we dig in: what do you already know about <b>${t.name}</b>? Give an example if you can. What don't you know yet — what are you curious about? ${bonusPromptText}</p>
-        <input type="text" id="entranceNameInput" class="entrance-name-input" placeholder="Your name" autocomplete="off">
+        ${renderGoogleAuthBlock('gsiEntrance')}
         <textarea id="entranceResponseInput" class="entrance-response-textarea" placeholder="Type your response here..."></textarea>
         <div class="gate-btn-row">
           <button id="continueJourneyBtn" class="continue-journey-btn">✅ Continue Your Journey →</button>
           <button id="submitResponseBtn" class="submit-response-btn">📤 Submit Your Response</button>
         </div>
-        <div id="entranceValidationNote" class="entrance-validation-note" style="display:none;">Please add your name and a response before submitting.</div>
+        <div id="entranceValidationNote" class="entrance-validation-note" style="display:none;">Please sign in and add a response before submitting.</div>
         <div id="entranceSubmitNote" class="entrance-submit-note" style="display:none;">✅ Response saved. Thanks for sharing!</div>
         <div class="submit-info-row">
           <button id="submitInfoBtn" class="submit-info-btn" aria-label="Where does my response go?">👁️</button>
         </div>
         <div class="submit-info-panel" id="submitInfoPanel">
           <span class="submit-info-label">📍 Where does this go?</span>
-          <p>Your name and response are sent to your teacher's Field Notes tracking sheet — sorted by your grade level. Nothing else about you is collected, and this warm-up isn't graded.</p>
+          <p>Once signed in with your school Google account, your name, email, and response are sent to your teacher's Field Notes tracking sheet — sorted by your grade level. This warm-up isn't graded.</p>
           <p class="submit-info-note">This is separate from the graded Weekly Reflection journal entry later in the term.</p>
         </div>
       </div>
@@ -10487,17 +10601,21 @@ function renderCard(){
       renderCard();
       cardEl.scrollIntoView({behavior:'smooth', block:'start'});
     });
+    wireGoogleAuthBlock('gsiEntrance');
+    const entranceSignoutBtn = document.querySelector('#stayCuriousBlock [data-signout]');
+    if(entranceSignoutBtn) entranceSignoutBtn.addEventListener('click', signOutGoogle);
     document.getElementById('submitResponseBtn').addEventListener('click', ()=>{
-      const nameInput = document.getElementById('entranceNameInput');
       const responseInput = document.getElementById('entranceResponseInput');
       const validationNote = document.getElementById('entranceValidationNote');
       const submitNote = document.getElementById('entranceSubmitNote');
       const submitBtn = document.getElementById('submitResponseBtn');
 
-      const studentName = nameInput.value.trim();
       const responseText = responseInput.value.trim();
 
-      if(!studentName || !responseText){
+      if(!isAuthValid() || !responseText){
+        validationNote.textContent = !isAuthValid()
+          ? 'Please sign in with your school Google account first.'
+          : 'Please add a response before submitting.';
         validationNote.style.display = 'block';
         return;
       }
@@ -10508,7 +10626,7 @@ function renderCard(){
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
-          studentName: studentName,
+          idToken: currentAuth.idToken,
           grade: String(t.grade),
           term: t.name,
           episode: t.ep ? `EP.${String(t.ep).padStart(3,'0')}` : '',
@@ -10518,7 +10636,6 @@ function renderCard(){
       }).catch(()=>{ /* fail silently — submission is optional/low-stakes */ });
 
       submitNote.style.display = 'block';
-      nameInput.disabled = true;
       responseInput.disabled = true;
       submitBtn.disabled = true;
     });
@@ -10528,7 +10645,7 @@ function renderCard(){
   function journalActionsHTML(mode){
     const isStudent = mode === 'student';
     return `<div class="journal-entry-block" data-mode="${mode}">
-      <input type="text" id="journalName-${mode}" class="entrance-name-input" placeholder="Your name" autocomplete="off">
+      ${renderGoogleAuthBlock('gsiJournal-' + mode)}
       <textarea id="journalResponse-${mode}" class="entrance-response-textarea" placeholder="${isStudent ? 'Write your combined reflection here — science fact, example, and Faith & Science in Action answer...' : 'Jot down your thoughts here...'}"></textarea>
       ${isStudent ? `<div class="journal-word-count" id="journalWordCount-${mode}">0 words (75 minimum)</div>` : ''}
       <div id="journalValidation-${mode}" class="entrance-validation-note" style="display:none;"></div>
@@ -10782,22 +10899,25 @@ function renderCard(){
         wordCountEl.classList.toggle('enough', words >= 75);
       });
     }
+    wireGoogleAuthBlock('gsiJournal-' + mode);
+    const signoutBtn = block.querySelector('[data-signout]');
+    if(signoutBtn) signoutBtn.addEventListener('click', signOutGoogle);
   });
 
   cardEl.querySelectorAll('.journal-submit-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const mode = btn.dataset.mode;
-      const nameInput = document.getElementById(`journalName-${mode}`);
       const responseInput = document.getElementById(`journalResponse-${mode}`);
       const validationNote = document.getElementById(`journalValidation-${mode}`);
       const submitNote = document.getElementById(`journalSubmitNote-${mode}`);
 
-      const studentName = nameInput.value.trim();
       const responseText = responseInput.value.trim();
       const wordCount = responseText ? responseText.trim().split(/\s+/).filter(Boolean).length : 0;
 
-      if(!studentName || !responseText){
-        validationNote.textContent = 'Please add your name and a response before submitting.';
+      if(!isAuthValid() || !responseText){
+        validationNote.textContent = !isAuthValid()
+          ? 'Please sign in with your school Google account first.'
+          : 'Please add a response before submitting.';
         validationNote.style.display = 'block';
         return;
       }
@@ -10813,7 +10933,7 @@ function renderCard(){
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
-          studentName: studentName,
+          idToken: currentAuth.idToken,
           grade: String(t.grade),
           term: t.name,
           episode: t.ep ? `EP.${String(t.ep).padStart(3,'0')}` : '',
@@ -10823,7 +10943,6 @@ function renderCard(){
       }).catch(()=>{ /* fail silently — matches Entrance Ticket behavior */ });
 
       submitNote.style.display = 'block';
-      nameInput.disabled = true;
       responseInput.disabled = true;
       btn.disabled = true;
 
@@ -11583,6 +11702,17 @@ renderModeTabs();
 renderDomainTabs();
 renderUnitTabs();
 renderCatalog();
+
+// Google Identity Services loads async — poll briefly until it's ready
+(function waitForGoogleIdentity(attemptsLeft){
+  if(window.google && google.accounts && google.accounts.id){
+    initGoogleSignIn();
+    return;
+  }
+  if(attemptsLeft <= 0) return;
+  setTimeout(()=> waitForGoogleIdentity(attemptsLeft - 1), 200);
+})(25);
+
 
 const guideBtn = document.getElementById('guideBtn');
 const guideOverlay = document.getElementById('guideOverlay');
