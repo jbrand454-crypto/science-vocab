@@ -398,6 +398,21 @@
     letter-spacing:.08em;color:var(--ink-soft);margin-bottom:8px;
   }
   .review-journal-panel p{margin:0 0 12px;font-size:13.5px;line-height:1.5;color:var(--ink);}
+  .review-loading-note{color:var(--ink-soft);font-style:italic;}
+  .review-error-note{color:#B23A2E;}
+  .review-entry{
+    border:1.5px solid var(--line-soft);border-radius:8px;padding:10px 12px;margin-bottom:10px;background:#fff;
+  }
+  .review-entry-meta{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:'Special Elite',monospace;
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:6px;
+  }
+  .review-entry-type{
+    background:var(--gold);color:#fff;border-radius:10px;padding:2px 8px;font-family:'Atkinson Hyperlegible',sans-serif;
+    text-transform:none;letter-spacing:0;font-weight:700;font-size:11px;
+  }
+  .review-entry-text{font-size:13.5px;line-height:1.5;color:var(--ink);white-space:pre-wrap;}
+  .journal-download-btn:disabled{opacity:.5;cursor:not-allowed;background:var(--line);}
   .journal-download-btn{
     font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13px;
     background:var(--gold);color:#fff;border:none;border-radius:16px;padding:8px 16px;cursor:pointer;
@@ -980,6 +995,34 @@ function wireGoogleAuthBlock(containerId){
   if(el && window.google && google.accounts && google.accounts.id){
     google.accounts.id.renderButton(el, { theme: 'outline', size: 'large', text: 'signin_with' });
   }
+}
+
+// JSONP fetch — needed because reading a real response back (not just
+// firing a write) runs into CORS restrictions on Apps Script Web Apps.
+// A <script> tag load isn't subject to CORS, so this is the reliable path.
+let jsonpCounter = 0;
+function jsonpRequest(baseUrl, params){
+  return new Promise((resolve, reject) => {
+    const cbName = `fsfnJsonp_${Date.now()}_${jsonpCounter++}`;
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error('Request timed out.'));
+    }, 12000);
+
+    function cleanup(){
+      clearTimeout(timeoutId);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (data) => { cleanup(); resolve(data); };
+
+    const query = new URLSearchParams({ ...params, callback: cbName }).toString();
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?${query}`;
+    script.onerror = () => { cleanup(); reject(new Error('Network error loading response.')); };
+    document.body.appendChild(script);
+  });
 }
 
 
@@ -10652,12 +10695,12 @@ function renderCard(){
       <div id="journalSubmitNote-${mode}" class="entrance-submit-note" style="display:none;">✅ Entry submitted. Nice work!</div>
       <div class="journal-btn-row">
         <button type="button" class="reflect-btn journal-submit-btn" data-mode="${mode}">📝 Submit Journal Entry</button>
-        <button class="review-journal-btn" type="button">📖 Review My Journal</button>
+        <button class="review-journal-btn" type="button" data-mode="${mode}">📖 Review My Journal</button>
       </div>
-      <div class="review-journal-panel">
-        <span class="review-journal-label">📖 DRAFT — your journal history</span>
-        <p>Once your journal is connected, your past entries for <b>${t.name}</b> will show up here, ready to look back on.</p>
-        <button class="journal-download-btn" type="button">⬇️ Download</button>
+      <div class="review-journal-panel" id="reviewPanel-${mode}">
+        <span class="review-journal-label">📖 Your Journal History — ${t.name}</span>
+        <div id="reviewContent-${mode}"><p class="review-loading-note">Sign in and click Review My Journal to load your past entries for this term.</p></div>
+        <button class="journal-download-btn" type="button" data-mode="${mode}" disabled>⬇️ Download</button>
       </div>
     </div>`;
   }
@@ -10881,10 +10924,80 @@ function renderCard(){
     });
   }
 
+  const journalEntriesCache = {}; // mode -> array of entries, for Download to reuse
+
   cardEl.querySelectorAll('.review-journal-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const panel = btn.closest('.journal-btn-row').nextElementSibling;
+      const mode = btn.dataset.mode;
+      const panel = document.getElementById(`reviewPanel-${mode}`);
+      const contentEl = document.getElementById(`reviewContent-${mode}`);
+      const downloadBtn = panel.querySelector('.journal-download-btn');
       panel.classList.toggle('show');
+      if(!panel.classList.contains('show')) return;
+
+      if(!isAuthValid()){
+        contentEl.innerHTML = `<p class="review-error-note">Please sign in with your school Google account to view your journal.</p>`;
+        downloadBtn.disabled = true;
+        return;
+      }
+
+      contentEl.innerHTML = `<p class="review-loading-note">Loading your past entries…</p>`;
+      downloadBtn.disabled = true;
+
+      jsonpRequest(JOURNAL_ENTRY_ENDPOINT, {
+        idToken: currentAuth.idToken,
+        grade: String(t.grade),
+        term: t.name
+      }).then(data => {
+        if(data.status !== 'success'){
+          contentEl.innerHTML = `<p class="review-error-note">Couldn't load your journal: ${data.message || 'unknown error'}</p>`;
+          return;
+        }
+        const entries = data.entries || [];
+        journalEntriesCache[mode] = entries;
+        if(entries.length === 0){
+          contentEl.innerHTML = `<p>No past entries found yet for <b>${t.name}</b> under your account.</p>`;
+          downloadBtn.disabled = true;
+          return;
+        }
+        contentEl.innerHTML = entries.map(entry => `
+          <div class="review-entry">
+            <div class="review-entry-meta">
+              <span class="review-entry-type">${entry.journalType || ''}</span>
+              <span>${new Date(entry.timestamp).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'})}</span>
+            </div>
+            <div class="review-entry-text">${(entry.response || '').replace(/</g,'&lt;')}</div>
+          </div>
+        `).join('');
+        downloadBtn.disabled = false;
+      }).catch(err => {
+        contentEl.innerHTML = `<p class="review-error-note">Couldn't load your journal right now — please try again in a moment.</p>`;
+      });
+    });
+  });
+
+  cardEl.querySelectorAll('.journal-download-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const mode = btn.dataset.mode;
+      const entries = journalEntriesCache[mode] || [];
+      if(entries.length === 0) return;
+
+      const lines = [`Faith & Science Field Notes — Journal Entries for ${t.name}`, `Downloaded ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`, ''];
+      entries.forEach(entry => {
+        lines.push(`[${entry.journalType || ''}] ${new Date(entry.timestamp).toLocaleString()}`);
+        lines.push(entry.response || '');
+        lines.push('');
+      });
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${t.name.replace(/\s+/g,'_')}_Journal_${mode}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
   });
 
