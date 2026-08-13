@@ -726,7 +726,6 @@
   .footer-media .sep{color:var(--line-soft);margin:0 4px;}
   @media (prefers-reduced-motion: reduce){.tab,.tab:hover{transition:none;}}
 </style>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -766,7 +765,7 @@
       <p>A free, no-login science vocabulary review tool for grades 6–8, cross-referenced with national and state science standards. Students pick a grade, then work through this week's new terms or older review terms, at their own pace, on any device — phone, tablet, or school Chromebook.</p>
 
       <h3>What This Isn't</h3>
-      <div class="highlight">Field Notes itself never records a grade or a score, and the site has no login. Most of it is purely for practice and review. There are two places a name and a short response can optionally be submitted: the <b>Stay Curious — Entrance Ticket</b> warm-up at the start of each term (ungraded, goes to the teacher's tracking sheet, never scored) and the <b>Weekly Reflection</b> at the end of each new term. In its <b>Student Journal</b> mode, that Weekly Reflection entry <i>does</i> count toward a grade, submitted directly to the teacher's Google Sheet and reviewed by hand like any other assignment. A <b>Personal Use Journal</b> mode sits right beside it for anyone using the site outside a graded classroom setting — it's never scored. Everything above the Weekly Reflection on a term's page stays practice/warm-up only, never scored.</div>
+      <div class="highlight">Field Notes itself never records a grade or a score, and the site has no login. Most of it is purely for practice and review. There are two places a name and a short response can be submitted, both by opening a short Google Form: the <b>Stay Curious — Entrance Ticket</b> warm-up at the start of each term (ungraded, goes to the teacher's tracking sheet, never scored) and the <b>Weekly Reflection</b> at the end of each new term. In its <b>Student Journal</b> mode, that Weekly Reflection entry <i>does</i> count toward a grade, submitted through the Form and recorded in the gradebook like any other assignment. A <b>Personal Use Journal</b> mode sits right beside it for anyone using the site outside a graded classroom setting — it's never scored. Everything above the Weekly Reflection on a term's page stays practice/warm-up only, never scored.</div>
 
       <h3>How To Navigate</h3>
       <ul>
@@ -784,7 +783,7 @@
       <p>Opening a term card doesn't dump everything on screen at once. It first shows just a short "Stay Curious" prompt — a quick, optional warm-up question about what the student already knows or is curious about, before any of the actual content appears. Two buttons sit right in that box:</p>
       <ul>
         <li><b>✅ Continue Your Journey</b> — unlocks the full card: all eight steps, Practice, Explore More, Faith &amp; Science, and the Weekly Reflection. A student who doesn't want to engage with the warm-up prompt can tap straight through with zero friction — it's meant to be a brief pause, not a gate that slows anyone down.</li>
-        <li><b>📤 Submit Your Response</b> — a student can optionally type their name and a short warm-up response, then submit it. This is separate from the graded Weekly Reflection journal later on the page — it's a quick, ungraded check-in that goes to the teacher's Field Notes tracking sheet. The small 👁 icon beside it explains where the response goes.</li>
+        <li><b>📤 Submit Your Response</b> — opens a short Google Form where a student can type their name, grade, and a warm-up response. This is separate from the graded Weekly Reflection journal later on the page — it's a quick, ungraded check-in that goes to the teacher's Field Notes tracking sheet. The small 👁 icon beside it explains where the response goes.</li>
       </ul>
 
       <h3>🔭 A Note on "Ask Galileo"</h3>
@@ -802,7 +801,7 @@
         <li><b>🎓 Student Journal</b> — the graded version, matching a school's actual assignment: one combined paragraph (at least 75 words) covering the science fact, an example, and an honest answer to that term's Faith &amp; Science in Action question. Scored on Content (0–3) and Grammar &amp; Structure (0–2), for 5 points possible. A bonus point is available for completing it before the end of the school day on the second-to-last day of the school week.</li>
         <li><b>🌱 Personal Use Journal</b> — for anyone using the site outside a classroom: homeschool families, a student working ahead over the summer, or an adult just following along. No word count, no scoring, no deadline. It simply points back to that term's Faith &amp; Science in Action question and invites an honest, unhurried reflection at whatever pace fits.</li>
       </ul>
-      <p>Both modes share the same journal entry form — a name field and a response box right in the card, submitted with the <b>📝 Submit Journal Entry</b> button. A second button, <b>📖 Review My Journal</b>, is early groundwork for letting a student look back on past entries (with a Download option inside it) — it's a draft preview for now, not yet connected to anywhere entries are actually stored.</p>
+      <p>Both modes share the same <b>📝 Make a Journal Entry</b> button, which opens a Google Form. A second button, <b>📖 Review My Journal</b>, is early groundwork for letting a student look back on past entries (with a Download option inside it) — it's a draft preview for now, not yet connected to anywhere entries are actually stored.</p>
       <p>Scoring guide for Grammar &amp; Structure, where used:</p>
       <ul>
         <li><b>2</b> — Clean writing, complete sentences, no distracting errors</li>
@@ -878,160 +877,77 @@
    ============================================================ */
 
 /* ============================================================
-   REFLECT (GRADED) — DIRECT-TO-SHEET SUBMISSION
+   ENTRANCE TICKET + WEEKLY REFLECTION — GOOGLE FORM SETUP
 
-   As of the "Field Notes — Journal Entry" Sheet setup, Weekly
-   Reflection submits directly to a Google Sheet via an Apps
-   Script Web App (same pattern as the Stay Curious — Entrance
-   Ticket). The Google Form below is retained for reference only
-   and is no longer linked from the card — it is NOT part of the
-   live submission path.
+   Both use a linked Google Form, natively feeding a Google Sheet
+   (Forms' built-in "Responses \u2192 Create Spreadsheet" — no Apps
+   Script, no custom deployment, no OAuth). This is deliberate:
+   an earlier version used a custom Apps Script Web App + Google
+   Sign-In, but that hit an org/domain-level policy block (Apps
+   Script deployments returning "Sorry, unable to open the file"
+   regardless of settings — consistent with a Workspace admin
+   restriction on publicly accessible web apps). Google Forms is
+   first-party and doesn't run into that.
 
-   1) Sheet layout (tabs: G6 / G7 / G8), columns:
-      Timestamp | Student Name | Grade | Term | Episode |
-      Journal Type | Response
-      ("Journal Type" is "Student" or "Personal" depending on
-      which toggle mode the entry was submitted from.)
+   If you want responses restricted to school accounts, or want
+   students able to see/edit their own past submission, use
+   Google Forms' own native Settings: "Restrict to users in your
+   organization" and "Limit to 1 response" — no code required.
 
-   2) Apps Script doPost() — identical structure to the Entrance
-      Ticket script, deployed from within this Sheet as its own
-      Web App (Execute as: Me, Who has access: Anyone). Paste the
-      resulting /exec URL into JOURNAL_ENTRY_ENDPOINT below.
+   ENTRANCE TICKET FORM
+   1) Create ONE Google Form (reused for every term, every week).
+      Fields, in order:
+        - Title: "Field Notes: Stay Curious — Entrance Ticket"
+        - Q1: Your Name (Short answer, required)
+        - Q2: Grade (Dropdown: 6 / 7 / 8, required)
+        - Q3: Which topic? (Dropdown, required — one option per
+              term as you enable the Entrance Ticket for it)
+        - Q4: Your response (Paragraph, required)
+   2) Responses \u2192 the green Sheets icon \u2192 Create a new
+      spreadsheet. This is the ONLY step needed to link it to a
+      Sheet — fully automatic from here on, no setup per response.
+   3) Click Send \u2192 the link icon \u2192 copy the URL \u2192 paste it
+      into ENTRANCE_TICKET_FORM_URL below.
 
-   3) NOTE: this bypasses any automated AI grading — the 75-word
-      minimum is still enforced client-side for Student Journal
-      entries, but Content/Grammar scoring is manual, from the
-      Sheet, same as before.
+   WEEKLY REFLECTION FORM (already set up — see REFLECT_FORM_URL)
+   1) Create ONE Google Form (reused for every term, every week).
+      Fields, in order:
+        - Title: "Field Notes: Weekly Reflection"
+        - Description (paste this EXACTLY, as one block with no
+          blank lines between items — Google Forms turns each
+          blank line into a big empty paragraph):
+            "Write one combined paragraph (at least 75 words). Be sure to include all three:
+             1. The science fact — what does this term mean?
+             2. An example — show it in action, in real life.
+             3. A real-life / Faith & Science connection — answer this week's Faith & Science in Action question, honestly, in your own life.
+             Scoring: Content (0-3 pts) + Grammar & Structure (0-2 pts) = 5 points possible, +1 bonus point for completing everything before the end of the school day on the second-to-last day of the school week.
+             Grammar & Structure: 2 = Clean writing, complete sentences, no distracting errors. 1 = Understandable, but has noticeable errors.
+             0 = Errors get in the way of understanding it"
+        - Q1: Your Name (Short answer, required)
+        - Q2: Which topic are you reflecting on? (Dropdown, required)
+              — add one option per term as you enable Reflect for it
+        - Q3: "In one paragraph (75+ words), explain the science
+              fact for this week's topic, give a real-life example,
+              and answer this week's Faith & Science in Action
+              question honestly, in your own words." (Paragraph, required)
+              — one combined response covering the fact, the example,
+                and the real-life/faith connection together
+   2) Responses \u2192 the green Sheets icon \u2192 Create a new
+      spreadsheet, same as above.
+   3) Click Send \u2192 Link icon, copy the URL, paste it into
+      REFLECT_FORM_URL below.
+   4) Google Forms auto-timestamps every submission in the linked
+      Sheet — that timestamp is exactly what you need to check
+      bonus-point eligibility (submitted before end of school day
+      on the second-to-last day of the week).
+   5) Responses land in a linked Sheet automatically — paste rows
+      into Claude at the end of the week to flag stand-out and
+      concerning entries before you grade. A Content score of 1
+      (out of 0-3) is a cue to ask that student for more depth
+      before locking in a final score.
    ============================================================ */
-const REFLECT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeKpy60g5FO8Ta_OyUkRnEUsrfNgLK3PXa6cr4nbXyrw-J2iw/viewform?usp=publish-editor";
-const JOURNAL_ENTRY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxd-X1gzpmwD72bPRO_wZAJr-5U3I1GxbrfcCW0ceWfMQqQeB2R2wM6Dth_-xlyjrQK/exec";
-
-/* ============================================================
-   GOOGLE SIGN-IN (Entrance Ticket + Weekly Reflection)
-
-   Restricts submission to signed-in @stmary.doyocs.org accounts.
-   The ID token (a signed JWT) is decoded client-side ONLY for
-   showing "Signed in as ___" in the UI. The real security check
-   happens server-side in Apps Script's doPost(), which verifies
-   the token against Google, confirms the domain, and uses the
-   VERIFIED name/email from Google \u2014 never the client-decoded
-   copy \u2014 when writing to the Sheet.
-
-   Setup: Google Cloud Console \u2192 OAuth Client ID (Web application)
-   \u2192 Authorized JavaScript origin: https://jbrand454-crypto.github.io
-   Paste the resulting Client ID below.
-   ============================================================ */
-const GOOGLE_CLIENT_ID = "844245099577-kbh8qfmk070lbkcicqo4nqd63vtqrdjb.apps.googleusercontent.com";
-const SCHOOL_DOMAIN = "stmary.doyocs.org";
-
-let currentAuth = null; // { idToken, name, email } once signed in
-
-function restoreAuthFromStorage(){
-  try {
-    const raw = localStorage.getItem('fsfn_auth');
-    if(raw) currentAuth = JSON.parse(raw);
-  } catch(e){ currentAuth = null; }
-}
-restoreAuthFromStorage();
-
-function decodeJwtPayload(token){
-  try {
-    const base64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
-    const json = decodeURIComponent(atob(base64).split('').map(c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
-    return JSON.parse(json);
-  } catch(e){ return null; }
-}
-
-function isAuthValid(){
-  if(!currentAuth || !currentAuth.idToken) return false;
-  const payload = decodeJwtPayload(currentAuth.idToken);
-  if(!payload || !payload.exp) return false;
-  return (payload.exp * 1000) > Date.now();
-}
-
-function handleGoogleCredentialResponse(response){
-  const payload = decodeJwtPayload(response.credential);
-  if(!payload || payload.hd !== SCHOOL_DOMAIN){
-    alert(`Please sign in with your @${SCHOOL_DOMAIN} school account.`);
-    return;
-  }
-  currentAuth = { idToken: response.credential, name: payload.name, email: payload.email };
-  try { localStorage.setItem('fsfn_auth', JSON.stringify(currentAuth)); } catch(e){}
-  renderCard();
-}
-
-function signOutGoogle(){
-  currentAuth = null;
-  try { localStorage.removeItem('fsfn_auth'); } catch(e){}
-  if(window.google && google.accounts && google.accounts.id){
-    google.accounts.id.disableAutoSelect();
-  }
-  renderCard();
-}
-
-function initGoogleSignIn(){
-  if(!window.google || !google.accounts || !google.accounts.id) return;
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredentialResponse,
-    hd: SCHOOL_DOMAIN,
-    auto_select: false
-  });
-}
-
-function renderGoogleAuthBlock(containerId){
-  if(isAuthValid()){
-    return `<div class="gsi-auth-block">
-      <div class="gsi-signed-in-row">
-        \ud83d\udc64 Signed in as <b>${currentAuth.name}</b>
-        <button type="button" class="gsi-signout-btn" data-signout="1">Sign out</button>
-      </div>
-    </div>`;
-  }
-  return `<div class="gsi-auth-block">
-    <p class="gsi-signin-note">Sign in with your school Google account to submit a response.</p>
-    <div id="${containerId}"></div>
-  </div>`;
-}
-
-function wireGoogleAuthBlock(containerId){
-  if(isAuthValid()) return;
-  const el = document.getElementById(containerId);
-  if(el && window.google && google.accounts && google.accounts.id){
-    google.accounts.id.renderButton(el, { theme: 'outline', size: 'large', text: 'signin_with' });
-  }
-}
-
-// JSONP fetch — needed because reading a real response back (not just
-// firing a write) runs into CORS restrictions on Apps Script Web Apps.
-// A <script> tag load isn't subject to CORS, so this is the reliable path.
-let jsonpCounter = 0;
-function jsonpRequest(baseUrl, params){
-  return new Promise((resolve, reject) => {
-    const cbName = `fsfnJsonp_${Date.now()}_${jsonpCounter++}`;
-    const timeoutId = setTimeout(() => {
-      cleanup();
-      reject(new Error('Request timed out.'));
-    }, 12000);
-
-    function cleanup(){
-      clearTimeout(timeoutId);
-      delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    window[cbName] = (data) => { cleanup(); resolve(data); };
-
-    const query = new URLSearchParams({ ...params, callback: cbName }).toString();
-    const script = document.createElement('script');
-    script.src = `${baseUrl}?${query}`;
-    script.onerror = () => { cleanup(); reject(new Error('Network error loading response.')); };
-    document.body.appendChild(script);
-  });
-}
-
+const REFLECT_FORM_URL = "https://forms.gle/v1xsSNbLm9eXVYCC6";
+const ENTRANCE_TICKET_FORM_URL = "https://forms.gle/5Q5N8wB69v8ZisgL8";
 
 /* ============================================================
    FULL MEDIA LIBRARY LINKS (optional)
@@ -10310,7 +10226,6 @@ const CURRICULUM = {
   g8: { name:"Grade 8", sub:"Course 3", last:[], current:["atom","atomicNumber","atomicMass"], next:["proton","neutron","electron"] }
 };
 const GRADE_RANK = { g6:6, g7:7, g8:8 };
-const ENTRANCE_TICKET_ENDPOINT = "https://script.google.com/macros/s/AKfycbwB1DmjVINnv8BEV6gXrcjJK-RI1Iv1a3nbWSM-O3b6WCQ5B4ktgeqThJ4bCiYdbv-o/exec";
 const DOMAINS = [
   ["all", "🔬 All Sciences"],
   ["physical", "⚛️ Physical Science"],
@@ -10614,20 +10529,16 @@ function renderCard(){
       <div class="stay-curious-block gated" id="stayCuriousBlock">
         <span class="stay-curious-badge">🧭 Stay Curious — Entrance Ticket</span>
         <p>Before we dig in: what do you already know about <b>${t.name}</b>? Give an example if you can. What don't you know yet — what are you curious about? ${bonusPromptText}</p>
-        ${renderGoogleAuthBlock('gsiEntrance')}
-        <textarea id="entranceResponseInput" class="entrance-response-textarea" placeholder="Type your response here..."></textarea>
         <div class="gate-btn-row">
           <button id="continueJourneyBtn" class="continue-journey-btn">✅ Continue Your Journey →</button>
-          <button id="submitResponseBtn" class="submit-response-btn">📤 Submit Your Response</button>
+          <a class="submit-response-btn" href="${ENTRANCE_TICKET_FORM_URL || '#'}" target="_blank" rel="noopener">📤 Submit Your Response</a>
         </div>
-        <div id="entranceValidationNote" class="entrance-validation-note" style="display:none;">Please sign in and add a response before submitting.</div>
-        <div id="entranceSubmitNote" class="entrance-submit-note" style="display:none;">✅ Response saved. Thanks for sharing!</div>
         <div class="submit-info-row">
           <button id="submitInfoBtn" class="submit-info-btn" aria-label="Where does my response go?">👁️</button>
         </div>
         <div class="submit-info-panel" id="submitInfoPanel">
           <span class="submit-info-label">📍 Where does this go?</span>
-          <p>Once signed in with your school Google account, your name, email, and response are sent to your teacher's Field Notes tracking sheet — sorted by your grade level. This warm-up isn't graded.</p>
+          <p>This opens a short Google Form — your name, grade, and response are sent to your teacher's Field Notes tracking sheet. This warm-up isn't graded.</p>
           <p class="submit-info-note">This is separate from the graded Weekly Reflection journal entry later in the term.</p>
         </div>
       </div>
@@ -10651,64 +10562,18 @@ function renderCard(){
       renderCard();
       cardEl.scrollIntoView({behavior:'smooth', block:'start'});
     });
-    wireGoogleAuthBlock('gsiEntrance');
-    const entranceSignoutBtn = document.querySelector('#stayCuriousBlock [data-signout]');
-    if(entranceSignoutBtn) entranceSignoutBtn.addEventListener('click', signOutGoogle);
-    document.getElementById('submitResponseBtn').addEventListener('click', ()=>{
-      const responseInput = document.getElementById('entranceResponseInput');
-      const validationNote = document.getElementById('entranceValidationNote');
-      const submitNote = document.getElementById('entranceSubmitNote');
-      const submitBtn = document.getElementById('submitResponseBtn');
-
-      const responseText = responseInput.value.trim();
-
-      if(!isAuthValid() || !responseText){
-        validationNote.textContent = !isAuthValid()
-          ? 'Please sign in with your school Google account first.'
-          : 'Please add a response before submitting.';
-        validationNote.style.display = 'block';
-        return;
-      }
-      validationNote.style.display = 'none';
-
-      fetch(ENTRANCE_TICKET_ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          idToken: currentAuth.idToken,
-          grade: String(t.grade),
-          term: t.name,
-          episode: t.ep ? `EP.${String(t.ep).padStart(3,'0')}` : '',
-          journalType: 'Entrance Ticket',
-          response: responseText
-        })
-      }).catch(()=>{ /* fail silently — submission is optional/low-stakes */ });
-
-      submitNote.style.display = 'block';
-      responseInput.disabled = true;
-      submitBtn.disabled = true;
-    });
     return;
   }
 
   function journalActionsHTML(mode){
-    const isStudent = mode === 'student';
-    return `<div class="journal-entry-block" data-mode="${mode}">
-      ${renderGoogleAuthBlock('gsiJournal-' + mode)}
-      <textarea id="journalResponse-${mode}" class="entrance-response-textarea" placeholder="${isStudent ? 'Write your combined reflection here — science fact, example, and Faith & Science in Action answer...' : 'Jot down your thoughts here...'}"></textarea>
-      ${isStudent ? `<div class="journal-word-count" id="journalWordCount-${mode}">0 words (75 minimum)</div>` : ''}
-      <div id="journalValidation-${mode}" class="entrance-validation-note" style="display:none;"></div>
-      <div id="journalSubmitNote-${mode}" class="entrance-submit-note" style="display:none;">✅ Entry submitted. Nice work!</div>
-      <div class="journal-btn-row">
-        <button type="button" class="reflect-btn journal-submit-btn" data-mode="${mode}">📝 Submit Journal Entry</button>
-        <button class="review-journal-btn" type="button" data-mode="${mode}">📖 Review My Journal</button>
-      </div>
-      <div class="review-journal-panel" id="reviewPanel-${mode}">
-        <span class="review-journal-label">📖 Your Full Journal History</span>
-        <div id="reviewContent-${mode}"><p class="review-loading-note">Sign in and click Review My Journal to load all your past entries, in the order you completed them.</p></div>
-        <button class="journal-download-btn" type="button" data-mode="${mode}" disabled>⬇️ Download</button>
-      </div>
+    return `<div class="journal-btn-row">
+      <a class="reflect-btn" href="${REFLECT_FORM_URL || '#'}" target="_blank" rel="noopener">📝 Make a Journal Entry</a>
+      <button class="review-journal-btn" type="button">📖 Review My Journal</button>
+    </div>
+    <div class="review-journal-panel">
+      <span class="review-journal-label">📖 DRAFT — your journal history</span>
+      <p>Once your journal is connected, your past entries for <b>${t.name}</b> will show up here, ready to look back on.</p>
+      <button class="journal-download-btn" type="button">⬇️ Download</button>
     </div>`;
   }
 
@@ -10780,7 +10645,7 @@ function renderCard(){
     const pct = Math.min(100, (doneCount / 316) * 100);
     const lastLine = p.lastAddedEp
       ? `Last recorded: <b>EP.${String(p.lastAddedEp).padStart(3,'0')}</b> on ${p.lastAddedDate}`
-      : `No entries recorded yet on this device \u2014 tap Submit Journal Entry to start your streak`;
+      : `No entries recorded yet on this device \u2014 tap Make a Journal Entry to start your streak`;
     const completedSet = new Set(p.completedEps);
     const milestoneMarks = MILESTONES.map(m => {
       const leftPct = (m.ep / 316) * 100;
@@ -10960,156 +10825,24 @@ function renderCard(){
     });
   }
 
-  const journalEntriesCache = {}; // mode -> array of entries, for Download to reuse
-
   cardEl.querySelectorAll('.review-journal-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const mode = btn.dataset.mode;
-      const panel = document.getElementById(`reviewPanel-${mode}`);
-      const contentEl = document.getElementById(`reviewContent-${mode}`);
-      const downloadBtn = panel.querySelector('.journal-download-btn');
+      const panel = btn.closest('.journal-btn-row').nextElementSibling;
       panel.classList.toggle('show');
-      if(!panel.classList.contains('show')) return;
-
-      if(!isAuthValid()){
-        contentEl.innerHTML = `<p class="review-error-note">Please sign in with your school Google account to view your journal.</p>`;
-        downloadBtn.disabled = true;
-        return;
-      }
-
-      contentEl.innerHTML = `<p class="review-loading-note">Loading your journal…</p>`;
-      downloadBtn.disabled = true;
-
-      jsonpRequest(JOURNAL_ENTRY_ENDPOINT, {
-        idToken: currentAuth.idToken,
-        grade: String(t.grade)
-      }).then(data => {
-        if(data.status !== 'success'){
-          contentEl.innerHTML = `<p class="review-error-note">Couldn't load your journal: ${data.message || 'unknown error'}</p>`;
-          return;
-        }
-        // Sequential order of completion — oldest first, like a running diary.
-        const entries = (data.entries || []).slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        journalEntriesCache[mode] = entries;
-        if(entries.length === 0){
-          contentEl.innerHTML = `<p>No past entries found yet under your account.</p>`;
-          downloadBtn.disabled = true;
-          return;
-        }
-        contentEl.innerHTML = entries.map(entry => `
-          <div class="review-entry">
-            <div class="review-entry-meta">
-              <span class="review-entry-ep">EP.${String(entry.episode || '').replace(/^EP\.?/i,'').padStart(3,'0')}</span>
-              <span class="review-entry-type">${entry.journalType || ''}</span>
-              <span>${entry.term || ''}</span>
-              <span>${new Date(entry.timestamp).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'})}</span>
-            </div>
-            <div class="review-entry-text">${(entry.response || '').replace(/</g,'&lt;')}</div>
-          </div>
-        `).join('');
-        downloadBtn.disabled = false;
-      }).catch(err => {
-        contentEl.innerHTML = `<p class="review-error-note">Couldn't load your journal right now — please try again in a moment.</p>`;
-      });
     });
   });
 
-  cardEl.querySelectorAll('.journal-download-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const mode = btn.dataset.mode;
-      const entries = journalEntriesCache[mode] || [];
-      if(entries.length === 0) return;
-
-      const lines = [`Faith & Science Field Notes — Full Journal History`, `Downloaded ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`, ''];
-      entries.forEach(entry => {
-        const epLabel = `EP.${String(entry.episode || '').replace(/^EP\.?/i,'').padStart(3,'0')}`;
-        lines.push(`${epLabel} — ${entry.term || ''} [${entry.journalType || ''}] ${new Date(entry.timestamp).toLocaleString()}`);
-        lines.push(entry.response || '');
-        lines.push('');
-      });
-
-      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Journal_History_${mode}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-  });
-
-  cardEl.querySelectorAll('.journal-entry-block').forEach(block=>{
-    const mode = block.dataset.mode;
-    const responseInput = document.getElementById(`journalResponse-${mode}`);
-    const wordCountEl = document.getElementById(`journalWordCount-${mode}`);
-    if(responseInput && wordCountEl){
-      responseInput.addEventListener('input', ()=>{
-        const words = responseInput.value.trim().split(/\s+/).filter(Boolean).length;
-        wordCountEl.textContent = `${words} word${words === 1 ? '' : 's'} (75 minimum)`;
-        wordCountEl.classList.toggle('enough', words >= 75);
-      });
-    }
-    wireGoogleAuthBlock('gsiJournal-' + mode);
-    const signoutBtn = block.querySelector('[data-signout]');
-    if(signoutBtn) signoutBtn.addEventListener('click', signOutGoogle);
-  });
-
-  cardEl.querySelectorAll('.journal-submit-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const mode = btn.dataset.mode;
-      const responseInput = document.getElementById(`journalResponse-${mode}`);
-      const validationNote = document.getElementById(`journalValidation-${mode}`);
-      const submitNote = document.getElementById(`journalSubmitNote-${mode}`);
-
-      const responseText = responseInput.value.trim();
-      const wordCount = responseText ? responseText.trim().split(/\s+/).filter(Boolean).length : 0;
-
-      if(!isAuthValid() || !responseText){
-        validationNote.textContent = !isAuthValid()
-          ? 'Please sign in with your school Google account first.'
-          : 'Please add a response before submitting.';
-        validationNote.style.display = 'block';
-        return;
-      }
-      if(mode === 'student' && wordCount < 75){
-        validationNote.textContent = `This entry needs at least 75 words to count \u2014 you're at ${wordCount} so far.`;
-        validationNote.style.display = 'block';
-        return;
-      }
-      validationNote.style.display = 'none';
-
-      fetch(JOURNAL_ENTRY_ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          idToken: currentAuth.idToken,
-          grade: String(t.grade),
-          term: t.name,
-          episode: t.ep ? `EP.${String(t.ep).padStart(3,'0')}` : '',
-          journalType: mode === 'student' ? 'Student' : 'Personal',
-          response: responseText
-        })
-      }).catch(()=>{ /* fail silently — matches Entrance Ticket behavior */ });
-
-      submitNote.style.display = 'block';
-      responseInput.disabled = true;
-      btn.disabled = true;
-
-      if(t.journalProgress){
+  if(t.journalProgress){
+    cardEl.querySelectorAll('.reflect-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
         addCompletedEpisodes([t.ep]);
         const card = document.getElementById('journalProgressCard');
         if(card){
           card.outerHTML = journalProgressHTML();
           wireJournalProgressManualForm();
         }
-      }
+      });
     });
-  });
-
-  if(t.journalProgress){
     wireJournalProgressManualForm();
   }
 
@@ -11858,19 +11591,6 @@ renderModeTabs();
 renderDomainTabs();
 renderUnitTabs();
 renderCatalog();
-
-// Google Identity Services loads async — poll briefly until it's ready
-(function waitForGoogleIdentity(attemptsLeft){
-  if(window.google && google.accounts && google.accounts.id){
-    initGoogleSignIn();
-    // The first card render likely happened before this library was ready,
-    // so its sign-in button container is still empty — re-render to draw it.
-    if(current) renderCard();
-    return;
-  }
-  if(attemptsLeft <= 0) return;
-  setTimeout(()=> waitForGoogleIdentity(attemptsLeft - 1), 200);
-})(25);
 
 
 const guideBtn = document.getElementById('guideBtn');
