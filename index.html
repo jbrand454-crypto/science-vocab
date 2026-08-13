@@ -332,6 +332,28 @@
   .submit-info-panel ul{margin:0 0 10px;padding-left:20px;font-size:13.5px;line-height:1.6;color:var(--ink);}
   .submit-info-panel li{margin-bottom:4px;}
   .submit-info-note{font-style:italic;color:var(--ink-soft);font-size:12.5px !important;}
+  .entrance-name-input{
+    display:block;width:100%;box-sizing:border-box;font-family:'Atkinson Hyperlegible',sans-serif;
+    font-size:14.5px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:8px;
+    padding:10px 12px;margin-bottom:10px;transition:border-color .15s ease;
+  }
+  .entrance-name-input:focus{outline:none;border-color:var(--gold);}
+  .entrance-response-textarea{
+    display:block;width:100%;box-sizing:border-box;font-family:'Atkinson Hyperlegible',sans-serif;
+    font-size:14.5px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:8px;
+    padding:10px 12px;margin-bottom:14px;min-height:90px;resize:vertical;transition:border-color .15s ease;
+  }
+  .entrance-response-textarea:focus{outline:none;border-color:var(--gold);}
+  .submit-response-btn:disabled,.entrance-name-input:disabled,.entrance-response-textarea:disabled{
+    opacity:.6;cursor:not-allowed;
+  }
+  .entrance-submit-note{
+    margin-top:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;
+    color:var(--teal-dark);
+  }
+  .entrance-validation-note{
+    margin-top:10px;font-size:13px;color:#B23A2E;
+  }
   .card.pause-gated{padding-bottom:32px;}
 
   .reflect-block{
@@ -382,6 +404,11 @@
     transition:background .15s ease;
   }
   .journal-download-btn:hover{background:var(--ink);}
+  .journal-word-count{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-size:12.5px;color:var(--ink-soft);
+    margin:-4px 0 12px;
+  }
+  .journal-word-count.enough{color:var(--teal-dark);font-weight:700;}
   .journal-progress-card{
     margin-top:16px;background:var(--paper-card);border:1.5px solid var(--line);border-radius:10px;
     padding:16px 18px 14px;
@@ -702,7 +729,7 @@
       <p>A free, no-login science vocabulary review tool for grades 6–8, cross-referenced with national and state science standards. Students pick a grade, then work through this week's new terms or older review terms, at their own pace, on any device — phone, tablet, or school Chromebook.</p>
 
       <h3>What This Isn't</h3>
-      <div class="highlight">Field Notes itself never records a grade, a score, or a name anywhere — it stores nothing about your student, and the site has no login. Most of it is purely for practice and review. The one exception: each weekly new term includes a Weekly Reflection section with a link to a separate, official journal entry. In its <b>Student Journal</b> mode, that entry <i>does</i> count toward a grade, submitted through a Google Form and recorded in the gradebook like any other assignment. A <b>Personal Use Journal</b> mode sits right beside it for anyone using the site outside a graded classroom setting — it's never scored. Everything above the Weekly Reflection on a term's page stays practice-only either way.</div>
+      <div class="highlight">Field Notes itself never records a grade or a score, and the site has no login. Most of it is purely for practice and review. There are two places a name and a short response can optionally be submitted: the <b>Stay Curious — Entrance Ticket</b> warm-up at the start of each term (ungraded, goes to the teacher's tracking sheet, never scored) and the <b>Weekly Reflection</b> at the end of each new term. In its <b>Student Journal</b> mode, that Weekly Reflection entry <i>does</i> count toward a grade, submitted directly to the teacher's Google Sheet and reviewed by hand like any other assignment. A <b>Personal Use Journal</b> mode sits right beside it for anyone using the site outside a graded classroom setting — it's never scored. Everything above the Weekly Reflection on a term's page stays practice/warm-up only, never scored.</div>
 
       <h3>How To Navigate</h3>
       <ul>
@@ -720,7 +747,7 @@
       <p>Opening a term card doesn't dump everything on screen at once. It first shows just a short "Stay Curious" prompt — a quick, optional warm-up question about what the student already knows or is curious about, before any of the actual content appears. Two buttons sit right in that box:</p>
       <ul>
         <li><b>✅ Continue Your Journey</b> — unlocks the full card: all eight steps, Practice, Explore More, Faith &amp; Science, and the Weekly Reflection. A student who doesn't want to engage with the warm-up prompt can tap straight through with zero friction — it's meant to be a brief pause, not a gate that slows anyone down.</li>
-        <li><b>📤 Submit Your Response</b> — currently a placeholder while the actual submission connection (likely a Google Form or Sheet) gets built. The small 👁 icon beside it previews, in draft form, where a response will eventually route — to a family's own tracking sheet, a teacher, or a youth group leader, depending on how the site is being used. Nothing typed here is collected or sent anywhere yet.</li>
+        <li><b>📤 Submit Your Response</b> — a student can optionally type their name and a short warm-up response, then submit it. This is separate from the graded Weekly Reflection journal later on the page — it's a quick, ungraded check-in that goes to the teacher's Field Notes tracking sheet. The small 👁 icon beside it explains where the response goes.</li>
       </ul>
 
       <h3>🔭 A Note on "Ask Galileo"</h3>
@@ -738,7 +765,7 @@
         <li><b>🎓 Student Journal</b> — the graded version, matching a school's actual assignment: one combined paragraph (at least 75 words) covering the science fact, an example, and an honest answer to that term's Faith &amp; Science in Action question. Scored on Content (0–3) and Grammar &amp; Structure (0–2), for 5 points possible. A bonus point is available for completing it before the end of the school day on the second-to-last day of the school week.</li>
         <li><b>🌱 Personal Use Journal</b> — for anyone using the site outside a classroom: homeschool families, a student working ahead over the summer, or an adult just following along. No word count, no scoring, no deadline. It simply points back to that term's Faith &amp; Science in Action question and invites an honest, unhurried reflection at whatever pace fits.</li>
       </ul>
-      <p>Both modes share the same <b>📝 Make a Journal Entry</b> button. A second button, <b>📖 Review My Journal</b>, is early groundwork for letting a student look back on past entries (with a Download option inside it) — it's a draft preview for now, not yet connected to anywhere entries are actually stored.</p>
+      <p>Both modes share the same journal entry form — a name field and a response box right in the card, submitted with the <b>📝 Submit Journal Entry</b> button. A second button, <b>📖 Review My Journal</b>, is early groundwork for letting a student look back on past entries (with a Download option inside it) — it's a draft preview for now, not yet connected to anywhere entries are actually stored.</p>
       <p>Scoring guide for Grammar &amp; Structure, where used:</p>
       <ul>
         <li><b>2</b> — Clean writing, complete sentences, no distracting errors</li>
@@ -814,45 +841,33 @@
    ============================================================ */
 
 /* ============================================================
-   REFLECT (GRADED) — GOOGLE FORM SETUP
+   REFLECT (GRADED) — DIRECT-TO-SHEET SUBMISSION
 
-   1) Create ONE Google Form (reused for every term, every week).
-      Fields, in order:
-        - Title: "Field Notes: Weekly Reflection"
-        - Description (paste this EXACTLY, as one block with no
-          blank lines between items — Google Forms turns each
-          blank line into a big empty paragraph):
-            "Write one combined paragraph (at least 75 words). Be sure to include all three:
-             1. The science fact — what does this term mean?
-             2. An example — show it in action, in real life.
-             3. A real-life / Faith & Science connection — answer this week's Faith & Science in Action question, honestly, in your own life.
-             Scoring: Content (0-3 pts) + Grammar & Structure (0-2 pts) = 5 points possible, +1 bonus point for completing everything before the end of the school day on the second-to-last day of the school week.
-             Grammar & Structure: 2 = Clean writing, complete sentences, no distracting errors. 1 = Understandable, but has noticeable errors.
-             0 = Errors get in the way of understanding it"
-        - Q1: Your Name (Short answer, required)
-        - Q2: Which topic are you reflecting on? (Dropdown, required)
-              — add one option per term as you enable Reflect for it
-        - Q3: "In one paragraph (75+ words), explain the science
-              fact for this week's topic, give a real-life example,
-              and answer this week's Faith & Science in Action
-              question honestly, in your own words." (Paragraph, required)
-              — one combined response covering the fact, the example,
-                and the real-life/faith connection together
+   As of the "Field Notes — Journal Entry" Sheet setup, Weekly
+   Reflection submits directly to a Google Sheet via an Apps
+   Script Web App (same pattern as the Stay Curious — Entrance
+   Ticket). The Google Form below is retained for reference only
+   and is no longer linked from the card — it is NOT part of the
+   live submission path.
 
-   2) Click Send > Link icon, copy the URL, paste it below.
+   1) Sheet layout (tabs: G6 / G7 / G8), columns:
+      Timestamp | Student Name | Grade | Term | Episode |
+      Journal Type | Response
+      ("Journal Type" is "Student" or "Personal" depending on
+      which toggle mode the entry was submitted from.)
 
-   3) Google Forms auto-timestamps every submission in the linked
-      Sheet — that timestamp is exactly what you need to check
-      bonus-point eligibility (submitted before end of school day
-      on the second-to-last day of the week).
+   2) Apps Script doPost() — identical structure to the Entrance
+      Ticket script, deployed from within this Sheet as its own
+      Web App (Execute as: Me, Who has access: Anyone). Paste the
+      resulting /exec URL into JOURNAL_ENTRY_ENDPOINT below.
 
-   4) Responses land in a linked Sheet automatically — paste rows
-      into Claude at the end of the week to flag stand-out and
-      concerning entries before you grade. A Content score of 1
-      (out of 0-3) is a cue to ask that student for more depth
-      before locking in a final score.
+   3) NOTE: this bypasses any automated AI grading — the 75-word
+      minimum is still enforced client-side for Student Journal
+      entries, but Content/Grammar scoring is manual, from the
+      Sheet, same as before.
    ============================================================ */
 const REFLECT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeKpy60g5FO8Ta_OyUkRnEUsrfNgLK3PXa6cr4nbXyrw-J2iw/viewform?usp=publish-editor";
+const JOURNAL_ENTRY_ENDPOINT = "https://script.google.com/macros/s/AKfycbxd-X1gzpmwD72bPRO_wZAJr-5U3I1GxbrfcCW0ceWfMQqQeB2R2wM6Dth_-xlyjrQK/exec";
 
 /* ============================================================
    FULL MEDIA LIBRARY LINKS (optional)
@@ -10131,6 +10146,7 @@ const CURRICULUM = {
   g8: { name:"Grade 8", sub:"Course 3", last:[], current:["atom","atomicNumber","atomicMass"], next:["proton","neutron","electron"] }
 };
 const GRADE_RANK = { g6:6, g7:7, g8:8 };
+const ENTRANCE_TICKET_ENDPOINT = "https://script.google.com/macros/s/AKfycbwB1DmjVINnv8BEV6gXrcjJK-RI1Iv1a3nbWSM-O3b6WCQ5B4ktgeqThJ4bCiYdbv-o/exec";
 const DOMAINS = [
   ["all", "🔬 All Sciences"],
   ["physical", "⚛️ Physical Science"],
@@ -10434,22 +10450,21 @@ function renderCard(){
       <div class="stay-curious-block gated" id="stayCuriousBlock">
         <span class="stay-curious-badge">🧭 Stay Curious — Entrance Ticket</span>
         <p>Before we dig in: what do you already know about <b>${t.name}</b>? Give an example if you can. What don't you know yet — what are you curious about? ${bonusPromptText}</p>
+        <input type="text" id="entranceNameInput" class="entrance-name-input" placeholder="Your name" autocomplete="off">
+        <textarea id="entranceResponseInput" class="entrance-response-textarea" placeholder="Type your response here..."></textarea>
         <div class="gate-btn-row">
           <button id="continueJourneyBtn" class="continue-journey-btn">✅ Continue Your Journey →</button>
           <button id="submitResponseBtn" class="submit-response-btn">📤 Submit Your Response</button>
         </div>
+        <div id="entranceValidationNote" class="entrance-validation-note" style="display:none;">Please add your name and a response before submitting.</div>
+        <div id="entranceSubmitNote" class="entrance-submit-note" style="display:none;">✅ Response saved. Thanks for sharing!</div>
         <div class="submit-info-row">
           <button id="submitInfoBtn" class="submit-info-btn" aria-label="Where does my response go?">👁️</button>
         </div>
         <div class="submit-info-panel" id="submitInfoPanel">
-          <span class="submit-info-label">📝 DRAFT — where does this go?</span>
-          <p>Great question! Where your response goes depends on how you're using this site:</p>
-          <ul>
-            <li><b>On your own?</b> It'll go wherever you've connected — like your own Google Sheet.</li>
-            <li><b>A student in a class?</b> It'll go to your teacher.</li>
-            <li><b>Part of a youth group?</b> It'll go to your youth group leader.</li>
-          </ul>
-          <p class="submit-info-note">This is placeholder text while we build the actual submission connection — the real version will be clearer and specific to your setup.</p>
+          <span class="submit-info-label">📍 Where does this go?</span>
+          <p>Your name and response are sent to your teacher's Field Notes tracking sheet — sorted by your grade level. Nothing else about you is collected, and this warm-up isn't graded.</p>
+          <p class="submit-info-note">This is separate from the graded Weekly Reflection journal entry later in the term.</p>
         </div>
       </div>
     `;
@@ -10472,24 +10487,69 @@ function renderCard(){
       renderCard();
       cardEl.scrollIntoView({behavior:'smooth', block:'start'});
     });
+    document.getElementById('submitResponseBtn').addEventListener('click', ()=>{
+      const nameInput = document.getElementById('entranceNameInput');
+      const responseInput = document.getElementById('entranceResponseInput');
+      const validationNote = document.getElementById('entranceValidationNote');
+      const submitNote = document.getElementById('entranceSubmitNote');
+      const submitBtn = document.getElementById('submitResponseBtn');
+
+      const studentName = nameInput.value.trim();
+      const responseText = responseInput.value.trim();
+
+      if(!studentName || !responseText){
+        validationNote.style.display = 'block';
+        return;
+      }
+      validationNote.style.display = 'none';
+
+      fetch(ENTRANCE_TICKET_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          studentName: studentName,
+          grade: String(t.grade),
+          term: t.name,
+          episode: t.ep ? `EP.${String(t.ep).padStart(3,'0')}` : '',
+          journalType: 'Entrance Ticket',
+          response: responseText
+        })
+      }).catch(()=>{ /* fail silently — submission is optional/low-stakes */ });
+
+      submitNote.style.display = 'block';
+      nameInput.disabled = true;
+      responseInput.disabled = true;
+      submitBtn.disabled = true;
+    });
     return;
   }
 
-  const journalActionsHTML = `<div class="journal-btn-row">
-      <a class="reflect-btn" href="${REFLECT_FORM_URL || '#'}" target="_blank" rel="noopener">📝 Make a Journal Entry</a>
-      <button class="review-journal-btn" type="button">📖 Review My Journal</button>
-    </div>
-    <div class="review-journal-panel">
-      <span class="review-journal-label">📖 DRAFT — your journal history</span>
-      <p>Once your journal is connected, your past entries for <b>${t.name}</b> will show up here, ready to look back on.</p>
-      <button class="journal-download-btn" type="button">⬇️ Download</button>
+  function journalActionsHTML(mode){
+    const isStudent = mode === 'student';
+    return `<div class="journal-entry-block" data-mode="${mode}">
+      <input type="text" id="journalName-${mode}" class="entrance-name-input" placeholder="Your name" autocomplete="off">
+      <textarea id="journalResponse-${mode}" class="entrance-response-textarea" placeholder="${isStudent ? 'Write your combined reflection here — science fact, example, and Faith & Science in Action answer...' : 'Jot down your thoughts here...'}"></textarea>
+      ${isStudent ? `<div class="journal-word-count" id="journalWordCount-${mode}">0 words (75 minimum)</div>` : ''}
+      <div id="journalValidation-${mode}" class="entrance-validation-note" style="display:none;"></div>
+      <div id="journalSubmitNote-${mode}" class="entrance-submit-note" style="display:none;">✅ Entry submitted. Nice work!</div>
+      <div class="journal-btn-row">
+        <button type="button" class="reflect-btn journal-submit-btn" data-mode="${mode}">📝 Submit Journal Entry</button>
+        <button class="review-journal-btn" type="button">📖 Review My Journal</button>
+      </div>
+      <div class="review-journal-panel">
+        <span class="review-journal-label">📖 DRAFT — your journal history</span>
+        <p>Once your journal is connected, your past entries for <b>${t.name}</b> will show up here, ready to look back on.</p>
+        <button class="journal-download-btn" type="button">⬇️ Download</button>
+      </div>
     </div>`;
+  }
 
   const studentPromptHTML = `<p>Ready to go deeper? Submit one combined paragraph reflection (at least 75 words) on <b>${t.name}</b> — include your science fact, an example, and this week's Faith &amp; Science in Action question, answered honestly in your own words. Scored on Content (0–3) and Grammar &amp; Structure (0–2). All of this week's new topics need a journal entry — take your time, and turn it in by end of day on the second-to-last day of the school week for a bonus point!</p>
-    ${journalActionsHTML}`;
+    ${journalActionsHTML('student')}`;
 
   const personalPromptHTML = `<p>This week's topic was <b>${t.name}</b>, and the Faith &amp; Science in Action question above invited you to sit with how that idea connects to your own life. Whenever you're ready, jot down your thoughts — there's no minimum length and nothing to score here. This is simply space to think it through honestly, at your own pace.</p>
-    ${journalActionsHTML}`;
+    ${journalActionsHTML('personal')}`;
 
   const MILESTONES = [
     {ep: 86, label: 'Grade 6 Complete'},
@@ -10527,7 +10587,7 @@ function renderCard(){
     const pct = Math.min(100, (p.maxEp / 316) * 100);
     const lastLine = p.lastEp
       ? `Last recorded: <b>EP.${String(p.lastEp).padStart(3,'0')}</b> on ${p.lastDate}`
-      : `No entries recorded yet on this device \u2014 tap Make a Journal Entry to start your streak`;
+      : `No entries recorded yet on this device \u2014 tap Submit Journal Entry to start your streak`;
     const milestoneMarks = MILESTONES.map(m => {
       const leftPct = (m.ep / 316) * 100;
       const reached = p.maxEp >= m.ep;
@@ -10711,17 +10771,74 @@ function renderCard(){
     });
   });
 
-  if(t.journalProgress){
-    cardEl.querySelectorAll('.reflect-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+  cardEl.querySelectorAll('.journal-entry-block').forEach(block=>{
+    const mode = block.dataset.mode;
+    const responseInput = document.getElementById(`journalResponse-${mode}`);
+    const wordCountEl = document.getElementById(`journalWordCount-${mode}`);
+    if(responseInput && wordCountEl){
+      responseInput.addEventListener('input', ()=>{
+        const words = responseInput.value.trim().split(/\s+/).filter(Boolean).length;
+        wordCountEl.textContent = `${words} word${words === 1 ? '' : 's'} (75 minimum)`;
+        wordCountEl.classList.toggle('enough', words >= 75);
+      });
+    }
+  });
+
+  cardEl.querySelectorAll('.journal-submit-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const mode = btn.dataset.mode;
+      const nameInput = document.getElementById(`journalName-${mode}`);
+      const responseInput = document.getElementById(`journalResponse-${mode}`);
+      const validationNote = document.getElementById(`journalValidation-${mode}`);
+      const submitNote = document.getElementById(`journalSubmitNote-${mode}`);
+
+      const studentName = nameInput.value.trim();
+      const responseText = responseInput.value.trim();
+      const wordCount = responseText ? responseText.trim().split(/\s+/).filter(Boolean).length : 0;
+
+      if(!studentName || !responseText){
+        validationNote.textContent = 'Please add your name and a response before submitting.';
+        validationNote.style.display = 'block';
+        return;
+      }
+      if(mode === 'student' && wordCount < 75){
+        validationNote.textContent = `This entry needs at least 75 words to count \u2014 you're at ${wordCount} so far.`;
+        validationNote.style.display = 'block';
+        return;
+      }
+      validationNote.style.display = 'none';
+
+      fetch(JOURNAL_ENTRY_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          studentName: studentName,
+          grade: String(t.grade),
+          term: t.name,
+          episode: t.ep ? `EP.${String(t.ep).padStart(3,'0')}` : '',
+          journalType: mode === 'student' ? 'Student' : 'Personal',
+          response: responseText
+        })
+      }).catch(()=>{ /* fail silently — matches Entrance Ticket behavior */ });
+
+      submitNote.style.display = 'block';
+      nameInput.disabled = true;
+      responseInput.disabled = true;
+      btn.disabled = true;
+
+      if(t.journalProgress){
         saveJournalProgress(t.ep);
         const card = document.getElementById('journalProgressCard');
         if(card){
           card.outerHTML = journalProgressHTML();
           wireJournalProgressManualForm();
         }
-      });
+      }
     });
+  });
+
+  if(t.journalProgress){
     wireJournalProgressManualForm();
   }
 
