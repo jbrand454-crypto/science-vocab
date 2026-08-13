@@ -407,6 +407,10 @@
     display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:'Special Elite',monospace;
     font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:6px;
   }
+  .review-entry-ep{
+    background:var(--teal-dark);color:#fff;border-radius:10px;padding:2px 8px;font-family:'Atkinson Hyperlegible',sans-serif;
+    text-transform:none;letter-spacing:0;font-weight:700;font-size:11px;
+  }
   .review-entry-type{
     background:var(--gold);color:#fff;border-radius:10px;padding:2px 8px;font-family:'Atkinson Hyperlegible',sans-serif;
     text-transform:none;letter-spacing:0;font-weight:700;font-size:11px;
@@ -10701,8 +10705,8 @@ function renderCard(){
         <button class="review-journal-btn" type="button" data-mode="${mode}">📖 Review My Journal</button>
       </div>
       <div class="review-journal-panel" id="reviewPanel-${mode}">
-        <span class="review-journal-label">📖 Your Journal History — ${t.name}</span>
-        <div id="reviewContent-${mode}"><p class="review-loading-note">Sign in and click Review My Journal to load your past entries for this term.</p></div>
+        <span class="review-journal-label">📖 Your Full Journal History</span>
+        <div id="reviewContent-${mode}"><p class="review-loading-note">Sign in and click Review My Journal to load all your past entries, in the order you completed them.</p></div>
         <button class="journal-download-btn" type="button" data-mode="${mode}" disabled>⬇️ Download</button>
       </div>
     </div>`;
@@ -10973,29 +10977,31 @@ function renderCard(){
         return;
       }
 
-      contentEl.innerHTML = `<p class="review-loading-note">Loading your past entries…</p>`;
+      contentEl.innerHTML = `<p class="review-loading-note">Loading your journal…</p>`;
       downloadBtn.disabled = true;
 
       jsonpRequest(JOURNAL_ENTRY_ENDPOINT, {
         idToken: currentAuth.idToken,
-        grade: String(t.grade),
-        term: t.name
+        grade: String(t.grade)
       }).then(data => {
         if(data.status !== 'success'){
           contentEl.innerHTML = `<p class="review-error-note">Couldn't load your journal: ${data.message || 'unknown error'}</p>`;
           return;
         }
-        const entries = data.entries || [];
+        // Sequential order of completion — oldest first, like a running diary.
+        const entries = (data.entries || []).slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         journalEntriesCache[mode] = entries;
         if(entries.length === 0){
-          contentEl.innerHTML = `<p>No past entries found yet for <b>${t.name}</b> under your account.</p>`;
+          contentEl.innerHTML = `<p>No past entries found yet under your account.</p>`;
           downloadBtn.disabled = true;
           return;
         }
         contentEl.innerHTML = entries.map(entry => `
           <div class="review-entry">
             <div class="review-entry-meta">
+              <span class="review-entry-ep">EP.${String(entry.episode || '').replace(/^EP\.?/i,'').padStart(3,'0')}</span>
               <span class="review-entry-type">${entry.journalType || ''}</span>
+              <span>${entry.term || ''}</span>
               <span>${new Date(entry.timestamp).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'})}</span>
             </div>
             <div class="review-entry-text">${(entry.response || '').replace(/</g,'&lt;')}</div>
@@ -11014,9 +11020,10 @@ function renderCard(){
       const entries = journalEntriesCache[mode] || [];
       if(entries.length === 0) return;
 
-      const lines = [`Faith & Science Field Notes — Journal Entries for ${t.name}`, `Downloaded ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`, ''];
+      const lines = [`Faith & Science Field Notes — Full Journal History`, `Downloaded ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`, ''];
       entries.forEach(entry => {
-        lines.push(`[${entry.journalType || ''}] ${new Date(entry.timestamp).toLocaleString()}`);
+        const epLabel = `EP.${String(entry.episode || '').replace(/^EP\.?/i,'').padStart(3,'0')}`;
+        lines.push(`${epLabel} — ${entry.term || ''} [${entry.journalType || ''}] ${new Date(entry.timestamp).toLocaleString()}`);
         lines.push(entry.response || '');
         lines.push('');
       });
@@ -11025,7 +11032,7 @@ function renderCard(){
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${t.name.replace(/\s+/g,'_')}_Journal_${mode}.txt`;
+      a.download = `Journal_History_${mode}.txt`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
