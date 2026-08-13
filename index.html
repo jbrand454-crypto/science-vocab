@@ -153,6 +153,68 @@
     font-family:'Atkinson Hyperlegible',sans-serif;font-size:12.5px;padding:0;
   }
   .student-id-current button:hover{color:var(--gold);}
+  .student-access-cta-row{
+    display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 18px;padding:14px;
+    background:var(--paper-card);border:1.5px dashed var(--gold);border-radius:10px;
+  }
+  .student-access-demo-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
+    background:#fff;color:var(--teal-dark);border:1.5px solid var(--teal-dark);border-radius:20px;
+    padding:9px 16px;cursor:pointer;transition:all .15s ease;
+  }
+  .student-access-demo-btn:hover{background:var(--teal-dark);color:#fff;}
+  .student-access-purchase-btn{
+    display:inline-block;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;
+    background:var(--gold);color:#fff;border:none;border-radius:20px;padding:9px 18px;
+    cursor:pointer;text-decoration:none;box-shadow:2px 2px 0 var(--teal-dark);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .student-access-purchase-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--teal-dark);}
+  .donate-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
+    background:#fff;color:#B23A2E;border:1.5px solid #B23A2E;border-radius:20px;
+    padding:9px 16px;cursor:pointer;transition:all .15s ease;
+  }
+  .donate-btn:hover{background:#B23A2E;color:#fff;}
+  .offering-plate-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
+    background:#fff;color:var(--gold-dark);border:1.5px solid var(--gold-dark);border-radius:20px;
+    padding:9px 16px;cursor:pointer;transition:all .15s ease;
+  }
+  .offering-plate-btn:hover{background:var(--gold-dark);color:#fff;}
+  .offering-plate-hint{
+    font-size:12.5px;color:var(--ink-soft);margin:-6px 0 14px;
+  }
+  .offering-plate-hint-link{
+    background:none;border:none;padding:0;font-family:'Atkinson Hyperlegible',sans-serif;
+    font-weight:700;font-size:12.5px;color:var(--gold-dark);text-decoration:underline;cursor:pointer;
+  }
+  .offering-plate-hint-link:hover{color:var(--gold);}
+  .offering-plate-claim-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
+    background:var(--gold-dark);color:#fff;border:1.5px solid var(--gold-dark);border-radius:20px;
+    padding:9px 16px;cursor:pointer;transition:all .15s ease;
+  }
+  .offering-plate-claim-btn:hover{background:var(--gold);border-color:var(--gold);}
+  .offering-plate-claim-note{
+    margin-top:14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;
+    color:var(--teal-dark);
+  }
+  .donation-options{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+  .donation-option-link{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14.5px;
+    background:var(--paper-card);border:1.5px solid var(--line);color:var(--ink);
+    border-radius:10px;padding:12px 16px;text-decoration:none;transition:all .15s ease;
+  }
+  .donation-option-link:hover{border-color:var(--gold);background:#fdf3e3;}
+  .donation-option-link .arrow{color:var(--gold);}
+  .personal-donate-block{
+    margin-bottom:18px;padding:14px 16px;background:var(--paper-card);border:1.5px dashed #B23A2E;
+    border-radius:10px;text-align:center;
+  }
+  .personal-donate-block p{margin:0 0 10px;font-size:13.5px;color:var(--ink-soft);}
+  .personal-donate-btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
   .grade-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;}
   .grade-tabs button{
     font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
@@ -922,11 +984,19 @@
     <div class="modal-card">
       <h2>🎓 Welcome, Student!</h2>
       <div class="modal-sub">One-time setup for this device</div>
+      <div class="student-access-cta-row">
+        <button type="button" id="studentAccessDemoBtn" class="student-access-demo-btn">👀 View Student Access Demo</button>
+        <a id="studentAccessPurchaseBtn" class="student-access-purchase-btn" href="#" target="_blank" rel="noopener">💳 Purchase Student Access — $3.16</a>
+        <button type="button" id="offeringPlateBtn" class="offering-plate-btn">🍽️ Add to Offering Plate</button>
+        <button type="button" id="offeringPlateClaimBtn" class="offering-plate-claim-btn">🙏 Use or Check for an Access Code</button>
+        <button type="button" id="studentDonateBtn" class="donate-btn">❤️ Make a Donation</button>
+      </div>
       <p>Enter your class code, name, and grade. This is saved only on this device, so you won't be asked again here — and it's what gets used whenever you submit an Entrance Ticket or Journal Entry, so you don't have to retype it each time.</p>
       <form id="studentIdForm">
         <label class="student-id-label">Class Code
           <input type="text" id="studentIdCode" class="student-id-input" placeholder="e.g. beaver621" required>
         </label>
+        <p class="offering-plate-hint">💬 Don't have a code? <button type="button" id="offeringPlateHintBtn" class="offering-plate-hint-link">Use or check for an access code in the Offering Plate</button>.</p>
         <label class="student-id-label">First Name
           <input type="text" id="studentIdFirstName" class="student-id-input" required>
         </label>
@@ -939,6 +1009,7 @@
             <option value="6">Grade 6</option>
             <option value="7">Grade 7</option>
             <option value="8">Grade 8</option>
+            <option value="N/A">N/A (younger, older, youth group, etc.)</option>
           </select>
         </label>
         <p id="studentIdError" class="student-id-error" style="display:none;">Please fill in all four fields.</p>
@@ -947,6 +1018,44 @@
           <button type="button" class="review-journal-btn" id="studentIdCancel">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="donationOverlay">
+    <div class="modal-card">
+      <button class="modal-close" id="donationClose" aria-label="Close">×</button>
+      <h2>❤️ Support Faith &amp; Science Field Notes</h2>
+      <div class="modal-sub">Every episode, term, and feature here stays free</div>
+      <p>Faith &amp; Science Field Notes is free for every student, family, and school that uses it — and it's built to stay that way. Keeping it growing (new episodes, new terms, hosting, production time) takes real work behind the scenes. If this has been meaningful to you, a gift of any size helps keep it free for everyone.</p>
+      <div class="donation-options" id="donationOptions"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="offeringPlateOverlay">
+    <div class="modal-card">
+      <button class="modal-close" id="offeringPlateClose" aria-label="Close">×</button>
+      <h2>🍽️ Add to the Offering Plate</h2>
+      <div class="modal-sub">Access, passed forward</div>
+      <p>Some families choose to buy an extra Student Access code and set it aside for someone who needs one — no questions asked. This is different from a general donation: every cent given here goes directly toward another person's access, nothing else.</p>
+      <div class="donation-options" id="offeringPlateOptions"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="offeringPlateClaimOverlay">
+    <div class="modal-card">
+      <button class="modal-close" id="offeringPlateClaimClose" aria-label="Close">×</button>
+      <h2>🙏 Use or Check for an Access Code</h2>
+      <div class="modal-sub">From the Offering Plate</div>
+      <p>Some families and students choose to buy an extra Student Access code and leave it in the Offering Plate for someone else. If cost is the only thing standing between you and access, this is that — no questions asked beyond one, just so it gets to the right place.</p>
+      <form id="offeringPlateClaimForm">
+        <label class="student-id-label">What school, organization, or group is this for? <span class="offering-plate-hint">(or just say "personal use")</span>
+          <input type="text" id="offeringPlateClaimOrg" class="student-id-input" placeholder="e.g. St. Mary School, our youth group, personal use" required>
+        </label>
+        <div class="student-id-btn-row">
+          <button type="submit" class="continue-journey-btn">📧 Request a Code</button>
+        </div>
+      </form>
+      <p class="offering-plate-claim-note" id="offeringPlateClaimConfirm" style="display:none;">Opening your email app with that filled in — send it, and you'll hear back with a code.</p>
     </div>
   </div>
 
@@ -1071,6 +1180,33 @@
    ============================================================ */
 const REFLECT_FORM_URL = "https://forms.gle/v1xsSNbLm9eXVYCC6";
 const ENTRANCE_TICKET_FORM_URL = "https://forms.gle/5Q5N8wB69v8ZisgL8";
+
+// Placeholder — swap this for your real Payhip (or other) checkout link
+// once the "Purchase Student Access" product is live. Doesn't need to
+// point anywhere yet.
+const STUDENT_ACCESS_PURCHASE_URL = "https://payhip.com/PASTE_YOUR_PRODUCT_LINK_HERE";
+
+// Donation options shown in the shared "Make a Donation" panel — add,
+// remove, or edit entries freely. Each becomes one link in the list.
+// Placeholder URLs for now; swap in real ones whenever they're ready.
+const DONATION_OPTIONS = [
+  { label: "Give via Payhip", url: "https://payhip.com/PASTE_YOUR_DONATION_LINK_HERE" },
+  { label: "Give via Venmo", url: "https://venmo.com/PASTE_YOUR_VENMO_HANDLE_HERE" },
+  { label: "Give via PayPal", url: "https://paypal.me/PASTE_YOUR_PAYPAL_HANDLE_HERE" }
+];
+
+// Offering Plate options — buying Student Access codes specifically to set
+// aside for someone else, kept separate from the general donation list
+// above so it's unmistakably clear this money goes straight to access, not
+// general costs. Same add/remove/edit pattern as DONATION_OPTIONS.
+const OFFERING_PLATE_OPTIONS = [
+  { label: "Add a Student Access code via Payhip", url: "https://payhip.com/PASTE_YOUR_OFFERING_PLATE_LINK_HERE" }
+];
+
+// Where "Request a Code" emails get sent — no live inventory system exists
+// yet, so claiming a code is a manual, human-in-the-loop email for now.
+// Swap in the right inbox whenever this needs to go somewhere real.
+const OFFERING_PLATE_REQUEST_EMAIL = "PASTE_YOUR_EMAIL_HERE@example.com";
 
 /* ============================================================
    FULL MEDIA LIBRARY LINKS (optional)
@@ -10430,11 +10566,17 @@ function setSiteMode(mode){
     selMode = (selGrade === 'all') ? 'all' : 'allgrade';
     selDomain = 'all';
     selUnit = 'all';
+    // Default to the first chunk rather than "All Episodes" — someone who
+    // never notices the range dropdown exists would otherwise land on a
+    // scroll through all 316 terms with no obvious way to narrow it.
+    selEpRange = '1-20';
   } else {
     selMode = (selGrade === 'all') ? 'all' : 'current';
+    selEpRange = 'all';
   }
-  selEpRange = 'all';
   applyPersonalSimplifiedChrome();
+  const epRangeSelectEl = document.getElementById('epRangeSelect');
+  if(epRangeSelectEl) epRangeSelectEl.value = selEpRange;
   resetSelectionState();
   renderSiteModeToggle();
   renderModeTabs();
@@ -11454,6 +11596,13 @@ function renderPersonalCard(t){
       <p>${t.faith}</p>
     </div>
     ${watchSectionHTML}
+    <div class="personal-donate-block">
+      <p>If Faith &amp; Science Field Notes has been meaningful to you, consider supporting it so it can stay free — or set aside a Student Access code for someone who needs one.</p>
+      <div class="personal-donate-btn-row">
+        <button type="button" id="personalDonateBtn" class="donate-btn">❤️ Make a Donation</button>
+        <button type="button" id="personalOfferingPlateBtn" class="offering-plate-btn">🍽️ Add to Offering Plate</button>
+      </div>
+    </div>
     <div class="section-label">Journal</div>
     <div class="reflect-block personal-reflect">
       <p>Whenever you're ready, jot down your thoughts on how <b>${t.name}</b> connects to your faith — there's no minimum length and nothing to score here.</p>
@@ -11522,6 +11671,12 @@ function renderPersonalCard(t){
   const personalJournalConfirm = document.getElementById('personalJournalConfirm');
 
   wireSpeechToText('personalJournalInput', 'personalJournalMicBtn', 'personalJournalMicStatus');
+
+  const personalDonateBtn = document.getElementById('personalDonateBtn');
+  if(personalDonateBtn) personalDonateBtn.addEventListener('click', openDonationOverlay);
+
+  const personalOfferingPlateBtn = document.getElementById('personalOfferingPlateBtn');
+  if(personalOfferingPlateBtn) personalOfferingPlateBtn.addEventListener('click', openOfferingPlateOverlay);
 
   const personalGalileoBtn = document.getElementById('personalGalileoBtn');
   if(personalGalileoBtn){
@@ -12449,6 +12604,9 @@ if(siteMode === 'personal'){
   // Restored from a previous visit — jump straight to free-browse instead
   // of the default "current week" pacing view.
   selMode = (selGrade === 'all') ? 'all' : 'allgrade';
+  selEpRange = '1-20';
+  const epRangeSelectInit = document.getElementById('epRangeSelect');
+  if(epRangeSelectInit) epRangeSelectInit.value = '1-20';
   applyPersonalSimplifiedChrome();
   renderModeTabs();
   renderDomainTabs();
@@ -12477,6 +12635,9 @@ document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape'){
     guideOverlay.classList.remove('show');
     closeStudentIdModal();
+    closeDonationOverlay();
+    closeOfferingPlateOverlay();
+    closeOfferingPlateClaimOverlay();
   }
 });
 
@@ -12507,6 +12668,112 @@ if(studentIdCancel){
 if(studentIdOverlay){
   studentIdOverlay.addEventListener('click', (e)=>{
     if(e.target === studentIdOverlay) closeStudentIdModal();
+  });
+}
+
+const studentAccessPurchaseBtn = document.getElementById('studentAccessPurchaseBtn');
+if(studentAccessPurchaseBtn){
+  studentAccessPurchaseBtn.href = STUDENT_ACCESS_PURCHASE_URL;
+}
+const studentAccessDemoBtn = document.getElementById('studentAccessDemoBtn');
+if(studentAccessDemoBtn){
+  studentAccessDemoBtn.addEventListener('click', ()=>{
+    document.getElementById('studentIdCode').value = 'demo316';
+    document.getElementById('studentIdFirstName').value = 'Demo';
+    document.getElementById('studentIdLastName').value = 'Student';
+    document.getElementById('studentIdGrade').value = '6';
+    document.getElementById('studentIdError').style.display = 'none';
+  });
+}
+
+// Shared "Make a Donation" panel — opened from Student mode's setup modal
+// and from the Personal Use journal section, both pointing at the same
+// content so there's only one place to keep the donation options current.
+function renderDonationOptions(){
+  const el = document.getElementById('donationOptions');
+  if(!el) return;
+  el.innerHTML = DONATION_OPTIONS.map(opt =>
+    `<a class="donation-option-link" href="${opt.url}" target="_blank" rel="noopener">${opt.label} <span class="arrow">↗</span></a>`
+  ).join('');
+}
+renderDonationOptions();
+
+const donationOverlay = document.getElementById('donationOverlay');
+const donationClose = document.getElementById('donationClose');
+function openDonationOverlay(){
+  if(donationOverlay) donationOverlay.classList.add('show');
+}
+function closeDonationOverlay(){
+  if(donationOverlay) donationOverlay.classList.remove('show');
+}
+if(donationClose) donationClose.addEventListener('click', closeDonationOverlay);
+if(donationOverlay){
+  donationOverlay.addEventListener('click', (e)=>{
+    if(e.target === donationOverlay) closeDonationOverlay();
+  });
+}
+const studentDonateBtn = document.getElementById('studentDonateBtn');
+if(studentDonateBtn) studentDonateBtn.addEventListener('click', openDonationOverlay);
+
+// Offering Plate — two distinct actions, kept visually and functionally
+// separate: adding a code for someone else, vs. claiming one.
+function renderOfferingPlateOptions(){
+  const el = document.getElementById('offeringPlateOptions');
+  if(!el) return;
+  el.innerHTML = OFFERING_PLATE_OPTIONS.map(opt =>
+    `<a class="donation-option-link" href="${opt.url}" target="_blank" rel="noopener">${opt.label} <span class="arrow">↗</span></a>`
+  ).join('');
+}
+renderOfferingPlateOptions();
+
+const offeringPlateOverlay = document.getElementById('offeringPlateOverlay');
+const offeringPlateClose = document.getElementById('offeringPlateClose');
+function openOfferingPlateOverlay(){
+  if(offeringPlateOverlay) offeringPlateOverlay.classList.add('show');
+}
+function closeOfferingPlateOverlay(){
+  if(offeringPlateOverlay) offeringPlateOverlay.classList.remove('show');
+}
+if(offeringPlateClose) offeringPlateClose.addEventListener('click', closeOfferingPlateOverlay);
+if(offeringPlateOverlay){
+  offeringPlateOverlay.addEventListener('click', (e)=>{
+    if(e.target === offeringPlateOverlay) closeOfferingPlateOverlay();
+  });
+}
+const offeringPlateBtn = document.getElementById('offeringPlateBtn');
+if(offeringPlateBtn) offeringPlateBtn.addEventListener('click', openOfferingPlateOverlay);
+
+// Claim side — the gateway question, then a mailto: request (no live
+// inventory system yet, so this stays a human-in-the-loop email for now).
+const offeringPlateClaimOverlay = document.getElementById('offeringPlateClaimOverlay');
+const offeringPlateClaimClose = document.getElementById('offeringPlateClaimClose');
+function openOfferingPlateClaimOverlay(){
+  if(offeringPlateClaimOverlay) offeringPlateClaimOverlay.classList.add('show');
+}
+function closeOfferingPlateClaimOverlay(){
+  if(offeringPlateClaimOverlay) offeringPlateClaimOverlay.classList.remove('show');
+}
+if(offeringPlateClaimClose) offeringPlateClaimClose.addEventListener('click', closeOfferingPlateClaimOverlay);
+if(offeringPlateClaimOverlay){
+  offeringPlateClaimOverlay.addEventListener('click', (e)=>{
+    if(e.target === offeringPlateClaimOverlay) closeOfferingPlateClaimOverlay();
+  });
+}
+const offeringPlateClaimBtn = document.getElementById('offeringPlateClaimBtn');
+if(offeringPlateClaimBtn) offeringPlateClaimBtn.addEventListener('click', openOfferingPlateClaimOverlay);
+const offeringPlateHintBtn = document.getElementById('offeringPlateHintBtn');
+if(offeringPlateHintBtn) offeringPlateHintBtn.addEventListener('click', openOfferingPlateClaimOverlay);
+
+const offeringPlateClaimForm = document.getElementById('offeringPlateClaimForm');
+if(offeringPlateClaimForm){
+  offeringPlateClaimForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const org = document.getElementById('offeringPlateClaimOrg').value.trim();
+    if(!org) return;
+    const subject = 'Offering Plate — Access Code Request';
+    const body = `School / organization: ${org}\n\n(Sent from the Faith & Science Field Notes Offering Plate request form)`;
+    window.location.href = `mailto:${OFFERING_PLATE_REQUEST_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    document.getElementById('offeringPlateClaimConfirm').style.display = 'block';
   });
 }
 
