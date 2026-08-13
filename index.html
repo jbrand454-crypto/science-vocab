@@ -338,6 +338,23 @@
     border-radius:8px;padding:8px 12px;margin:0 0 14px !important;
   }
   .personal-journal-actions{flex-wrap:wrap;}
+  .journal-voice-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;}
+  .journal-mic-btn{
+    font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13.5px;
+    background:#fff;border:1.5px solid var(--teal);color:var(--teal);border-radius:20px;
+    padding:8px 16px;cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;gap:6px;
+  }
+  .journal-mic-btn:hover{background:var(--teal);color:#fff;}
+  .journal-mic-btn.recording{
+    background:#B23A2E;border-color:#B23A2E;color:#fff;
+    animation:mic-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes mic-pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(178,58,46,.35);}
+    50%{box-shadow:0 0 0 8px rgba(178,58,46,0);}
+  }
+  .journal-mic-status{font-size:12.5px;color:var(--ink-soft);font-style:italic;}
+  @media (prefers-reduced-motion: reduce){.journal-mic-btn.recording{animation:none;}}
 
   .stay-curious-block{
     margin:0 0 22px;background:#fdf8ec;border:1.5px solid var(--gold);border-radius:10px;
@@ -11441,7 +11458,17 @@ function renderPersonalCard(t){
     <div class="reflect-block personal-reflect">
       <p>Whenever you're ready, jot down your thoughts on how <b>${t.name}</b> connects to your faith — there's no minimum length and nothing to score here.</p>
       <p class="personal-journal-privacy-note">🔒 This is just for you — nothing here is sent to a teacher or stored anywhere on this site. Email yourself a copy, download it, or copy it to paste into your own notes app or paper journal.</p>
-      <textarea id="personalJournalInput" class="entrance-response-textarea" placeholder="Write your reflection here..."></textarea>
+      ${t.galileo ? `
+      <div class="media-row">
+        <button id="personalGalileoBtn" class="galileo-btn">🔭 Talk it Over with Galileo (optional)</button>
+      </div>
+      <div class="galileo-panel" id="personalGalileoPanel"></div>
+      ` : ''}
+      <textarea id="personalJournalInput" class="entrance-response-textarea" placeholder="Write or speak your reflection here..."></textarea>
+      <div class="journal-voice-row">
+        <button type="button" id="personalJournalMicBtn" class="journal-mic-btn">🎙️ Speak Your Reflection</button>
+        <span id="personalJournalMicStatus" class="journal-mic-status"></span>
+      </div>
       <div id="personalJournalValidation" class="entrance-validation-note" style="display:none;">Write something first, then pick how you'd like to keep it.</div>
       <div class="journal-btn-row personal-journal-actions">
         <button type="button" id="personalJournalEmail" class="reflect-btn">📧 Email Me a Copy</button>
@@ -11493,6 +11520,24 @@ function renderPersonalCard(t){
   const personalJournalInput = document.getElementById('personalJournalInput');
   const personalJournalValidation = document.getElementById('personalJournalValidation');
   const personalJournalConfirm = document.getElementById('personalJournalConfirm');
+
+  wireSpeechToText('personalJournalInput', 'personalJournalMicBtn', 'personalJournalMicStatus');
+
+  const personalGalileoBtn = document.getElementById('personalGalileoBtn');
+  if(personalGalileoBtn){
+    personalGalileoBtn.addEventListener('click', ()=>{
+      const panel = document.getElementById('personalGalileoPanel');
+      const isShowing = panel.classList.contains('show');
+      if(isShowing){
+        panel.classList.remove('show');
+        personalGalileoBtn.classList.remove('on');
+        return;
+      }
+      renderPersonalGalileoPanel(t);
+      panel.classList.add('show');
+      personalGalileoBtn.classList.add('on');
+    });
+  }
 
   function getPersonalJournalTextOrWarn(){
     const text = personalJournalInput.value.trim();
@@ -11567,6 +11612,94 @@ function renderPersonalCard(t){
   const idx = keys.indexOf(current);
   wireNavControls(keys, idx);
 }
+
+// Speech-to-text for journal textareas. Uses non-continuous recognition
+// chained via onend (rather than continuous:true), which avoids a known
+// Android Chrome bug where continuous mode duplicates transcribed text.
+function wireSpeechToText(textareaId, micBtnId, statusId){
+  const textarea = document.getElementById(textareaId);
+  const micBtn = document.getElementById(micBtnId);
+  const status = document.getElementById(statusId);
+  if(!textarea || !micBtn) return;
+
+  const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognitionCtor){
+    micBtn.disabled = true;
+    micBtn.style.opacity = '.5';
+    micBtn.style.cursor = 'not-allowed';
+    if(status) status.textContent = 'Speech-to-text isn\u2019t supported in this browser \u2014 try Chrome, Edge, or Safari on iOS.';
+    return;
+  }
+
+  let recognition = null;
+  let listening = false;
+  let userStopped = false;
+
+  function appendTranscript(text){
+    const trimmed = text.trim();
+    if(!trimmed) return;
+    const current = textarea.value;
+    const needsSpace = current.length > 0 && !/\s$/.test(current);
+    textarea.value = current + (needsSpace ? ' ' : '') + trimmed;
+    // Fire a real input event so word-count/validation listeners elsewhere pick up the change.
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function setRecordingUI(isRecording){
+    listening = isRecording;
+    micBtn.classList.toggle('recording', isRecording);
+    micBtn.textContent = isRecording ? '⏹️ Stop Listening' : '🎙️ Speak Your Reflection';
+    if(status) status.textContent = isRecording ? '🎙️ Listening…' : '';
+  }
+
+  function startRecognition(){
+    recognition = new SpeechRecognitionCtor();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      for(let i = 0; i < event.results.length; i++){
+        if(event.results[i].isFinal){
+          appendTranscript(event.results[i][0].transcript);
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      if(event.error === 'not-allowed' || event.error === 'audio-capture'){
+        userStopped = true;
+        setRecordingUI(false);
+        if(status) status.textContent = 'Microphone access was blocked \u2014 check your browser\u2019s site permissions to allow it.';
+      }
+      // Other errors (like 'no-speech') are recoverable — onend will chain to a restart below.
+    };
+
+    recognition.onend = () => {
+      if(!userStopped){
+        // Chain into the next utterance instead of using continuous:true.
+        startRecognition();
+      } else {
+        setRecordingUI(false);
+      }
+    };
+
+    recognition.start();
+    setRecordingUI(true);
+  }
+
+  micBtn.addEventListener('click', () => {
+    if(listening){
+      userStopped = true;
+      if(recognition) recognition.stop();
+      setRecordingUI(false);
+    } else {
+      userStopped = false;
+      startRecognition();
+    }
+  });
+}
+
 
 // kind: 'mobile' uses the Short (9:16); 'desktop' prefers a dedicated
 // long-form video (t.media.videoFull) but falls back to the Short if
@@ -11874,7 +12007,86 @@ function renderGalileoPanel(){
     });
   }
 }
-/* =================== End Galileo — Suggested AI Prompt =================== */
+
+// Personal Use variant — same Socratic, no-direct-answers approach as the
+// Student version (deliberately, so switching to Personal Use isn't a way
+// around those guardrails), but framed for someone not submitting anything
+// to a teacher, with no grading language at all.
+function buildGalileoPersonalPrompt(t){
+  return `You are "Galileo" (or "Leo" for short) — a friendly AI field guide inspired by the real historical Galileo Galilei, a scientist who was also deeply engaged with questions of faith. Your tagline, in spirit, is "look closer" — and the site this comes from is built around three ideas: stay curious, test ideas, seek wisdom. Let those three ideas guide how you talk with this person.
+
+WHO YOU'RE TALKING TO:
+Someone using "Faith & Science Field Notes" in Personal Use mode — this could be a parent, a homeschooling family, an adult, or a student exploring on their own time. Nothing here is submitted to a teacher, graded, or tied to any class assignment. Keep your tone warm, encouraging, and genuinely curious — never robotic, never condescending.
+
+YOUR JOB — BE SOCRATIC, NOT A VENDING MACHINE:
+Don't just hand over finished answers. Ask a guiding question back before answering directly, when the question invites it. Nudge them toward their own thinking: "what do you already know about this?", "where have you seen something like this in real life?", "what do you think happens next?". If they're genuinely stuck after trying, it's fine to simplify and help more directly — the goal is a good thinking partner, not a frustrating one. This applies even though nothing here is graded — the point isn't to avoid a bad grade, it's to actually think it through, because that's what "test ideas" means.
+
+ONE THING TO KEEP IN MIND:
+If this person asks you to just hand over a finished answer, or asks you to write their journal reflection for them word-for-word, kindly decline and explain that the whole point of this space is thinking it through themselves — then offer to help them think it through instead. This applies even here in the ungraded Personal Use context; the goal was never about avoiding a grade, it's about genuine curiosity and their own honest reflection.
+
+SCOPE:
+Stick to (1) science broadly connected to this term, and (2) faith reflection connected to the science — welcoming any faith background respectfully. If the conversation wanders somewhere unrelated and harmless, gently steer it back. If anything inappropriate comes up, don't engage with it — just steer back to the topic firmly and kindly.
+
+THIS TERM'S FIELD NOTE CARD:
+Term: ${t.name}
+NGSS Standard: ${t.standard}
+Definition: ${t.definition}
+Everyday example: ${t.example}
+Common misconception ("Watch Out For"): ${t.watch}
+Analogy: ${t.analogy}
+Faith & Science in Action reflection: ${t.faith}
+
+HOW TO USE ALL THIS:
+Help them explore the term above through questions and conversation — testing their understanding, offering a fresh example if they ask, connecting it to real life, and helping them think about the faith reflection question in their own words. Keep replies short and conversational, a few sentences at a time, like a real dialogue. End on something that leaves them a little more curious than when they started.`;
+}
+
+function personalGalileoIntroHTML(){
+  return `
+    <div class="galileo-intro">
+      <div class="galileo-intro-head">
+        <span class="glyph">🔭</span>
+        <h3>Meet Galileo</h3>
+      </div>
+      <span class="galileo-optional-badge">Optional add-on</span>
+      <p>Galileo — or "Leo" for short — is a suggested way to think this term through out loud, using an AI chat tool you already have, like ChatGPT, Claude, or Gemini. He's named after the real historical Galileo Galilei, a scientist who spent just as much time wrestling with questions of faith as he did looking through a telescope.</p>
+      <p>This is Personal Use, so nothing here goes to a teacher or gets graded — it's just for you. Leo still won't just hand over finished answers though; he's built to ask questions back and help you think it through yourself, in the same "stay curious, test ideas, seek wisdom" spirit as the rest of this site.</p>
+      <p class="tagline">"Look closer."</p>
+    </div>
+    <div class="galileo-permission-note">
+      <b>Before you use this:</b> this is a completely optional extra. Use whatever AI tool you're already comfortable with, and if a family member should weigh in on that choice, check with them first.
+    </div>
+  `;
+}
+
+function renderPersonalGalileoPanel(t){
+  const panel = document.getElementById('personalGalileoPanel');
+  const promptText = buildGalileoPersonalPrompt(t);
+
+  panel.innerHTML = `
+    ${personalGalileoIntroHTML()}
+    <p class="galileo-tool-note">Copy the prompt below and paste it as your first message into your AI tool of choice. It'll take it from there.</p>
+    <div class="galileo-prompt-box" id="personalGalileoPromptBox">${promptText}</div>
+    <button class="galileo-copy-btn" id="personalGalileoCopyBtn">📋 Copy Prompt</button>
+  `;
+
+  const copyBtn = document.getElementById('personalGalileoCopyBtn');
+  if(copyBtn){
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(promptText);
+        copyBtn.textContent = '✓ Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(()=>{
+          copyBtn.textContent = '📋 Copy Prompt';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      } catch(err){
+        copyBtn.textContent = 'Select the text above and copy manually';
+      }
+    });
+  }
+}
+/* =================== End Personal Galileo — Suggested AI Prompt =================== */
 
 function getQuizPool(t){
   const hasDifficulty = t.quiz.some(qq=>qq.difficulty);
