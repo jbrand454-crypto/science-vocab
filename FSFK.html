@@ -1157,13 +1157,42 @@ function playCountdownDing(){
   if(!toneEnabled || !audioCtx) return;
   playSingleDing(audioCtx.currentTime, 660); // related but distinct from the breathing dings
 }
+function playCountdownDoubleDing(){
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  playSingleDing(now, 660);
+  playSingleDing(now+0.18, 660);
+}
+function playPrayerChime(){
+  ensureAudioContext();
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  // Soft staggered bell/wind-chime tones (C5-E5-G5-C6) with long, gentle decay —
+  // distinct from both the drone and the short breathing dings, so it reads
+  // clearly as "we've moved into prayer" even with eyes closed.
+  const freqs = [523.25, 659.25, 783.99, 1046.5];
+  freqs.forEach((f,i)=>{
+    const start = now + i*0.16;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(0.06, start+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0006, start+2.4);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start+2.5);
+  });
+}
 toneEnabledInput.addEventListener('change', ()=>{
   toneEnabled = toneEnabledInput.checked;
   storageSet('tone-enabled', String(toneEnabled));
   if(!toneEnabled){
     fadeOutAudioQuick();
   } else if(breathRunning){
-    scheduleAudioForPhase(breathPhase, PHASE_MS - phaseElapsed);
+    scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed);
   }
 });
 
@@ -1177,6 +1206,12 @@ let monthlyPrayers = {};
 let selectedMonth = new Date().getMonth();
 
 const PHASE_MS = 4000;
+const DING_GAP_MS = 750; // must match the gap used in playDing()
+// 'in' opens with a 2-ding cue (1 gap), 'out' opens with a 3-ding cue (2 gaps).
+// Extend those phases by that lead time so there's a full 4s of breathing
+// after the last ding finishes, not 4s total including the dings.
+const PHASE_LEAD_MS = {in: DING_GAP_MS, hold1: 0, out: DING_GAP_MS*2, hold2: 0};
+function phaseDurationMs(phase){ return PHASE_MS + (PHASE_LEAD_MS[phase]||0); }
 const PHASES = ['in','hold1','out','hold2'];
 const PHASE_LABELS = {in:'Breathe in', hold1:'Hold', out:'Breathe out slow', hold2:'Hold'};
 let currentPhaseLabel = 'Ready';
@@ -1301,6 +1336,7 @@ function chooseMonth(i){
   }
 }
 function showSelectedPrayer(){
+  playPrayerChime();
   const entry = monthlyPrayers[selectedMonth];
   prayerMonthHeading.textContent = MONTH_NAMES[selectedMonth] + (entry && entry.phrase ? ' — ' + entry.phrase : ' — Let us pray');
   prayerTextEl.textContent = (entry && entry.text) || '';
@@ -1317,12 +1353,12 @@ function updateBreathDisplay(){
   breathCounterLabel.textContent = 'Breath ' + breathIndex + ' of ' + breathTotal;
   breathLiveTotal.textContent = breathTotal;
   breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? currentPhaseLabel : 'Ready';
-  const secondsLeft = Math.max(1, Math.ceil((PHASE_MS - phaseElapsed)/1000));
+  const secondsLeft = Math.max(1, Math.ceil((phaseDurationMs(breathPhase) - phaseElapsed)/1000));
   breathCountdown.textContent = (breathRunning ? secondsLeft : '') || '\u00A0';
   let scale;
-  if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsed/PHASE_MS); }
+  if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsed/phaseDurationMs('in')); }
   else if(breathPhase==='hold1'){ scale = 1.4; }
-  else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsed/PHASE_MS); }
+  else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsed/phaseDurationMs('out')); }
   else { scale = 1; }
   breathCrossWrap.style.transform = 'scale(' + scale.toFixed(3) + ')';
   breathStartBtn.textContent = breathCountingDown ? 'Starting...' : breathRunning ? 'Pause' : (phaseElapsed>0 || breathIndex>1 ? 'Resume' : 'Start');
@@ -1358,7 +1394,6 @@ function advancePhase(){
     breathPhase = 'in';
     phaseElapsed = 0;
     if(breathIndex > breathTotal){
-      playDing(DING_COUNTS[endingPhase]);
       stopBreathing();
       showSelectedPrayer();
       return;
@@ -1366,7 +1401,7 @@ function advancePhase(){
   }
   playDing(DING_COUNTS[endingPhase]);
   beginPhaseDisplay(breathPhase);
-  scheduleAudioForPhase(breathPhase, PHASE_MS);
+  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
 }
 
 function breathTick(ts){
@@ -1375,7 +1410,7 @@ function breathTick(ts){
   const dt = ts - breathLastTs;
   breathLastTs = ts;
   phaseElapsed += dt;
-  if(phaseElapsed >= PHASE_MS){
+  if(phaseElapsed >= phaseDurationMs(breathPhase)){
     phaseElapsed = 0;
     advancePhase();
     if(!breathRunning) return;
@@ -1386,23 +1421,28 @@ function breathTick(ts){
 
 function runPreCountdown(onDone){
   clearCountdownTimeouts();
-  [5,4,3,2,1].forEach((n,i)=>{
+  const steps = [
+    {label: 'Get ready to breathe in', ding: 'none'},
+    {label: 'Start breathing in in 3', ding: 'single'},
+    {label: 'Start breathing in in 2', ding: 'single'},
+    {label: 'Start breathing in in 1', ding: 'single'}
+  ];
+  steps.forEach((step,i)=>{
     const id = setTimeout(()=>{
-      const label = 'Start breathing in in '+n;
-      currentPhaseLabel = label;
-      breathPhaseText.textContent = label;
-      if(n<=3) playCountdownDing();
+      currentPhaseLabel = step.label;
+      breathPhaseText.textContent = step.label;
+      if(step.ding==='single') playCountdownDing();
     }, i*1000);
     countdownTimeouts.push(id);
   });
-  const doneId = setTimeout(onDone, 5*1000);
+  const doneId = setTimeout(onDone, steps.length*1000);
   countdownTimeouts.push(doneId);
 }
 
 function actuallyStartBreathingEngine(){
   breathRunning = true;
   breathLastTs = null;
-  scheduleAudioForPhase(breathPhase, PHASE_MS - phaseElapsed);
+  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed);
   if(phaseElapsed === 0){
     // Fresh phase start. For the very first breath's inhale, there's no prior
     // "hold" transition to trigger the usual 2-ding start-of-inhale cue — so
@@ -1466,7 +1506,7 @@ breathSkipBtn.addEventListener('click', ()=>{
   }
   breathLastTs = null;
   if(breathRunning){
-    scheduleAudioForPhase(breathPhase, PHASE_MS);
+    scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
     beginPhaseDisplay(breathPhase);
   } else {
     setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
