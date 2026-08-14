@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSFK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#0F2A44;
+    --board-2:#173A5C;
+    --chalk:#EDF1F5;
+    --chalk-dim:#8FA6BE;
+    --chalk-yellow:#F5C518;
+    --chalk-blue:#0B6FB8;
+    --paper:#FBF7EC;
+    --paper-shadow:#E4DCC6;
+    --ink:#14202F;
+    --ink-soft:#4A5A6C;
+    --line:#254C71;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--board);
+    color:var(--chalk);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding:28px 20px 60px;
+  }
+  .wrap{max-width:960px;margin:0 auto;}
+
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .brand{font-family:'Anton',sans-serif;font-weight:400;font-size:24px;letter-spacing:0.5px;text-transform:uppercase;color:var(--chalk);}
+  .brand span{color:var(--chalk-yellow);}
+  .date{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--chalk-dim);}
+
+  .panel{
+    background:var(--board);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:28px 28px 32px;
+  }
+
+  .class-tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .class-tabs button{
+    font-family:'Zilla Slab',serif;font-weight:600;font-size:16px;
+    background:var(--board-2);color:var(--chalk-dim);
+    border:1px solid var(--line);border-radius:8px;
+    padding:8px 20px;cursor:pointer;
+  }
+  .class-tabs button.active{background:var(--chalk-yellow);color:var(--ink);border-color:var(--chalk-yellow);}
+  .class-tabs button:not(.active):hover{border-color:var(--chalk-blue);color:var(--chalk);}
+
+  /* collapsible sections */
+  .collapsible{border:1px solid var(--line);border-radius:8px;margin-bottom:16px;overflow:hidden;}
+  .coll-toggle{
+    width:100%;display:flex;justify-content:space-between;align-items:center;
+    background:var(--board-2);color:var(--chalk);border:none;cursor:pointer;
+    padding:12px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:500;
+  }
+  .coll-toggle .chev{font-family:'IBM Plex Mono',monospace;color:var(--chalk-dim);transition:transform 0.2s;}
+  .coll-toggle .rcount{color:var(--chalk-dim);font-weight:400;margin-left:8px;font-size:13px;}
+  .coll-body{max-height:0;overflow:hidden;transition:max-height 0.25s ease;}
+  .collapsible.open .coll-body{max-height:600px;}
+  .collapsible.open .coll-toggle .chev{transform:rotate(180deg);}
+  .coll-body-inner{padding:14px 16px 16px;}
+
+  textarea#roster{
+    width:100%;min-height:150px;
+    background:var(--board);color:var(--chalk);
+    border:1px solid var(--line);border-radius:8px;
+    padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.6;
+    resize:vertical;
+  }
+  textarea#roster:focus{outline:none;border-color:var(--chalk-yellow);}
+  .roster-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;}
+
+  /* target manager */
+  .target-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .target-form input, .target-form textarea, .target-form select{
+    background:var(--board);color:var(--chalk);border:1px solid var(--line);border-radius:7px;
+    padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;
+  }
+  .target-form select{width:160px;}
+  .target-form textarea{min-height:60px;resize:vertical;}
+  .target-form input:focus, .target-form textarea:focus{outline:none;border-color:var(--chalk-yellow);}
+  .target-list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;padding-right:4px;}
+  .import-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:16px;border-bottom:1px dashed var(--line);}
+  .import-note{font-size:12px;color:var(--chalk-dim);line-height:1.5;flex:1 1 220px;}
+  .backup-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--line);}
+  .target-group-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--chalk-dim);margin:10px 0 4px;}
+  .target-group-label:first-child{margin-top:0;}
+  .target-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--board);border:1px solid var(--line);border-radius:7px;padding:8px 12px;}
+  .target-row .tname{font-size:13px;color:var(--chalk);cursor:pointer;flex:1;}
+  .target-row .tname:hover{color:var(--chalk-yellow);}
+  .target-row.editing{border-color:var(--chalk-yellow);}
+  .target-row .tdel{background:none;border:none;color:var(--chalk-dim);cursor:pointer;font-size:14px;padding:2px 6px;}
+  .target-row .tdel:hover{color:var(--chalk-blue);}
+  .field-label{font-size:12px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
+
+  /* launch cards */
+  .launch-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:16px;}
+  @media (max-width:520px){.launch-grid{grid-template-columns:1fr;}}
+  .launch-card{
+    background:var(--board-2);border:1px solid var(--line);border-radius:12px;
+    padding:22px 20px;text-align:left;color:var(--chalk);
+  }
+  .launch-card h3{font-family:'Zilla Slab',serif;font-size:19px;margin:0 0 8px;color:var(--chalk-yellow);}
+  .launch-card p{font-size:12.5px;color:var(--chalk-dim);margin:0 0 14px;line-height:1.55;}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--chalk);margin-bottom:12px;cursor:pointer;}
+  .toggle-switch{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-slider{position:absolute;inset:0;background:var(--board);border:1px solid var(--line);border-radius:22px;transition:0.15s;}
+  .toggle-slider::before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--chalk-dim);border-radius:50%;transition:0.15s;}
+  .toggle-switch input:checked + .toggle-slider{background:var(--chalk-yellow);border-color:var(--chalk-yellow);}
+  .toggle-switch input:checked + .toggle-slider::before{transform:translateX(16px);background:var(--ink);}
+
+  .stepper-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .stepper-label{font-size:12px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:1px;}
+  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  .stepper button{background:var(--board);color:var(--chalk);border:none;width:30px;height:32px;font-size:16px;cursor:pointer;line-height:1;}
+  .stepper button:hover{background:var(--line);}
+  .stepper input{width:44px;text-align:center;background:var(--board);color:var(--chalk);border:none;border-left:1px solid var(--line);border-right:1px solid var(--line);height:32px;font-family:'IBM Plex Mono',monospace;font-size:14px;}
+  .stepper input:focus{outline:none;}
+  .stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+  .launch-card select{
+    width:100%;background:var(--board);color:var(--chalk);border:1px solid var(--line);
+    border-radius:7px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;
+  }
+  button.tile-btn{
+    width:100%;font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:14px;
+    background:var(--chalk-yellow);color:var(--ink);border:none;border-radius:8px;padding:11px;cursor:pointer;
+  }
+  button.tile-btn:hover{filter:brightness(1.06);}
+
+  /* fullscreen overlays */
+  .fullscreen-overlay{
+    position:fixed;inset:0;background:var(--board);z-index:1000;
+    display:flex;flex-direction:column;padding:26px 34px;
+  }
+  #mode-prayer{transition:opacity 1.8s ease;}
+  .fs-back-bar{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+  .back-btn{
+    font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--chalk-dim);
+    background:none;border:1px solid var(--line);border-radius:7px;padding:9px 16px;cursor:pointer;
+  }
+  .back-btn:hover{color:var(--chalk);border-color:var(--chalk-blue);}
+  .fs-mode-class{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--chalk-dim);margin-left:auto;}
+
+  /* fullscreen target */
+  .fs-target-body{flex:1;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;padding:20px 80px;overflow-y:auto;overflow-x:hidden;}
+  .fs-orbit-rings{position:absolute;top:-60px;right:-60px;width:420px;height:420px;opacity:0.5;pointer-events:none;}
+  .fs-target-content{position:relative;z-index:1;width:100%;}
+  .fs-eyebrow{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:19px;letter-spacing:3px;text-transform:uppercase;color:var(--chalk-blue);margin-bottom:24px;}
+  .fs-target-text{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:84px;line-height:1.32;color:var(--chalk);white-space:pre-wrap;max-width:70%;}
+  .fs-tagline{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:17px;letter-spacing:3px;text-transform:uppercase;color:var(--chalk-yellow);margin-top:44px;}
+  @media (max-width:760px){ .fs-target-text{max-width:100%;} .fs-target-body{padding:20px 32px;} }
+
+  /* fullscreen name picker */
+  .big-card-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .index-card-stage{width:100%;max-width:560px;height:340px;perspective:1400px;margin-bottom:30px;}
+  .index-card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.5s cubic-bezier(.4,.2,.2,1);}
+  .index-card.flip{transform:rotateY(180deg);}
+  .card-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;background:var(--paper);box-shadow:0 12px 0 var(--paper-shadow);display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;}
+  .card-face.back{transform:rotateY(180deg);}
+  .card-front-label{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--ink-soft);letter-spacing:1.5px;text-transform:uppercase;}
+  .card-name{font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:64px;color:var(--ink);word-break:break-word;}
+  .card-line{position:absolute;left:26px;right:26px;height:1px;background:#DCD4BB;}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  button.action{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:16px;background:var(--chalk-yellow);color:var(--ink);border:none;border-radius:8px;padding:13px 26px;cursor:pointer;}
+  button.action.secondary{background:transparent;color:var(--chalk);border:1px solid var(--line);}
+  button.action:hover{filter:brightness(1.06);}
+  .picked-pool{font-size:13px;color:var(--chalk-dim);margin-top:14px;font-family:'IBM Plex Mono',monospace;text-align:center;}
+
+  /* fullscreen group maker */
+  .groups-controls{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:22px;}
+  .groups-controls .field label{display:block;font-size:12px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
+  .groups-controls select, .groups-controls input[type=number]{background:var(--board-2);color:var(--chalk);border:1px solid var(--line);border-radius:7px;padding:9px 10px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;width:100px;}
+  .group-cards{display:flex;flex-wrap:wrap;gap:18px;overflow-y:auto;}
+  .group-card{background:var(--paper);color:var(--ink);border-radius:8px;box-shadow:0 5px 0 var(--paper-shadow);padding:16px 18px;min-width:180px;flex:1 1 180px;}
+  .group-card h4{font-family:'IBM Plex Sans',sans-serif;font-weight:700;margin:0 0 10px;font-size:18px;color:var(--ink);border-bottom:1px dashed #DCD4BB;padding-bottom:8px;}
+  .group-card ul{margin:0;padding-left:18px;font-size:15px;line-height:1.85;color:var(--ink-soft);}
+
+  .empty-note{font-size:14px;color:var(--chalk-dim);text-align:center;padding:30px 0;}
+
+  /* ---- fullscreen breathing ---- */
+  .fs-breath-counter{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--chalk-dim);margin-left:auto;}
+  .breath-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:min(3.5vh, 26px);min-height:0;}
+  .breath-stage{width:min(47.4vmin, 462px);height:min(47.4vmin, 462px);display:flex;align-items:center;justify-content:center;position:relative;transition:width 0.5s ease, height 0.5s ease;}
+  .breath-body.pre-start .breath-stage{width:min(21vmin, 205px);height:min(21vmin, 205px);}
+  .breath-body.pre-start .breath-phase-text, .breath-body.pre-start .breath-countdown{display:none;}
+  .breath-intro{display:none;}
+  .breath-body.pre-start .breath-intro{display:inline-grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:12px;max-width:min(620px, 74vw);}
+  .breath-intro-label{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:clamp(16.5px,2.2vw,19px);color:var(--chalk-yellow);white-space:nowrap;text-align:right;}
+  .breath-intro-text{font-family:'IBM Plex Sans',sans-serif;font-size:clamp(16.5px,2.2vw,19px);line-height:1.5;color:var(--chalk-dim);text-align:left;}
+  .breath-glow{
+    position:absolute;inset:0;margin:auto;width:82%;height:82%;border-radius:50%;
+    background:radial-gradient(circle, rgba(232,196,24,0.14) 0%, rgba(11,111,184,0.08) 45%, transparent 72%);
+    filter:blur(6px);pointer-events:none;
+  }
+  .breath-cross-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;transform:scale(1);transition:transform 0.05s linear;will-change:transform;}
+  @keyframes orbitspin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  @media (prefers-reduced-motion: reduce){
+    .breath-cross-wrap g[style*="orbitspin"]{ animation:none !important; }
+  }
+  .breath-phase-text{font-family:'Zilla Slab',serif;font-weight:600;font-size:30px;color:var(--chalk);text-align:center;}
+  .breath-countdown{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--chalk-yellow);text-align:center;margin-top:4px;}
+  .breath-controls{display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .breath-btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .breath-stepper-row{display:flex;align-items:center;gap:12px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+
+  /* ---- fullscreen prayer ---- */
+  .prayer-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;text-align:center;padding:2.5vh 60px 20px;overflow-y:auto;}
+  .prayer-heading{font-family:'Zilla Slab',serif;font-weight:600;font-size:28px;color:var(--chalk-yellow);letter-spacing:0.5px;}
+  .prayer-opening{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-blue);text-align:center;max-width:600px;padding-bottom:13px;border-bottom:1px dashed var(--line);}
+  .prayer-opening span{display:block;color:var(--chalk-dim);font-weight:400;font-size:0.8em;text-transform:none;letter-spacing:normal;margin-top:6px;font-style:italic;}
+  .prayer-text{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:clamp(14.5px,2.2vw,25px);line-height:1.32;color:var(--chalk);max-width:800px;white-space:pre-wrap;cursor:text;}
+  .prayer-text:empty::before{content:"Tap to type today's prayer or intention...";color:var(--chalk-dim);}
+  .prayer-text:focus{outline:none;}
+
+  /* ---- fullscreen timer ---- */
+  .timer-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px 30px;}
+  .timer-mode-tabs{display:flex;gap:8px;}
+  .timer-mode-btn{
+    font-family:'Zilla Slab',serif;font-weight:600;font-size:15px;
+    background:var(--board-2);color:var(--chalk-dim);
+    border:1px solid var(--line);border-radius:8px;
+    padding:8px 18px;cursor:pointer;
+  }
+  .timer-mode-btn.active{background:var(--chalk-yellow);color:var(--ink);border-color:var(--chalk-yellow);}
+  .timer-mode-btn:not(.active):hover{border-color:var(--chalk-blue);color:var(--chalk);}
+  .timer-display{
+    font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:clamp(70px,14vw,160px);
+    color:var(--chalk);letter-spacing:2px;line-height:1;
+  }
+  .timer-display.done{color:var(--chalk-yellow);animation:timerpulse 1s ease-in-out infinite;}
+  @keyframes timerpulse{ 0%,100%{opacity:1;} 50%{opacity:0.45;} }
+  .timer-status{font-family:'IBM Plex Sans',sans-serif;font-size:15px;color:var(--chalk-dim);text-align:center;min-height:20px;}
+  .timer-presets{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .timer-presets button{padding:9px 16px;font-size:14px;}
+  .timer-adjust-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+  .stepper-wide-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--chalk);
+    background:var(--board-2);border:1px solid var(--line);border-radius:7px;
+    padding:9px 14px;cursor:pointer;
+  }
+  .stepper-wide-btn:hover{border-color:var(--chalk-yellow);}
+
+  /* ---- fullscreen month select ---- */
+  .month-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:20px 40px;}
+  .month-heading{font-family:'Zilla Slab',serif;font-weight:600;font-size:26px;color:var(--chalk-yellow);}
+  .month-grid{display:grid;grid-template-columns:repeat(4, minmax(120px,1fr));gap:14px;width:100%;max-width:760px;}
+  @media (max-width:600px){ .month-grid{grid-template-columns:repeat(3, 1fr);} }
+  .month-btn{
+    background:var(--board-2);border:1px solid var(--line);border-radius:10px;
+    padding:20px 10px;cursor:pointer;color:var(--chalk);text-align:center;
+    font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:16px;
+  }
+  .month-btn:hover{border-color:var(--chalk-blue);}
+  .month-btn.current{border-color:var(--chalk-yellow);}
+  .month-btn .m-badge{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--chalk-dim);margin-top:6px;}
+  .month-btn.current .m-badge{color:var(--chalk-yellow);}
+
+  /* ---- mobile view (9:16 portrait) overrides ---- */
+  body.view-mobile .fullscreen-overlay{padding:18px 16px;}
+  body.view-mobile .breath-intro{max-width:94vw;column-gap:8px;row-gap:8px;}
+  body.view-mobile .breath-intro-label{font-size:13px;white-space:normal;text-align:left;}
+  body.view-mobile .breath-intro-text{font-size:13px;line-height:1.4;white-space:normal !important;}
+  body.view-mobile .breath-stage{width:min(62vmin, 300px);height:min(62vmin, 300px);}
+  body.view-mobile .prayer-body{padding:2vh 18px 16px;gap:8px;}
+  body.view-mobile .prayer-heading{font-size:18px;}
+  body.view-mobile .prayer-opening{font-size:11px;letter-spacing:1px;padding-bottom:8px;max-width:92vw;}
+  body.view-mobile .prayer-opening span{font-size:0.85em;}
+  body.view-mobile .prayer-text{font-size:14.5px;line-height:1.28;max-width:94vw;}
+  body.view-mobile .prayer-body svg{width:52px;height:52px;}
+  body.view-mobile .month-grid{grid-template-columns:repeat(2, 1fr);}
+  body.view-mobile .launch-grid{grid-template-columns:1fr;}
+  body.view-mobile .timer-display{font-size:clamp(48px,16vw,90px);}
+  #load-default-prayers-btn, #month-default-note{display:none;}
+</style>
+</head>
+<body>
+<div class="fullscreen-overlay" id="mode-view-chooser" style="display:none;align-items:center;justify-content:center;">
+  <div style="text-align:center;max-width:520px;">
+    <div class="target-eyebrow" style="margin-bottom:14px;">Before we start</div>
+    <div style="font-family:'Zilla Slab',serif;font-weight:600;font-size:26px;color:var(--chalk);margin-bottom:10px;">How is this being displayed?</div>
+    <div style="font-size:14px;color:var(--chalk-dim);margin-bottom:26px;line-height:1.6;">This adjusts text size and layout so everything fits cleanly on the screen you're using. You can change this anytime from the main screen.</div>
+    <div class="launch-grid" style="grid-template-columns:1fr 1fr;">
+      <button class="launch-card" id="choose-view-desktop" style="text-align:center;">
+        <h3>Desktop / PC</h3>
+        <p>A classroom computer, laptop, or TV in landscape.</p>
+      </button>
+      <button class="launch-card" id="choose-view-mobile" style="text-align:center;">
+        <h3>Mobile</h3>
+        <p>A phone or tablet in portrait (9:16).</p>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="wrap" id="main-page">
+
+  <header>
+    <div class="brand">Faith and Science Field Kit</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button id="view-mode-switch" style="background:none;border:1px solid var(--line);border-radius:7px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 10px;cursor:pointer;">Desktop view</button>
+      <div class="date" id="today-date"></div>
+    </div>
+  </header>
+
+
+  <div class="panel">
+
+    <div class="class-tabs" id="class-tabs">
+      <button data-class="6" class="active">Class 6</button>
+      <button data-class="7">Class 7</button>
+      <button data-class="8">Class 8</button>
+    </div>
+
+    <div class="collapsible" id="roster-collapsible">
+      <button class="coll-toggle" id="roster-toggle">
+        <span>Edit roster<span class="rcount" id="roster-count">0 names</span></span>
+        <span class="chev">&#9662;</span>
+      </button>
+      <div class="coll-body">
+        <div class="coll-body-inner">
+          <textarea id="roster" placeholder="Alex&#10;Bianca&#10;Chen&#10;Dana"></textarea>
+          <div class="roster-meta">
+            <span id="roster-save-hint">saves automatically</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapsible" id="targets-collapsible">
+      <button class="coll-toggle" id="targets-toggle">
+        <span>Manage learning targets<span class="rcount" id="targets-count">0 saved</span></span>
+        <span class="chev">&#9662;</span>
+      </button>
+      <div class="coll-body">
+        <div class="coll-body-inner">
+          <div class="import-row" id="import-row">
+            <button class="tile-btn" id="import-all-btn" style="width:auto;padding:9px 18px;">Load all 316 terms</button>
+            <span class="import-note" id="import-note">One click — adds every term from the Field Notes library, sorted by grade. You can edit or delete any of them after.</span>
+          </div>
+          <div class="target-form">
+            <div>
+              <div class="field-label">Term name</div>
+              <input id="target-label-input" placeholder="e.g. Matter" />
+            </div>
+            <div>
+              <div class="field-label">Grade</div>
+              <select id="target-grade-input">
+                <option value="special">Special Target</option>
+                <option value="6">Grade 6</option>
+                <option value="7">Grade 7</option>
+                <option value="8">Grade 8</option>
+              </select>
+            </div>
+            <div>
+              <div class="field-label">I can...</div>
+              <textarea id="target-text-input" placeholder="I can explain that matter is anything that has mass and takes up space."></textarea>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="tile-btn" id="add-target-btn" style="width:auto;padding:9px 18px;">Add target</button>
+              <button class="tile-btn" id="cancel-edit-btn" style="width:auto;padding:9px 18px;background:transparent;color:var(--chalk);border:1px solid var(--line);display:none;">Cancel edit</button>
+            </div>
+          </div>
+          <input id="target-search" placeholder="Filter this class's targets by name..." style="width:100%;margin-bottom:10px;background:var(--board);color:var(--chalk);border:1px solid var(--line);border-radius:7px;padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;" />
+          <div class="target-list" id="target-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="launch-grid">
+      <div class="launch-card">
+        <h3>Learning target</h3>
+        <p>Pick a saved target to display full screen for the class to read.</p>
+        <select id="target-select">
+          <option value="">Select a target...</option>
+        </select>
+      </div>
+      <div class="launch-card">
+        <h3>Pick a name</h3>
+        <p>Flip an index card to call on someone. Won't repeat until everyone's had a turn.</p>
+        <button class="tile-btn" id="launch-name">Open</button>
+      </div>
+      <div class="launch-card">
+        <h3>Make groups</h3>
+        <p>Shuffle the roster into a set number of groups, or a fixed group size.</p>
+        <button class="tile-btn" id="launch-groups">Open</button>
+      </div>
+      <div class="launch-card">
+        <h3>Breathing &amp; prayer</h3>
+        <p>Box breathing, then straight into prayer. Full control once it's on screen.</p>
+        <label class="toggle-row">
+          <span>Include breathing</span>
+          <span class="toggle-switch">
+            <input type="checkbox" id="breathing-enabled-input" checked />
+            <span class="toggle-slider"></span>
+          </span>
+        </label>
+        <label class="toggle-row">
+          <span>Calming tone</span>
+          <span class="toggle-switch">
+            <input type="checkbox" id="tone-enabled-input" checked />
+            <span class="toggle-slider"></span>
+          </span>
+        </label>
+        <div class="stepper-row">
+          <span class="stepper-label">Breaths</span>
+          <div class="stepper">
+            <button type="button" id="breath-count-minus">&minus;</button>
+            <input type="number" id="breath-count-input" min="1" max="99" value="3" />
+            <button type="button" id="breath-count-plus">&plus;</button>
+          </div>
+        </div>
+        <button class="tile-btn" id="launch-prayer" style="margin-top:12px;">Open</button>
+      </div>
+      <div class="launch-card">
+        <h3>Timer</h3>
+        <p>Countdown, count up to a target, or a free-running stopwatch. Fully adjustable while it runs.</p>
+        <button class="tile-btn" id="launch-timer">Open</button>
+      </div>
+    </div>
+
+    <div class="backup-row">
+      <button class="tile-btn" id="export-btn" style="width:auto;padding:9px 16px;">Download backup</button>
+      <button class="tile-btn" id="import-btn" style="width:auto;padding:9px 16px;background:transparent;color:var(--chalk);border:1px solid var(--line);">Restore from backup</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none;" />
+      <span class="import-note" id="backup-note">Saves rosters and learning targets to a file so you can move them to another computer or back them up.</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- fullscreen: learning target -->
+<div class="fullscreen-overlay" id="mode-target" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-target">&larr; Back</button>
+  </div>
+  <div class="fs-target-body">
+    <svg class="fs-orbit-rings" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="300" cy="120" r="60" fill="none" style="stroke:var(--chalk-yellow)" stroke-width="2"/>
+      <circle cx="300" cy="120" r="110" fill="none" style="stroke:var(--chalk-blue)" stroke-width="2"/>
+      <circle cx="300" cy="120" r="160" fill="none" style="stroke:var(--chalk-yellow)" stroke-width="2"/>
+    </svg>
+    <div class="fs-target-content">
+      <div class="fs-eyebrow" id="fs-eyebrow"></div>
+      <div class="fs-target-text" id="fs-target-text"></div>
+      <div class="fs-tagline">Stay curious &middot; Test ideas &middot; Seek wisdom</div>
+    </div>
+  </div>
+</div>
+
+<!-- fullscreen: name picker -->
+<div class="fullscreen-overlay" id="mode-name" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-name">&larr; Back</button>
+    <span class="fs-mode-class" id="name-mode-class">Class 6</span>
+  </div>
+  <div class="big-card-zone">
+    <div class="index-card-stage">
+      <div class="index-card" id="index-card">
+        <div class="card-face front">
+          <div>
+            <div class="card-line" style="top:70px;"></div>
+            <div class="card-line" style="top:115px;"></div>
+            <div class="card-line" style="top:160px;"></div>
+            <div class="card-line" style="top:205px;"></div>
+            <div class="card-line" style="top:250px;"></div>
+            <div class="card-front-label">draw a name</div>
+          </div>
+        </div>
+        <div class="card-face back">
+          <div class="card-name" id="picked-name">&mdash;</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="action" id="pick-btn">Pick a name</button>
+      <button class="action secondary" id="reset-pool-btn">Reset pool</button>
+    </div>
+    <div class="picked-pool" id="pool-status"></div>
+  </div>
+</div>
+
+<!-- fullscreen: group maker -->
+<div class="fullscreen-overlay" id="mode-groups" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-groups">&larr; Back</button>
+    <span class="fs-mode-class" id="groups-mode-class">Class 6</span>
+  </div>
+  <div class="groups-controls">
+    <div class="field">
+      <label>Group by</label>
+      <select id="group-mode">
+        <option value="count">Number of groups</option>
+        <option value="size">Students per group</option>
+      </select>
+    </div>
+    <div class="field">
+      <label id="group-num-label">Groups</label>
+      <input type="number" id="group-num" min="1" value="4" />
+    </div>
+    <button class="action" id="make-groups-btn">Make groups</button>
+  </div>
+  <div class="group-cards" id="group-cards"></div>
+</div>
+
+<!-- fullscreen: breathing -->
+<div class="fullscreen-overlay" id="mode-breathing" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-breathing">&larr; Back</button>
+    <span class="fs-breath-counter" id="breath-counter-label">Breath 1 of 3</span>
+  </div>
+  <div class="breath-body pre-start" id="breath-body">
+    <div class="breath-intro" id="breath-intro">
+      <span class="breath-intro-label">Stand &amp; Root:</span><span class="breath-intro-text">Stand behind your desk, feet flat on the floor like tree roots. 🌳</span>
+      <span class="breath-intro-label">Anchor &amp; Reflect:</span><span class="breath-intro-text">Left hand on your belly, right hand over your heart. Feel your body, notice your heart beating, and feel your faith grow with every breath. ❤️</span>
+      <span class="breath-intro-label">Follow the Visual:</span><span class="breath-intro-text" style="white-space:nowrap;">Breathe in for 4... hold for 4... release for 4... hold for 4. ⭕</span>
+    </div>
+    <div class="breath-stage">
+      <div class="breath-glow"></div>
+      <div class="breath-cross-wrap" id="breath-cross-wrap">
+        <svg width="100%" height="100%" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="crossGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="var(--chalk-yellow)" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="var(--chalk-yellow)" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="crossFill" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFDF6"/>
+              <stop offset="100%" stop-color="var(--chalk-yellow)"/>
+            </linearGradient>
+            <filter id="dotGlow" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="2.2" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <circle cx="110" cy="110" r="70" fill="url(#crossGlow)"/>
+
+          <!-- orbit ring 1 -->
+          <g transform="rotate(0 110 110)">
+            <ellipse cx="110" cy="110" rx="100" ry="36" fill="none" style="stroke:var(--chalk-blue)" stroke-width="1.4" opacity="0.45"/>
+            <g transform="translate(110 110)">
+              <g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 7s linear infinite;">
+                <g transform="scale(1,0.36)">
+                  <circle cx="100" cy="0" r="9" style="fill:var(--chalk-blue)" opacity="0.28"/>
+                  <circle cx="100" cy="0" r="4.5" style="fill:var(--chalk-blue)"/>
+                </g>
+              </g>
+            </g>
+            <g transform="translate(110 110) rotate(180)">
+              <g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 7s linear infinite;">
+                <g transform="scale(1,0.36)">
+                  <circle cx="100" cy="0" r="7" style="fill:var(--chalk-blue)" opacity="0.25"/>
+                  <circle cx="100" cy="0" r="3.2" style="fill:var(--chalk-blue)" opacity="0.85"/>
+                </g>
+              </g>
+            </g>
+          </g>
+
+          <!-- orbit ring 2 -->
+          <g transform="rotate(60 110 110)">
+            <ellipse cx="110" cy="110" rx="100" ry="36" fill="none" style="stroke:var(--chalk-yellow)" stroke-width="1.4" opacity="0.45"/>
+            <g transform="translate(110 110)">
+              <g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 9s linear infinite reverse;">
+                <g transform="scale(1,0.36)">
+                  <circle cx="100" cy="0" r="9" style="fill:var(--chalk-yellow)" opacity="0.28"/>
+                  <circle cx="100" cy="0" r="4.5" style="fill:var(--chalk-yellow)"/>
+                </g>
+              </g>
+            </g>
+            <g transform="translate(110 110) rotate(180)">
+              <g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 9s linear infinite reverse;">
+                <g transform="scale(1,0.36)">
+                  <circle cx="100" cy="0" r="7" style="fill:var(--chalk-yellow)" opacity="0.25"/>
+                  <circle cx="100" cy="0" r="3.2" style="fill:var(--chalk-yellow)" opacity="0.85"/>
+                </g>
+              </g>
+            </g>
+          </g>
+
+          <!-- orbit ring 3 -->
+          <g transform="rotate(120 110 110)">
+            <ellipse cx="110" cy="110" rx="100" ry="36" fill="none" style="stroke:var(--chalk-blue)" stroke-width="1.4" opacity="0.45"/>
+            <g transform="translate(110 110)">
+              <g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 11s linear infinite;">
+                <g transform="scale(1,0.36)">
+                  <circle cx="100" cy="0" r="9" style="fill:var(--chalk-blue)" opacity="0.28"/>
+                  <circle cx="100" cy="0" r="4.5" style="fill:var(--chalk-blue)"/>
+                </g>
+              </g>
+            </g>
+            <g transform="translate(110 110) rotate(180)">
+              <g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 11s linear infinite;">
+                <g transform="scale(1,0.36)">
+                  <circle cx="100" cy="0" r="7" style="fill:var(--chalk-blue)" opacity="0.25"/>
+                  <circle cx="100" cy="0" r="3.2" style="fill:var(--chalk-blue)" opacity="0.85"/>
+                </g>
+              </g>
+            </g>
+          </g>
+
+          <g style="filter:drop-shadow(0 0 10px rgba(232,196,24,0.55));">
+            <g style="fill:url(#crossFill);">
+              <path d="M103,53 A7,7 0 0 1 117,53 L117,81 L151,81 A7,7 0 0 1 151,95 L117,95 L117,167 A7,7 0 0 1 103,167 L103,95 L69,95 A7,7 0 0 1 69,81 L103,81 Z"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="breath-phase-text" id="breath-phase-text">Ready</div>
+      <div class="breath-countdown" id="breath-countdown">&nbsp;</div>
+    </div>
+    <div class="breath-controls">
+      <div class="breath-btn-row">
+        <button class="action" id="breath-start-btn">Start</button>
+        <button class="action secondary" id="breath-skip-btn">Skip breath</button>
+        <button class="action secondary" id="breath-skip-all-btn">Skip to prayer</button>
+      </div>
+      <div class="breath-stepper-row">
+        <span>Total breaths</span>
+        <div class="stepper">
+          <button type="button" id="breath-live-minus">&minus;</button>
+          <span id="breath-live-total" style="display:inline-block;width:32px;text-align:center;color:var(--chalk);">3</span>
+          <button type="button" id="breath-live-plus">&plus;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- fullscreen: month select -->
+<div class="fullscreen-overlay" id="mode-month" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-month">&larr; Back</button>
+  </div>
+  <div class="month-body">
+    <div class="month-heading">Select this month's prayer</div>
+    <div class="month-grid" id="month-grid"></div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <button class="tile-btn" id="load-default-prayers-btn" style="width:auto;padding:9px 16px;">Load default prayers</button>
+      <span class="import-note" id="month-default-note">Fills in August–May with the Rooted in Faith series. Won't overwrite a month you've already edited.</span>
+    </div>
+  </div>
+</div>
+
+<!-- fullscreen: prayer -->
+<div class="fullscreen-overlay" id="mode-prayer" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-prayer">&larr; Back</button>
+  </div>
+  <div class="prayer-body">
+    <svg width="88" height="88" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+      <g style="stroke:var(--chalk-yellow);stroke-width:6;stroke-linecap:round;">
+        <line x1="35" y1="8" x2="35" y2="62"/>
+        <line x1="14" y1="26" x2="56" y2="26"/>
+      </g>
+    </svg>
+    <div class="prayer-heading" id="prayer-month-heading">Let us pray</div>
+    <div class="prayer-opening">In the name of the Father, and of the Son, and of the Holy Spirit.<span>(All make the Sign of the Cross)</span></div>
+    <div class="prayer-text" id="prayer-text" contenteditable="true"></div>
+  </div>
+</div>
+
+<!-- fullscreen: timer -->
+<div class="fullscreen-overlay" id="mode-timer" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-timer">&larr; Back</button>
+  </div>
+  <div class="timer-body">
+    <div class="timer-mode-tabs" id="timer-mode-tabs">
+      <button type="button" class="timer-mode-btn active" data-mode="countdown">Countdown</button>
+      <button type="button" class="timer-mode-btn" data-mode="countup">Count up</button>
+      <button type="button" class="timer-mode-btn" data-mode="stopwatch">Stopwatch</button>
+    </div>
+
+    <div class="timer-display" id="timer-display">05:00</div>
+    <div class="timer-status" id="timer-status">&nbsp;</div>
+
+    <div class="timer-presets" id="timer-presets">
+      <button type="button" class="action secondary" data-preset="60">1 min</button>
+      <button type="button" class="action secondary" data-preset="300">5 min</button>
+      <button type="button" class="action secondary" data-preset="600">10 min</button>
+      <button type="button" class="action secondary" data-preset="900">15 min</button>
+    </div>
+
+    <div class="timer-adjust-row">
+      <button type="button" class="stepper-wide-btn" id="timer-minus-min">&minus;1 min</button>
+      <button type="button" class="stepper-wide-btn" id="timer-minus-sec">&minus;1 sec</button>
+      <button type="button" class="stepper-wide-btn" id="timer-plus-sec">+1 sec</button>
+      <button type="button" class="stepper-wide-btn" id="timer-plus-min">+1 min</button>
+    </div>
+
+    <div class="breath-btn-row" style="margin-top:6px;">
+      <button class="action" id="timer-start-btn">Start</button>
+      <button class="action secondary" id="timer-reset-btn">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('today-date').textContent =
+  new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+
+/* ---------- storage helpers (browser localStorage — persists for this file in this browser) ---------- */
+const STORAGE_PREFIX = 'room-log:';
+async function storageGet(key){
+  try{ return localStorage.getItem(STORAGE_PREFIX + key); }
+  catch(e){ return null; }
+}
+async function storageSet(key, value){
+  try{ localStorage.setItem(STORAGE_PREFIX + key, value); return true; }
+  catch(e){ return false; }
+}
+
+/* ---------- fullscreen mode switching ---------- */
+const mainPage = document.getElementById('main-page');
+const modeTarget = document.getElementById('mode-target');
+const modeName = document.getElementById('mode-name');
+const modeGroups = document.getElementById('mode-groups');
+const modeBreathing = document.getElementById('mode-breathing');
+const modeMonth = document.getElementById('mode-month');
+const modePrayer = document.getElementById('mode-prayer');
+const modeTimer = document.getElementById('mode-timer');
+const ALL_OVERLAYS = [modeTarget, modeName, modeGroups, modeBreathing, modeMonth, modePrayer, modeTimer];
+
+function showMain(){
+  mainPage.style.display='';
+  ALL_OVERLAYS.forEach(el=> el.style.display='none');
+  stopBreathing();
+  stopTimer();
+}
+function showOverlay(el){
+  mainPage.style.display='none';
+  ALL_OVERLAYS.forEach(o=> o.style.display='none');
+  el.style.display='flex';
+}
+document.getElementById('back-from-target').addEventListener('click', showMain);
+document.getElementById('back-from-name').addEventListener('click', showMain);
+document.getElementById('back-from-groups').addEventListener('click', showMain);
+document.getElementById('back-from-breathing').addEventListener('click', ()=> goToMonthSelect());
+document.getElementById('back-from-month').addEventListener('click', showMain);
+document.getElementById('back-from-prayer').addEventListener('click', ()=> goToMonthSelect());
+document.getElementById('back-from-timer').addEventListener('click', showMain);
+
+/* ---------- collapsibles ---------- */
+document.getElementById('roster-toggle').addEventListener('click', ()=>{
+  document.getElementById('roster-collapsible').classList.toggle('open');
+});
+document.getElementById('targets-toggle').addEventListener('click', ()=>{
+  document.getElementById('targets-collapsible').classList.toggle('open');
+});
+
+/* ---------- preset term library ---------- */
+const PRESET_TARGETS = [{"id":"kineticEnergy","label":"Kinetic Energy","grade":"6","episode":23,"text":"I can explain that kinetic energy is the energy an object has because it's moving — the faster and heavier it is, the more kinetic energy it has."},{"id":"potentialEnergy","label":"Potential Energy","grade":"6","episode":24,"text":"I can explain that potential energy is stored energy that an object has because of its position or condition — energy that's ready to be released."},{"id":"thermalEnergy","label":"Thermal Energy","grade":"6","episode":36,"text":"I can explain that thermal energy is the total energy of all the moving particles inside an object — more movement means more thermal energy."},{"id":"density","label":"Density","grade":"6","episode":10,"text":"I can explain that density tells you how tightly packed the material inside something is — how much mass is squeezed into a certain amount of space."},{"id":"physicalChange","label":"Physical Change","grade":"6","episode":8,"text":"I can explain that a physical change is a change in the form or appearance of matter that doesn't create a new substance — the material is still made of the same stuff."},{"id":"matter","label":"Matter","grade":"6","episode":1,"text":"I can explain that matter is anything that has mass and takes up space."},{"id":"physicalProperty","label":"Physical Property","grade":"6","episode":6,"text":"I can explain that a physical property is a characteristic of matter that can be observed or measured without changing what the substance actually is."},{"id":"chemicalProperty","label":"Chemical Property","grade":"6","episode":7,"text":"I can explain that a chemical property describes how a substance tends to react, or change into a new substance — like flammability, or the ability to rust."},{"id":"atomIntro","label":"Atom","grade":"6","episode":2,"text":"I can explain that an atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms."},{"id":"elementIntro","label":"Element","grade":"6","episode":4,"text":"I can explain that an element is a substance made of just one type of atom — it's already at its simplest, purest form and can't be broken down into anything simpler by ordinary means."},{"id":"molecule","label":"Molecule","grade":"6","episode":3,"text":"I can explain that a molecule forms when two or more atoms bond together — sometimes atoms of the same element, sometimes atoms of different elements entirely."},{"id":"chemicalChange","label":"Chemical Change","grade":"6","episode":9,"text":"I can explain that a chemical change is a change that transforms a substance into one or more new substances with different properties."},{"id":"energy","label":"Energy","grade":"6","episode":22,"text":"I can explain that energy is the ability to do work or cause change."},{"id":"work","label":"Work","grade":"6","episode":31,"text":"I can explain that in science, work happens when a force causes an object to move a certain distance in the direction of that force."},{"id":"mechanicalEnergy","label":"Mechanical Energy","grade":"6","episode":29,"text":"I can explain that mechanical energy is the total energy of motion and position combined — the sum of an object's kinetic and potential energy."},{"id":"conservationOfEnergy","label":"Law of Conservation of Energy","grade":"6","episode":35,"text":"I can explain that the law of conservation of energy states that energy cannot be created or destroyed — it can only change from one form into another."},{"id":"temperature","label":"Temperature","grade":"6","episode":37,"text":"I can explain that temperature is a measure of the average kinetic energy of the particles in a substance."},{"id":"heat","label":"Heat","grade":"6","episode":38,"text":"I can explain that heat is the transfer of thermal energy from a warmer object to a cooler one."},{"id":"conduction","label":"Conduction","grade":"6","episode":39,"text":"I can explain that conduction is the transfer of thermal energy through direct contact between particles."},{"id":"convection","label":"Convection","grade":"6","episode":40,"text":"I can explain that convection is the transfer of thermal energy through the movement of a heated liquid or gas."},{"id":"radiation","label":"Radiation","grade":"6","episode":41,"text":"I can explain that radiation is the transfer of thermal energy through electromagnetic waves, without needing any matter or direct contact."},{"id":"insulator","label":"Insulator","grade":"6","episode":42,"text":"I can explain that an insulator is a material that resists the flow of thermal energy, slowing down heat transfer."},{"id":"conductor","label":"Conductor","grade":"6","episode":43,"text":"I can explain that a conductor is a material that allows thermal energy to transfer through it easily and quickly."},{"id":"forceIntro","label":"Force","grade":"6","episode":30,"text":"I can explain that a force is a push or a pull that can start, stop, or change the motion of an object."},{"id":"gravitationalPotentialEnergy","label":"Gravitational Potential Energy","grade":"6","episode":27,"text":"I can explain that gravitational potential energy is stored energy an object has because of its height above the ground — the higher it is, the more energy it has stored, ready to be released by gravity."},{"id":"elasticPotentialEnergy","label":"Elastic Potential Energy","grade":"6","episode":28,"text":"I can explain that elastic potential energy is stored energy an object has when it's stretched or squeezed out of its normal shape, ready to spring back and release that energy."},{"id":"chemicalEnergy","label":"Chemical Energy","grade":"6","episode":32,"text":"I can explain that chemical energy is energy stored in the bonds that hold atoms together in molecules, released or absorbed when those bonds break or form during a chemical reaction."},{"id":"electricalEnergy","label":"Electrical Energy","grade":"6","episode":33,"text":"I can explain that electrical energy is energy carried by the flow of electric charge, usually through a wire or circuit, that can be converted into other useful forms of energy like light, heat, or motion."},{"id":"nuclearEnergy","label":"Nuclear Energy","grade":"6","episode":34,"text":"I can explain that nuclear energy is energy stored in the nucleus (core) of an atom, released in enormous amounts when that nucleus is split apart or combined with another nucleus."},{"id":"motionG6","label":"Motion","grade":"6","episode":25,"text":"I can explain that motion happens when an object changes its position over time."},{"id":"power","label":"Power","grade":"6","episode":26,"text":"I can explain that power is the rate at which work is done, or how quickly energy is transferred or transformed."},{"id":"stateOfMatter","label":"State of Matter","grade":"6","episode":11,"text":"I can explain that the state of matter is the physical form a substance takes — solid, liquid, or gas — based on how its particles are arranged and moving."},{"id":"meltingPoint","label":"Melting Point","grade":"6","episode":15,"text":"I can explain that melting point is the specific temperature at which a solid changes into a liquid."},{"id":"boilingPoint","label":"Boiling Point","grade":"6","episode":17,"text":"I can explain that boiling point is the specific temperature at which a liquid changes into a gas."},{"id":"evaporation","label":"Evaporation","grade":"6","episode":19,"text":"I can explain that evaporation is when a liquid slowly turns into a gas at its surface, even without reaching its full boiling point."},{"id":"condensation","label":"Condensation","grade":"6","episode":18,"text":"I can explain that condensation is when a gas cools down and turns back into a liquid."},{"id":"sublimation","label":"Sublimation","grade":"6","episode":20,"text":"I can explain that sublimation is when a solid changes directly into a gas, without ever becoming a liquid in between."},{"id":"solid","label":"Solid","grade":"6","episode":12,"text":"I can explain that a solid is a state of matter where particles are packed tightly together in a fixed arrangement, giving it a definite shape and a definite volume."},{"id":"liquid","label":"Liquid","grade":"6","episode":13,"text":"I can explain that a liquid is a state of matter where particles are close together but can slide past each other, giving it a definite volume but no definite shape — it takes the shape of its container."},{"id":"gas","label":"Gas","grade":"6","episode":14,"text":"I can explain that a gas is a state of matter where particles are spread far apart and move freely in all directions, so it has no definite shape and no definite volume — it expands to fill whatever space it's given."},{"id":"freezingPoint","label":"Freezing Point","grade":"6","episode":16,"text":"I can explain that the freezing point is the specific temperature at which a liquid turns into a solid as thermal energy is removed."},{"id":"vaporization","label":"Vaporization","grade":"6","episode":21,"text":"I can explain that vaporization is the process of a liquid changing into a gas, which can happen either slowly at the surface (evaporation) or throughout the whole liquid at its boiling point (boiling)."},{"id":"geosphere","label":"Geosphere","grade":"6","episode":44,"text":"I can explain that the geosphere is the solid, rocky part of Earth — including the crust, mantle, and core."},{"id":"hydrosphere","label":"Hydrosphere","grade":"6","episode":45,"text":"I can explain that the hydrosphere is all of the water on, under, and above Earth's surface."},{"id":"atmosphere","label":"Atmosphere","grade":"6","episode":46,"text":"I can explain that the atmosphere is the layer of gases that surrounds Earth."},{"id":"biosphere","label":"Biosphere","grade":"6","episode":47,"text":"I can explain that the biosphere is the part of Earth where all living things exist, including all plants, animals, and other organisms."},{"id":"weather","label":"Weather","grade":"6","episode":48,"text":"I can explain that weather is the condition of the atmosphere at a specific place and time, including temperature, precipitation, and wind."},{"id":"humidity","label":"Humidity","grade":"6","episode":52,"text":"I can explain that humidity is the amount of water vapor present in the air."},{"id":"airMass","label":"Air Mass","grade":"6","episode":49,"text":"I can explain that an air mass is a large body of air that has a similar temperature and humidity throughout."},{"id":"front","label":"Front","grade":"6","episode":50,"text":"I can explain that a front is the boundary where two different air masses meet."},{"id":"airPressure","label":"Air Pressure","grade":"6","episode":51,"text":"I can explain that air pressure is the force exerted by the weight of air pressing down on a given area."},{"id":"precipitation","label":"Precipitation","grade":"6","episode":53,"text":"I can explain that precipitation is any form of water — rain, snow, sleet, or hail — that falls from clouds to Earth's surface."},{"id":"wind","label":"Wind","grade":"6","episode":54,"text":"I can explain that wind is the movement of air from an area of high air pressure to an area of low air pressure."},{"id":"storm","label":"Storm","grade":"6","episode":55,"text":"I can explain that a storm is a disturbed state of the atmosphere caused by colliding air masses, marked by strong winds and often heavy precipitation, thunder, or lightning."},{"id":"hurricane","label":"Hurricane","grade":"6","episode":56,"text":"I can explain that a hurricane is a large, powerful rotating storm that forms over warm ocean water, with strong spiraling winds circling a calm center called the eye."},{"id":"tornado","label":"Tornado","grade":"6","episode":57,"text":"I can explain that a tornado is a violently rotating column of air that extends from a thunderstorm down to the ground, capable of extreme wind speeds over a small area."},{"id":"thunderstorm","label":"Thunderstorm","grade":"6","episode":58,"text":"I can explain that a thunderstorm is a storm that produces lightning and its accompanying sound, thunder, usually along with heavy rain and gusty wind."},{"id":"flood","label":"Flood","grade":"6","episode":59,"text":"I can explain that a flood is an overflow of water onto land that is normally dry, often caused by heavy or prolonged rainfall that a river, lake, or drainage system can't hold or absorb fast enough."},{"id":"mineral","label":"Mineral","grade":"6","episode":60,"text":"I can explain that a mineral is a naturally occurring solid with a specific chemical makeup and crystal structure."},{"id":"igneous","label":"Igneous Rock","grade":"6","episode":62,"text":"I can explain that igneous rock forms when magma or lava cools and hardens into a solid."},{"id":"sedimentary","label":"Sedimentary Rock","grade":"6","episode":63,"text":"I can explain that sedimentary rock forms when layers of sediment are compressed and cemented together over time."},{"id":"metamorphic","label":"Metamorphic Rock","grade":"6","episode":64,"text":"I can explain that metamorphic rock forms when existing rock is transformed by intense heat and pressure, without fully melting."},{"id":"rockCycle","label":"Rock Cycle","grade":"6","episode":61,"text":"I can explain that the rock cycle is the continuous process by which rocks change from one type into another over time."},{"id":"continentalDrift","label":"Continental Drift","grade":"6","episode":65,"text":"I can explain that continental drift is the theory that Earth's continents have slowly moved across the planet's surface over millions of years."},{"id":"earthquake","label":"Earthquake","grade":"6","episode":66,"text":"I can explain that an earthquake is a sudden shaking of the ground caused by the release of energy along a fault."},{"id":"volcano","label":"Volcano","grade":"6","episode":67,"text":"I can explain that a volcano is an opening in Earth's surface where molten rock, ash, and gases erupt from below."},{"id":"fault","label":"Fault","grade":"6","episode":68,"text":"I can explain that a fault is a crack in Earth's crust where blocks of rock have moved past each other."},{"id":"tsunami","label":"Tsunami","grade":"6","episode":69,"text":"I can explain that a tsunami is a series of large ocean waves usually caused by an underwater earthquake, volcanic eruption, or landslide."},{"id":"weathering","label":"Mechanical Weathering","grade":"6","episode":70,"text":"I can explain that weathering is the breaking down of rocks into smaller pieces through natural processes, without the pieces being moved away."},{"id":"erosion","label":"Erosion","grade":"6","episode":74,"text":"I can explain that erosion is the process of moving weathered rock and soil material from one location to another, often by water, wind, or ice."},{"id":"deposition","label":"Deposition","grade":"6","episode":75,"text":"I can explain that deposition is the process of eroded material settling and being dropped in a new location."},{"id":"sediment","label":"Sediment","grade":"6","episode":76,"text":"I can explain that sediment is small pieces of rock, mineral, and organic material that have been broken down and moved by weathering and erosion."},{"id":"glacier","label":"Glacier","grade":"6","episode":77,"text":"I can explain that a glacier is a massive, slow-moving body of ice formed from accumulated and compacted snow over a long period of time."},{"id":"chemicalWeathering","label":"Chemical Weathering","grade":"6","episode":71,"text":"I can explain that chemical weathering is the breakdown of rock caused by a chemical reaction that changes the rock's actual mineral composition, rather than just breaking it into smaller physical pieces."},{"id":"soil","label":"Soil","grade":"6","episode":72,"text":"I can explain that soil is a mixture of weathered rock particles, organic material, water, and air that forms the loose surface layer of the Earth's land, capable of supporting plant life."},{"id":"humus","label":"Humus","grade":"6","episode":73,"text":"I can explain that humus is the dark, nutrient-rich organic material in soil formed from decayed plant and animal matter, which helps soil hold water and nutrients that plants need to grow."},{"id":"organism","label":"Organism","grade":"6","episode":78,"text":"I can explain that an organism is any individual living thing, from a single bacterium to a giant whale."},{"id":"cellIntro","label":"Cell","grade":"6","episode":79,"text":"I can explain that a cell is the smallest basic unit that can carry out the functions of life, and every living thing is made of one or more cells."},{"id":"classification","label":"Classification","grade":"6","episode":80,"text":"I can explain that classification is the process of grouping living things based on shared characteristics."},{"id":"species","label":"Species","grade":"6","episode":81,"text":"I can explain that a species is a group of organisms that share enough similar traits to be able to reproduce together and produce fertile offspring."},{"id":"virus","label":"Virus","grade":"6","episode":82,"text":"I can explain that a virus is a tiny, non-living particle that can only reproduce by infecting a living host cell."},{"id":"bacteria","label":"Bacteria","grade":"6","episode":83,"text":"I can explain that bacteria are single-celled living organisms found almost everywhere on Earth."},{"id":"protist","label":"Protist","grade":"6","episode":84,"text":"I can explain that a protist is a simple, usually single-celled organism that isn't classified as an animal, plant, fungus, or bacteria."},{"id":"multicellular","label":"Multicellular","grade":"6","episode":85,"text":"I can explain that multicellular means made up of many cells that work together, with different cells often specializing in different jobs to keep the whole organism functioning."},{"id":"unicellular","label":"Unicellular","grade":"6","episode":86,"text":"I can explain that unicellular means made up of just a single cell, which must carry out every life function — like gathering energy, reproducing, and responding to its environment — entirely on its own."},{"id":"ecosystem","label":"Ecosystem","grade":"7","episode":131,"text":"I can explain that an ecosystem is a community of living things (plants, animals, insects) interacting with each other and their non-living surroundings (water, soil, air) in one area."},{"id":"foodWeb","label":"Food Web","grade":"7","episode":136,"text":"I can explain that a food web shows how many different food chains in an ecosystem connect and overlap, showing all the feeding relationships between organisms."},{"id":"energyPyramid","label":"Energy Pyramid","grade":"7","episode":137,"text":"I can explain that an energy pyramid is a diagram that shows how energy decreases as it moves from producers up through each level of consumers in a food chain."},{"id":"abioticFactor","label":"Abiotic Factor","grade":"7","episode":138,"text":"I can explain that an abiotic factor is any non-living part of an ecosystem, like water, sunlight, temperature, or soil."},{"id":"bioticFactor","label":"Biotic Factor","grade":"7","episode":139,"text":"I can explain that a biotic factor is any living part of an ecosystem, including plants, animals, fungi, and bacteria."},{"id":"habitat","label":"Habitat","grade":"7","episode":140,"text":"I can explain that a habitat is the specific environment where an organism naturally lives, providing everything it needs to survive, like food, water, shelter, and space."},{"id":"biodiversity","label":"Biodiversity","grade":"7","episode":143,"text":"I can explain that biodiversity is the variety of different living things — species, genes, and ecosystems — found in a particular area."},{"id":"photosynthesis","label":"Photosynthesis","grade":"7","episode":97,"text":"I can explain that photosynthesis is the process plants use to turn sunlight, water, and carbon dioxide into food (sugar) and oxygen."},{"id":"cell","label":"Cell","grade":"7","episode":87,"text":"I can explain that a cell is the basic building block of all living things — the smallest unit that can carry out the functions of life."},{"id":"nucleus","label":"Nucleus","grade":"7","episode":92,"text":"I can explain that the nucleus is the organelle inside a cell that stores the cell's genetic material (DNA) and controls its activities."},{"id":"mitochondria","label":"Mitochondria","grade":"7","episode":93,"text":"I can explain that mitochondria are organelles that convert nutrients into usable energy for the cell."},{"id":"cellMembrane","label":"Cell Membrane","grade":"7","episode":89,"text":"I can explain that the cell membrane is the thin outer boundary that surrounds a cell and controls what enters and exits it."},{"id":"chloroplast","label":"Chloroplast","grade":"7","episode":94,"text":"I can explain that a chloroplast is the organelle in plant and algae cells that captures sunlight and uses it to make food through photosynthesis."},{"id":"cellularRespiration","label":"Cellular Respiration","grade":"7","episode":98,"text":"I can explain that cellular respiration is the process cells use to break down food and release the energy stored inside it."},{"id":"autotroph","label":"Autotroph","grade":"7","episode":99,"text":"I can explain that an autotroph is an organism that produces its own food, typically using sunlight, water, and carbon dioxide through photosynthesis."},{"id":"heterotroph","label":"Heterotroph","grade":"7","episode":100,"text":"I can explain that a heterotroph is an organism that cannot produce its own food and must consume other organisms to get the energy and nutrients it needs."},{"id":"chlorophyll","label":"Chlorophyll","grade":"7","episode":95,"text":"I can explain that chlorophyll is the green pigment found in chloroplasts that captures light energy from the Sun, essential for photosynthesis."},{"id":"vacuole","label":"Vacuole","grade":"7","episode":96,"text":"I can explain that a vacuole is a fluid-filled organelle used for storage, holding water, nutrients, or waste products within a cell."},{"id":"cellCycle","label":"Cell Cycle","grade":"7","episode":101,"text":"I can explain that the cell cycle is the series of stages a cell goes through as it grows and divides into two new cells."},{"id":"mitosis","label":"Mitosis","grade":"7","episode":102,"text":"I can explain that mitosis is the stage of the cell cycle where a cell's nucleus divides, producing two nuclei with identical genetic material."},{"id":"cytokinesis","label":"Cytokinesis","grade":"7","episode":103,"text":"I can explain that cytokinesis is the final stage of the cell cycle where the entire cell physically splits into two separate, complete new cells."},{"id":"interphase","label":"Interphase","grade":"7","episode":104,"text":"I can explain that interphase is the stage of the cell cycle where a cell grows, functions normally, and copies its genetic material in preparation for division."},{"id":"diffusion","label":"Diffusion","grade":"7","episode":105,"text":"I can explain that diffusion is the movement of particles from an area of higher concentration to an area of lower concentration, without requiring any energy from the cell."},{"id":"osmosis","label":"Osmosis","grade":"7","episode":106,"text":"I can explain that osmosis is the diffusion of water molecules across a membrane, from an area of higher water concentration to an area of lower water concentration."},{"id":"selectivelyPermeable","label":"Selectively Permeable","grade":"7","episode":107,"text":"I can explain that selectively permeable describes a membrane that allows some substances to pass through while blocking others."},{"id":"endocytosis","label":"Endocytosis","grade":"7","episode":108,"text":"I can explain that endocytosis is the process by which a cell engulfs and takes in material from outside itself by wrapping its cell membrane around it."},{"id":"exocytosis","label":"Exocytosis","grade":"7","episode":109,"text":"I can explain that exocytosis is the process by which a cell releases material to the outside by fusing a membrane-bound sac with the cell membrane."},{"id":"organ","label":"Organ","grade":"7","episode":110,"text":"I can explain that an organ is a structure made of two or more different tissues working together to perform a specific job in the body."},{"id":"tissue","label":"Tissue","grade":"7","episode":111,"text":"I can explain that a tissue is a group of similar cells that work together to perform a specific function."},{"id":"organSystem","label":"Organ System","grade":"7","episode":112,"text":"I can explain that an organ system is a group of organs that work together to perform a broad, major function in the body."},{"id":"homeostasis","label":"Homeostasis","grade":"7","episode":113,"text":"I can explain that homeostasis is the body's ability to maintain a stable internal environment despite changes happening outside or inside it."},{"id":"circulatorySystem","label":"Circulatory System","grade":"7","episode":114,"text":"I can explain that the circulatory system is the organ system that transports blood, oxygen, and nutrients throughout the body, made up of the heart, blood vessels, and blood."},{"id":"digestion","label":"Digestion","grade":"7","episode":115,"text":"I can explain that digestion is the process of breaking down food into smaller nutrients that the body can absorb and use for energy and growth."},{"id":"excretion","label":"Excretion","grade":"7","episode":116,"text":"I can explain that excretion is the process of removing waste products from the body, helping maintain a healthy internal balance."},{"id":"response","label":"Response","grade":"7","episode":117,"text":"I can explain that a response is the reaction an organism has to a stimulus, coordinated through the nervous system."},{"id":"stimulus","label":"Stimulus","grade":"7","episode":118,"text":"I can explain that a stimulus is anything in the environment that triggers a reaction, or response, in an organism."},{"id":"reflex","label":"Reflex","grade":"7","episode":119,"text":"I can explain that a reflex is an automatic, involuntary response to a stimulus that happens extremely quickly, without conscious thought."},{"id":"neuron","label":"Neuron","grade":"7","episode":120,"text":"I can explain that a neuron is a specialized nerve cell that transmits electrical and chemical signals throughout the nervous system."},{"id":"brain","label":"Brain","grade":"7","episode":121,"text":"I can explain that the brain is the organ that controls thought, memory, emotion, and coordinates most of the body's voluntary and involuntary functions."},{"id":"spinalCord","label":"Spinal Cord","grade":"7","episode":122,"text":"I can explain that the spinal cord is a long bundle of nerve tissue running from the brain down through the spine, carrying signals between the brain and the rest of the body."},{"id":"synapse","label":"Synapse","grade":"7","episode":123,"text":"I can explain that a synapse is the small gap between two neurons where a nerve signal is passed from one neuron to the next."},{"id":"asexualReproduction","label":"Asexual Reproduction","grade":"7","episode":124,"text":"I can explain that asexual reproduction is a type of reproduction that involves only one parent, producing offspring that are genetically identical to that parent."},{"id":"sexualReproduction","label":"Sexual Reproduction","grade":"7","episode":125,"text":"I can explain that sexual reproduction is a type of reproduction that involves two parents, combining genetic material to produce offspring with a unique mix of traits."},{"id":"fertilization","label":"Fertilization","grade":"7","episode":126,"text":"I can explain that fertilization is the process in which a male reproductive cell and a female reproductive cell combine to form a new organism."},{"id":"internalFertilization","label":"Internal Fertilization","grade":"7","episode":127,"text":"I can explain that internal fertilization is when a sperm cell and egg cell join together inside the mother's body."},{"id":"externalFertilization","label":"External Fertilization","grade":"7","episode":128,"text":"I can explain that external fertilization is when a sperm cell and egg cell join together outside the mother's body, often in water."},{"id":"zygote","label":"Zygote","grade":"7","episode":129,"text":"I can explain that a zygote is the single cell that forms immediately after a sperm cell and egg cell join together during fertilization."},{"id":"embryo","label":"Embryo","grade":"7","episode":130,"text":"I can explain that an embryo is the developing organism formed from a zygote after it has divided into multiple cells, but before it has developed into its more mature form."},{"id":"producer","label":"Producer","grade":"7","episode":132,"text":"I can explain that a producer is an organism that makes its own food, usually through photosynthesis."},{"id":"consumer","label":"Consumer","grade":"7","episode":133,"text":"I can explain that a consumer is an organism that gets energy by eating other organisms."},{"id":"decomposer","label":"Decomposer","grade":"7","episode":134,"text":"I can explain that a decomposer is an organism that breaks down dead plants, animals, and waste, returning nutrients to the ecosystem."},{"id":"foodChain","label":"Food Chain","grade":"7","episode":135,"text":"I can explain that a food chain is a simple, single-path sequence showing how energy moves from one organism to the next through eating relationships."},{"id":"population","label":"Population","grade":"7","episode":141,"text":"I can explain that a population is a group of the same species living in the same area at the same time."},{"id":"community","label":"Community","grade":"7","episode":142,"text":"I can explain that a community is all the different populations of different species living and interacting together in the same area."},{"id":"carryingCapacity","label":"Carrying Capacity","grade":"7","episode":144,"text":"I can explain that carrying capacity is the maximum population size an environment can support long-term, given its available resources."},{"id":"limitingFactor","label":"Limiting Factor","grade":"7","episode":145,"text":"I can explain that a limiting factor is a resource or condition that restricts the growth of a population in an ecosystem."},{"id":"competition","label":"Competition","grade":"7","episode":146,"text":"I can explain that competition is the interaction between organisms that need the same limited resource, like food, water, or space, in an ecosystem."},{"id":"predation","label":"Predation","grade":"7","episode":147,"text":"I can explain that predation is the interaction where one organism, the predator, hunts and eats another organism, the prey."},{"id":"symbiosis","label":"Symbiosis","grade":"7","episode":148,"text":"I can explain that symbiosis is any close, long-term relationship between two different species living closely together."},{"id":"mutualism","label":"Mutualism","grade":"7","episode":149,"text":"I can explain that mutualism is a type of symbiosis where both species involved benefit from the relationship."},{"id":"commensalism","label":"Commensalism","grade":"7","episode":150,"text":"I can explain that commensalism is a type of symbiosis where one species benefits from the relationship, while the other species is neither helped nor harmed."},{"id":"parasitism","label":"Parasitism","grade":"7","episode":151,"text":"I can explain that parasitism is a type of symbiosis where one species, the parasite, benefits at the expense of the other species, the host, which is harmed."},{"id":"succession","label":"Succession","grade":"7","episode":152,"text":"I can explain that succession is the gradual, predictable process of change in an ecosystem's community over time, as one group of species is slowly replaced by another."},{"id":"pioneerSpecies","label":"Pioneer Species","grade":"7","episode":153,"text":"I can explain that a pioneer species is the first type of organism to colonize a new or disturbed area during the early stages of succession."},{"id":"invasiveSpecies","label":"Invasive Species","grade":"7","episode":154,"text":"I can explain that an invasive species is a non-native organism introduced to a new ecosystem that causes significant harm to that ecosystem, its native species, or the local economy."},{"id":"keystoneSpecies","label":"Keystone Species","grade":"7","episode":155,"text":"I can explain that a keystone species is a species that has an unusually large impact on its ecosystem relative to its population size — removing it can cause dramatic changes throughout the whole community."},{"id":"wave","label":"Wave","grade":"7","episode":170,"text":"I can explain that a wave is a disturbance that transfers energy from one place to another without permanently moving matter along with it."},{"id":"amplitude","label":"Amplitude","grade":"7","episode":171,"text":"I can explain that amplitude is the maximum height of a wave from its resting position, and it's related to how much energy the wave carries."},{"id":"wavelength","label":"Wavelength","grade":"7","episode":172,"text":"I can explain that wavelength is the distance between two consecutive matching points on a wave, like from one crest to the next."},{"id":"frequency","label":"Frequency","grade":"7","episode":173,"text":"I can explain that frequency is the number of complete wave cycles that pass a given point in one second."},{"id":"electromagneticSpectrum","label":"Electromagnetic Spectrum","grade":"7","episode":176,"text":"I can explain that the electromagnetic spectrum is the full range of electromagnetic waves, from radio waves to gamma rays, organized by wavelength and frequency."},{"id":"mechanicalWave","label":"Mechanical Wave","grade":"7","episode":174,"text":"I can explain that a mechanical wave is a wave that requires a medium, like water, air, or a solid, to travel through — it cannot travel through empty space."},{"id":"electromagneticWave","label":"Electromagnetic Wave","grade":"7","episode":175,"text":"I can explain that an electromagnetic wave is a wave made of electric and magnetic fields that can travel through empty space, without needing any medium."},{"id":"electromagneticRadiation","label":"Electromagnetic Radiation","grade":"7","episode":177,"text":"I can explain that electromagnetic radiation is the energy carried by electromagnetic waves as they travel through space or a medium."},{"id":"visibleLight","label":"Visible Light","grade":"7","episode":178,"text":"I can explain that visible light is the narrow range of the electromagnetic spectrum that human eyes can detect, appearing to us as different colors."},{"id":"reflection","label":"Reflection","grade":"7","episode":179,"text":"I can explain that reflection is when a wave, like light or sound, bounces off a surface instead of passing through it."},{"id":"refraction","label":"Refraction","grade":"7","episode":180,"text":"I can explain that refraction is when a wave, like light, bends as it passes from one medium into another, due to a change in speed."},{"id":"electricForce","label":"Electric Force","grade":"7","episode":181,"text":"I can explain that electric force is the push or pull between charged objects, either attracting opposite charges or repelling like charges."},{"id":"magneticForce","label":"Magnetic Force","grade":"7","episode":183,"text":"I can explain that magnetic force is the push or pull that magnets exert on certain materials or on other magnets."},{"id":"electricalCircuit","label":"Electrical Circuit","grade":"7","episode":187,"text":"I can explain that a circuit is a complete path that allows electric current to flow continuously from a power source, through components, and back again."},{"id":"electricCurrent","label":"Electric Current","grade":"7","episode":188,"text":"I can explain that current is the flow of electric charge through a circuit, usually carried by moving electrons."},{"id":"voltage","label":"Voltage","grade":"7","episode":189,"text":"I can explain that voltage is the force that pushes electric charge through a circuit, driving the flow of current."},{"id":"electricField","label":"Electric Field","grade":"7","episode":182,"text":"I can explain that an electric field is the invisible region of influence surrounding a charged object, where it can exert a push or pull force on other charged objects."},{"id":"magneticField","label":"Magnetic Field","grade":"7","episode":184,"text":"I can explain that a magnetic field is the invisible region of influence surrounding a magnet, where it can exert a push or pull force on other magnetic materials."},{"id":"electromagnetism","label":"Electromagnetism","grade":"7","episode":185,"text":"I can explain that electromagnetism is the connection between electricity and magnetism, where moving electric charges create magnetic fields, and changing magnetic fields can create electric currents."},{"id":"electromagnet","label":"Electromagnet","grade":"7","episode":186,"text":"I can explain that an electromagnet is a temporary magnet created by wrapping a coil of wire around an iron core and passing electric current through the wire."},{"id":"resistance","label":"Resistance","grade":"7","episode":190,"text":"I can explain that resistance is a measure of how much a material opposes or slows down the flow of electric current through it."},{"id":"signal","label":"Signal","grade":"7","episode":191,"text":"I can explain that a signal is information that is transmitted, often as a wave, from one place to another."},{"id":"digitalSignal","label":"Digital Signal","grade":"7","episode":192,"text":"I can explain that a digital signal represents information using discrete, distinct values, usually as a series of on/off or 1/0 pulses."},{"id":"analogSignal","label":"Analog Signal","grade":"7","episode":193,"text":"I can explain that an analog signal represents information using a continuously varying wave, rather than distinct, separate values."},{"id":"informationTechnology","label":"Information Technology","grade":"7","episode":194,"text":"I can explain that information technology is the use of computers, networks, and electronic systems to store, process, and transmit information."},{"id":"renewableResource","label":"Renewable Resource","grade":"7","episode":158,"text":"I can explain that a renewable resource is a natural resource that can be replenished naturally within a relatively short period of time."},{"id":"nonrenewableResource","label":"Nonrenewable Resource","grade":"7","episode":157,"text":"I can explain that a nonrenewable resource is a natural resource that takes an extremely long time to form and cannot be replaced at a usable rate once it's used up."},{"id":"naturalResource","label":"Natural Resource","grade":"7","episode":156,"text":"I can explain that a natural resource is any material or substance that occurs naturally in the environment and that humans use to meet their needs."},{"id":"ore","label":"Ore","grade":"7","episode":160,"text":"I can explain that ore is a type of rock that contains a valuable mineral or metal in a large enough amount to be worth mining and extracting."},{"id":"fossilFuel","label":"Fossil Fuel","grade":"7","episode":159,"text":"I can explain that a fossil fuel is a nonrenewable energy resource formed from the remains of ancient plants and animals over millions of years."},{"id":"pollution","label":"Pollution","grade":"7","episode":161,"text":"I can explain that pollution is the introduction of harmful substances or materials into the environment, causing damage to ecosystems and living things."},{"id":"conservation","label":"Conservation","grade":"7","episode":162,"text":"I can explain that conservation is the responsible use and protection of natural resources to prevent them from being depleted or damaged."},{"id":"sustainability","label":"Sustainability","grade":"7","episode":163,"text":"I can explain that sustainability is meeting current needs in a way that doesn't compromise the ability of future generations to meet their own needs."},{"id":"sustainable","label":"Sustainable","grade":"7","episode":164,"text":"I can explain that sustainable describes a practice or system that can be maintained over the long term without depleting resources or causing lasting environmental harm."},{"id":"sustainableUse","label":"Sustainable Use","grade":"7","episode":165,"text":"I can explain that sustainable use is using a natural resource in a way that meets current needs while ensuring the resource remains available for future generations."},{"id":"emissions","label":"Emissions","grade":"7","episode":166,"text":"I can explain that emissions are substances, often gases, released into the air as a byproduct of human activities like burning fossil fuels."},{"id":"thermalPollution","label":"Thermal Pollution","grade":"7","episode":167,"text":"I can explain that thermal pollution is a harmful increase in water temperature, often caused by industrial processes like power plants releasing heated water back into rivers or lakes."},{"id":"acidRain","label":"Acid Rain","grade":"7","episode":168,"text":"I can explain that acid rain is precipitation that has become more acidic than normal because it has combined with pollutants like sulfur dioxide and nitrogen oxides in the atmosphere."},{"id":"ozone","label":"Ozone","grade":"7","episode":169,"text":"I can explain that ozone is a gas made of three oxygen atoms that forms a protective layer high in Earth's atmosphere, absorbing much of the Sun's harmful ultraviolet radiation."},{"id":"velocity","label":"Velocity","grade":"8","episode":228,"text":"I can explain that velocity is how fast something is moving and in what direction."},{"id":"acceleration","label":"Acceleration","grade":"8","episode":229,"text":"I can explain that acceleration is how quickly an object's velocity is changing — speeding up, slowing down, or changing direction."},{"id":"force","label":"Force","grade":"8","episode":230,"text":"I can explain that a force is a push or a pull that can change an object's motion, speed, or direction."},{"id":"periodicTable","label":"Periodic Table","grade":"8","episode":201,"text":"I can explain that the periodic table is a chart that organizes all known chemical elements based on their properties and atomic structure."},{"id":"proton","label":"Proton","grade":"8","episode":198,"text":"I can explain that a proton is a positively charged particle found in the nucleus of an atom."},{"id":"neutron","label":"Neutron","grade":"8","episode":199,"text":"I can explain that a neutron is a particle with no electric charge found in the nucleus of an atom, alongside protons."},{"id":"electron","label":"Electron","grade":"8","episode":200,"text":"I can explain that an electron is a negatively charged particle that orbits the nucleus of an atom."},{"id":"chemicalReaction","label":"Chemical Reaction","grade":"8","episode":218,"text":"I can explain that a chemical reaction is a process in which one or more substances are transformed into new substances with different properties."},{"id":"reactant","label":"Reactant","grade":"8","episode":219,"text":"I can explain that a reactant is a substance that exists at the beginning of a chemical reaction, before it transforms into something new."},{"id":"product","label":"Product","grade":"8","episode":220,"text":"I can explain that a product is a new substance that results after a chemical reaction is complete."},{"id":"lawOfConservationOfMass","label":"Law of Conservation of Mass","grade":"8","episode":223,"text":"I can explain that the law of conservation of mass states that in a chemical reaction, the total mass of the reactants equals the total mass of the products — matter is neither created nor destroyed."},{"id":"chemicalChangeG8","label":"Chemical Change","grade":"8","episode":217,"text":"I can explain that a chemical change is a change in which one or more substances are transformed into new substances with different chemical properties."},{"id":"endothermicReaction","label":"Endothermic Reaction","grade":"8","episode":221,"text":"I can explain that an endothermic reaction is a chemical reaction that absorbs energy from its surroundings, often resulting in a drop in temperature."},{"id":"exothermicReaction","label":"Exothermic Reaction","grade":"8","episode":222,"text":"I can explain that an exothermic reaction is a chemical reaction that releases energy into its surroundings, often resulting in a rise in temperature."},{"id":"synthetic","label":"Synthetic","grade":"8","episode":224,"text":"I can explain that synthetic describes a material that has been artificially created through chemical processes, rather than occurring naturally."},{"id":"polymer","label":"Polymer","grade":"8","episode":225,"text":"I can explain that a polymer is a large molecule made of many smaller, repeating units called monomers, chemically bonded together in a chain."},{"id":"speed","label":"Speed","grade":"8","episode":227,"text":"I can explain that speed is how fast an object is moving, calculated as the distance traveled divided by the time it took."},{"id":"friction","label":"Friction","grade":"8","episode":232,"text":"I can explain that friction is a force that resists the motion of two surfaces sliding against each other."},{"id":"gravity","label":"Gravity","grade":"8","episode":233,"text":"I can explain that gravity is a force of attraction between any two objects that have mass, pulling them toward each other."},{"id":"motion","label":"Motion","grade":"8","episode":226,"text":"I can explain that motion is the change in an object's position over time, relative to a reference point."},{"id":"netForce","label":"Net Force","grade":"8","episode":231,"text":"I can explain that net force is the overall force acting on an object, calculated by combining all the individual forces acting on it."},{"id":"lawOfUniversalGravitation","label":"Law of Universal Gravitation","grade":"8","episode":234,"text":"I can explain that the law of universal gravitation states that every object with mass attracts every other object with mass, with the strength of that attraction depending on their masses and the distance between them."},{"id":"referencePoint","label":"Reference Point","grade":"8","episode":235,"text":"I can explain that a reference point is a fixed location or object used to describe the position and motion of another object."},{"id":"inertia","label":"Inertia","grade":"8","episode":236,"text":"I can explain that inertia is an object's tendency to resist a change in its motion, remaining at rest or continuing to move at a constant velocity unless acted on by an unbalanced force."},{"id":"newton","label":"Newton","grade":"8","episode":237,"text":"I can explain that a newton is the standard unit used to measure force, named after scientist Isaac Newton."},{"id":"geologicTimeScale","label":"Geologic Time Scale","grade":"8","episode":276,"text":"I can explain that the geologic time scale is a system scientists use to divide Earth's 4.6-billion-year history into distinct sections based on major events and changes."},{"id":"relativeAge","label":"Relative Age","grade":"8","episode":279,"text":"I can explain that relative dating is a method scientists use to determine the order in which geological events occurred, without assigning exact ages."},{"id":"era","label":"Era","grade":"8","episode":277,"text":"I can explain that an era is a major division of the geologic time scale, typically covering tens or hundreds of millions of years."},{"id":"absoluteAge","label":"Absolute Age","grade":"8","episode":278,"text":"I can explain that absolute age is the specific age, in years, of a rock layer or fossil, often determined through radioactive dating."},{"id":"radioactiveDating","label":"Radioactive Dating","grade":"8","episode":280,"text":"I can explain that radioactive dating is a method scientists use to determine the absolute age of a rock or fossil by measuring the decay of radioactive elements within it."},{"id":"radioactiveDecay","label":"Radioactive Decay","grade":"8","episode":281,"text":"I can explain that radioactive decay is the natural process by which unstable atoms break down over time, releasing energy and transforming into different, more stable elements."},{"id":"lawOfSuperposition","label":"Law of Superposition","grade":"8","episode":282,"text":"I can explain that the law of superposition states that in undisturbed rock layers, the oldest layer is at the bottom, and each layer above it is progressively younger."},{"id":"unconformity","label":"Unconformity","grade":"8","episode":283,"text":"I can explain that an unconformity is a gap in the rock layer record, representing a period of time where no rock layers were deposited, or where existing layers were eroded away."},{"id":"current","label":"Current","grade":"8","episode":284,"text":"I can explain that an ocean current is a continuous, large-scale movement of ocean water in a consistent direction."},{"id":"coriolisEffect","label":"Coriolis Effect","grade":"8","episode":285,"text":"I can explain that the Coriolis effect is the apparent curving of moving air or water caused by Earth's rotation, deflecting motion to the right in the Northern Hemisphere and to the left in the Southern Hemisphere."},{"id":"landBreeze","label":"Land Breeze","grade":"8","episode":286,"text":"I can explain that a land breeze is a local wind that blows from land toward the sea, typically occurring at night when the land cools faster than the water."},{"id":"seaBreeze","label":"Sea Breeze","grade":"8","episode":287,"text":"I can explain that a sea breeze is a local wind that blows from the sea toward the land, typically occurring during the day when the land heats up faster than the water."},{"id":"climate","label":"Climate","grade":"8","episode":288,"text":"I can explain that climate is the long-term, average pattern of weather in a particular region, typically measured over many years."},{"id":"climateChange","label":"Climate Change","grade":"8","episode":289,"text":"I can explain that climate change refers to significant, long-term shifts in Earth's average temperature and weather patterns."},{"id":"greenhouseEffect","label":"Greenhouse Effect","grade":"8","episode":291,"text":"I can explain that the greenhouse effect is the process by which certain gases in Earth's atmosphere trap heat from the Sun, warming the planet's surface."},{"id":"globalWarming","label":"Global Warming","grade":"8","episode":290,"text":"I can explain that global warming is the long-term rise in Earth's average surface temperature, largely driven by increased greenhouse gas concentrations in the atmosphere."},{"id":"greenhouseGas","label":"Greenhouse Gas","grade":"8","episode":292,"text":"I can explain that a greenhouse gas is a gas in the atmosphere that traps heat, contributing to the greenhouse effect and Earth's overall temperature."},{"id":"elNino","label":"El Nino","grade":"8","episode":293,"text":"I can explain that el Nino is a recurring climate pattern involving unusually warm ocean surface temperatures in the central and eastern Pacific Ocean, affecting weather patterns worldwide."},{"id":"laNina","label":"La Nina","grade":"8","episode":294,"text":"I can explain that la Nina is a recurring climate pattern involving unusually cool ocean surface temperatures in the central and eastern Pacific Ocean, affecting weather patterns worldwide."},{"id":"rotation","label":"Rotation","grade":"8","episode":295,"text":"I can explain that rotation is the spinning motion of an object around its own internal axis."},{"id":"revolution","label":"Revolution","grade":"8","episode":296,"text":"I can explain that revolution is the motion of one object orbiting around another object in space."},{"id":"phase","label":"Phase","grade":"8","episode":301,"text":"I can explain that a lunar phase is the changing appearance of the Moon as seen from Earth, caused by the changing angle of sunlight reflecting off the Moon."},{"id":"eclipse","label":"Eclipse","grade":"8","episode":302,"text":"I can explain that an eclipse occurs when one celestial body passes into the shadow of another, temporarily blocking light."},{"id":"axis","label":"Axis","grade":"8","episode":297,"text":"I can explain that an axis is an imaginary line through the center of an object around which that object rotates."},{"id":"tide","label":"Tide","grade":"8","episode":298,"text":"I can explain that a tide is the regular rise and fall of Earth's ocean waters, caused primarily by the gravitational pull of the Moon (and, to a lesser extent, the Sun)."},{"id":"springTide","label":"Spring Tide","grade":"8","episode":299,"text":"I can explain that a spring tide is an especially strong tide, with higher high tides and lower low tides, occurring when the Sun, Earth, and Moon are aligned during a new moon or full moon."},{"id":"neapTide","label":"Neap Tide","grade":"8","episode":300,"text":"I can explain that a neap tide is an especially weak tide, with lower high tides and higher low tides, occurring when the Sun and Moon's gravitational pulls partly cancel each other out during the first and third quarter moon phases."},{"id":"umbra","label":"Umbra","grade":"8","episode":303,"text":"I can explain that the umbra is the darkest, central part of a shadow, where light is completely blocked."},{"id":"penumbra","label":"Penumbra","grade":"8","episode":304,"text":"I can explain that the penumbra is the lighter, outer part of a shadow, where light is only partially blocked."},{"id":"solarSystem","label":"Solar System","grade":"8","episode":305,"text":"I can explain that the solar system is the Sun and all the objects, including planets and their moons, that orbit around it due to its gravitational pull."},{"id":"sun","label":"Sun","grade":"8","episode":310,"text":"I can explain that the Sun is the star at the center of our solar system, providing the light, heat, and gravitational pull that all the planets and other objects depend on."},{"id":"moon","label":"Moon","grade":"8","episode":311,"text":"I can explain that a moon is a natural satellite that orbits a planet, held in place by that planet's gravitational pull."},{"id":"asteroid","label":"Asteroid","grade":"8","episode":312,"text":"I can explain that an asteroid is a small, rocky object that orbits the Sun, too small and irregularly shaped to be classified as a planet."},{"id":"comet","label":"Comet","grade":"8","episode":313,"text":"I can explain that a comet is a small object made of ice, dust, and rock that orbits the Sun, developing a glowing tail as it approaches the Sun and its ice begins to vaporize."},{"id":"meteor","label":"Meteor","grade":"8","episode":314,"text":"I can explain that a meteor is the streak of light produced when a meteoroid burns up as it enters a planet's atmosphere at high speed."},{"id":"meteoroid","label":"Meteoroid","grade":"8","episode":315,"text":"I can explain that a meteoroid is a small, solid piece of rock or metal debris traveling through space, before it enters a planet's atmosphere."},{"id":"ellipse","label":"Ellipse","grade":"8","episode":316,"text":"I can explain that an ellipse is an oval-shaped curve, the general shape of the orbital paths that planets and other objects follow around the Sun."},{"id":"planet","label":"Planet","grade":"8","episode":306,"text":"I can explain that a planet is a large celestial body that orbits a star, has enough mass to be roughly spherical, and has cleared other objects from its orbital path."},{"id":"star","label":"Star","grade":"8","episode":307,"text":"I can explain that a star is a massive ball of gas that produces its own light and heat through nuclear fusion."},{"id":"galaxy","label":"Galaxy","grade":"8","episode":308,"text":"I can explain that a galaxy is an enormous collection of billions of stars, along with gas, dust, and other objects, all held together by gravity."},{"id":"orbit","label":"Orbit","grade":"8","episode":309,"text":"I can explain that an orbit is the curved path an object follows as it travels around another object due to gravity."},{"id":"gene","label":"Gene","grade":"8","episode":238,"text":"I can explain that a gene is a segment of DNA that contains the instructions for a specific trait."},{"id":"mitosisG8","label":"Mitosis","grade":"8","episode":252,"text":"I can explain that mitosis is a type of cell division that produces two new cells, each with a complete, identical set of chromosomes, used for growth and repair."},{"id":"meiosis","label":"Meiosis","grade":"8","episode":253,"text":"I can explain that meiosis is a type of cell division that produces four genetically varied reproductive cells, each with half the usual number of chromosomes, used specifically for sexual reproduction."},{"id":"dominantAllele","label":"Dominant Allele","grade":"8","episode":243,"text":"I can explain that a dominant allele is a version of a gene that will be expressed in an organism's traits even if only one copy is present."},{"id":"recessiveAllele","label":"Recessive Allele","grade":"8","episode":244,"text":"I can explain that a recessive allele is a version of a gene that is only expressed in an organism's traits if two copies of that same recessive version are present."},{"id":"genotype","label":"Genotype","grade":"8","episode":245,"text":"I can explain that a genotype is the specific genetic makeup of an organism for a particular trait, describing the exact combination of alleles it carries."},{"id":"phenotype","label":"Phenotype","grade":"8","episode":246,"text":"I can explain that a phenotype is the observable trait an organism actually displays, resulting from its underlying genotype."},{"id":"pedigree","label":"Pedigree","grade":"8","episode":247,"text":"I can explain that a pedigree is a chart that tracks the inheritance of a specific trait across multiple generations of a family."},{"id":"sexChromosomes","label":"Sex Chromosomes","grade":"8","episode":248,"text":"I can explain that sex chromosomes are the specific pair of chromosomes that determine an organism's biological sex."},{"id":"sexLinkedGene","label":"Sex-Linked Gene","grade":"8","episode":249,"text":"I can explain that a sex-linked gene is a gene located on a sex chromosome, meaning its inheritance pattern is connected to an organism's biological sex."},{"id":"autosomalChromosomes","label":"Autosomal Chromosomes","grade":"8","episode":250,"text":"I can explain that autosomal chromosomes are all the chromosomes in an organism's cells that are not sex chromosomes."},{"id":"chromatid","label":"Chromatid","grade":"8","episode":254,"text":"I can explain that a chromatid is one of the two identical halves of a duplicated chromosome, joined together at a central point before cell division."},{"id":"messengerRna","label":"Messenger RNA","grade":"8","episode":255,"text":"I can explain that messenger RNA (mRNA) is a molecule that copies genetic instructions from DNA in the nucleus and carries them to the ribosome, where proteins are built."},{"id":"transferRna","label":"Transfer RNA","grade":"8","episode":256,"text":"I can explain that transfer RNA (tRNA) is a molecule that transports individual amino acids to the ribosome, matching them to the correct genetic code carried by messenger RNA, to help build a protein."},{"id":"proteinSynthesis","label":"Protein Synthesis","grade":"8","episode":257,"text":"I can explain that protein synthesis is the overall process by which a cell builds a protein, using genetic instructions from DNA, carried by messenger RNA and translated by transfer RNA at the ribosome."},{"id":"geneticEngineering","label":"Genetic Engineering","grade":"8","episode":258,"text":"I can explain that genetic engineering is the direct, deliberate manipulation of an organism's genes to produce a specific desired trait."},{"id":"geneTherapy","label":"Gene Therapy","grade":"8","episode":259,"text":"I can explain that gene therapy is a medical treatment that uses genetic engineering to correct or replace faulty genes in order to treat or prevent a genetic disease."},{"id":"genome","label":"Genome","grade":"8","episode":260,"text":"I can explain that a genome is the complete set of genetic material, including all of an organism's genes, found within its cells."},{"id":"clone","label":"Clone","grade":"8","episode":261,"text":"I can explain that a clone is an organism (or cell) that is genetically identical to another organism, created through a specific biological or laboratory process."},{"id":"probability","label":"Probability","grade":"8","episode":262,"text":"I can explain that probability is the likelihood that a specific event or outcome will occur, often expressed as a fraction, percentage, or ratio."},{"id":"chromosome","label":"Chromosome","grade":"8","episode":239,"text":"I can explain that a chromosome is a tightly coiled structure made of DNA that contains many genes."},{"id":"dna","label":"DNA","grade":"8","episode":240,"text":"I can explain that dNA (deoxyribonucleic acid) is the molecule that carries the genetic instructions used for the growth, development, and functioning of all living things."},{"id":"heredity","label":"Heredity","grade":"8","episode":241,"text":"I can explain that heredity is the passing of genetic traits from parents to their offspring."},{"id":"trait","label":"Trait","grade":"8","episode":242,"text":"I can explain that a trait is a specific characteristic of an organism, such as eye color or height, that can be inherited from a parent."},{"id":"mutation","label":"Mutation","grade":"8","episode":251,"text":"I can explain that a mutation is a change in an organism's DNA sequence that can affect its traits."},{"id":"evolution","label":"Evolution","grade":"8","episode":263,"text":"I can explain that evolution is the process by which populations of living things change over many generations, often through natural selection."},{"id":"naturalSelection","label":"Natural Selection","grade":"8","episode":264,"text":"I can explain that natural selection is the process by which organisms with traits better suited to their environment are more likely to survive and reproduce."},{"id":"adaptation","label":"Adaptation","grade":"8","episode":265,"text":"I can explain that an adaptation is a trait that has developed over many generations because it helps an organism survive and reproduce in its specific environment."},{"id":"fossilRecord","label":"Fossil Record","grade":"8","episode":266,"text":"I can explain that the fossil record is the collection of all fossils ever found, organized chronologically, that documents the history of life on Earth."},{"id":"fossil","label":"Fossil","grade":"8","episode":267,"text":"I can explain that a fossil is the preserved remains or traces of an organism that lived in the distant past."},{"id":"artificialSelection","label":"Artificial Selection","grade":"8","episode":268,"text":"I can explain that artificial selection is the deliberate process by which humans breed organisms with specific desired traits, choosing which individuals reproduce."},{"id":"fitness","label":"Fitness","grade":"8","episode":269,"text":"I can explain that fitness, in a biological sense, refers to an organism's ability to survive and successfully reproduce in its specific environment."},{"id":"variation","label":"Variation","grade":"8","episode":270,"text":"I can explain that variation refers to the natural differences in traits that exist among individuals within a population."},{"id":"homologousStructures","label":"Homologous Structures","grade":"8","episode":271,"text":"I can explain that homologous structures are body parts in different species that share a similar underlying structure due to a shared evolutionary ancestor, even if those parts serve different functions."},{"id":"extinct","label":"Extinct","grade":"8","episode":272,"text":"I can explain that a species is considered extinct when every single individual of that species has died, with no members remaining anywhere on Earth."},{"id":"massExtinction","label":"Mass Extinction","grade":"8","episode":273,"text":"I can explain that a mass extinction is a relatively rapid, widespread event in which a large percentage of Earth's species go extinct at roughly the same time."},{"id":"coevolution","label":"Coevolution","grade":"8","episode":274,"text":"I can explain that coevolution is the process by which two or more species evolve together over time, each influencing the other's evolutionary path."},{"id":"sexualSelection","label":"Sexual Selection","grade":"8","episode":275,"text":"I can explain that sexual selection is a type of natural selection in which certain traits become more common because they increase an organism's chances of attracting a mate and successfully reproducing."},{"id":"atom","label":"Atom","grade":"8","episode":195,"text":"I can explain that an atom is the smallest basic unit of matter that still has the properties of an element."},{"id":"element","label":"Element","grade":"8","episode":213,"text":"I can explain that an element is a pure substance made of only one type of atom that can't be broken down into simpler substances by normal chemical means."},{"id":"chemicalBond","label":"Chemical Bond","grade":"8","episode":212,"text":"I can explain that a chemical bond is a force that holds two or more atoms together to form a molecule or compound."},{"id":"chemicalSymbol","label":"Chemical Symbol","grade":"8","episode":204,"text":"I can explain that a chemical symbol is a one- or two-letter abbreviation used to represent a specific element on the periodic table."},{"id":"group","label":"Group","grade":"8","episode":202,"text":"I can explain that a group is a vertical column on the periodic table, containing elements that share similar chemical properties."},{"id":"period","label":"Period","grade":"8","episode":203,"text":"I can explain that a period is a horizontal row on the periodic table, where elements' properties generally change progressively as you move from left to right."},{"id":"isotope","label":"Isotope","grade":"8","episode":205,"text":"I can explain that an isotope is a version of an element that has the same number of protons but a different number of neutrons than other atoms of that same element."},{"id":"ion","label":"Ion","grade":"8","episode":206,"text":"I can explain that an ion is an atom or molecule that has gained or lost electrons, giving it an overall positive or negative electric charge."},{"id":"valenceElectron","label":"Valence Electron","grade":"8","episode":207,"text":"I can explain that a valence electron is an electron located in the outermost energy level of an atom, playing a key role in how that atom forms chemical bonds."},{"id":"ionicBond","label":"Ionic Bond","grade":"8","episode":208,"text":"I can explain that an ionic bond is a chemical bond formed when one atom transfers an electron to another atom, creating oppositely charged ions that attract each other."},{"id":"covalentBond","label":"Covalent Bond","grade":"8","episode":209,"text":"I can explain that a covalent bond is a chemical bond formed when two atoms share one or more pairs of electrons."},{"id":"polarBond","label":"Polar Bond","grade":"8","episode":210,"text":"I can explain that a polar bond is a covalent bond in which electrons are shared unequally between two atoms, giving one end of the bond a slightly negative charge and the other end a slightly positive charge."},{"id":"nonpolarBond","label":"Nonpolar Bond","grade":"8","episode":211,"text":"I can explain that a nonpolar bond is a covalent bond in which electrons are shared equally (or nearly equally) between two atoms, resulting in no significant difference in charge."},{"id":"compoundG8","label":"Compound","grade":"8","episode":214,"text":"I can explain that a compound is a substance made of two or more different elements chemically bonded together in a fixed ratio."},{"id":"moleculeG8","label":"Molecule","grade":"8","episode":215,"text":"I can explain that a molecule is a group of two or more atoms held together by chemical bonds, which can be the same element or different elements."},{"id":"polyatomicIon","label":"Polyatomic Ion","grade":"8","episode":216,"text":"I can explain that a polyatomic ion is a group of two or more atoms bonded together that, as a whole unit, carries an overall electric charge."},{"id":"compound","label":"Compound","grade":"6","episode":5,"text":"I can explain that a compound is a substance made of two or more different elements chemically bonded together in a fixed, specific ratio."},{"id":"cellTheory","label":"Cell Theory","grade":"7","episode":88,"text":"I can explain that cell theory is the widely accepted scientific explanation that all living things are made of one or more cells, and that the cell is the basic unit of structure and function in life."},{"id":"cellWall","label":"Cell Wall","grade":"7","episode":90,"text":"I can explain that a cell wall is a rigid, supporting outer layer that surrounds the cells of plants and some other organisms, but not animal cells."},{"id":"cytoplasm","label":"Cytoplasm","grade":"7","episode":91,"text":"I can explain that cytoplasm is the thick, gel-like fluid inside a cell that fills the space around its organelles."},{"id":"atomicNumber","label":"Atomic Number","grade":"8","episode":196,"text":"I can explain that the atomic number of an element is the number of protons found in the nucleus of its atoms."},{"id":"atomicMass","label":"Atomic Mass","grade":"8","episode":197,"text":"I can explain that atomic mass is the average mass of all the naturally occurring isotopes of an element, based on the combined number of protons and neutrons in the nucleus."}];
+
+/* ---------- preset monthly prayers ---------- */
+const PRESET_PRAYERS = {"7":{"phrase":"Rooted in Belonging","text":"Lord, as a new school year begins, root us in belonging — help every student and teacher feel welcomed, known, and loved in this St. Mary family.\n\nLike curious scientists, let us test one idea today: that everyone here has a place.\n\nBless us as we grow in faith and knowledge together, seeking your wisdom in all we do.\n\nAmen."},"8":{"phrase":"Rooted in Responsibility","text":"Lord, root us in responsibility this month — help us do what is right, even when no one is watching.\n\nLike scientists who test their ideas, may we own our mistakes, learn from them, and try again.\n\nGuide us as we grow in faith and academics, seeking your wisdom in every choice we make.\n\nAmen."},"9":{"phrase":"Rooted in Service","text":"Lord, root us in service — help us act with kindness and use our gifts for our school, parish, and community.\n\nLike scientists who test ideas to help others, let our hands and hearts be tools for your good work.\n\nKeep us curious and humble as we grow closer to you and to each other.\n\nAmen."},"10":{"phrase":"Rooted in Gratitude","text":"Lord, root us in gratitude — open our eyes to every gift you have given us, seen and unseen.\n\nLike scientists who marvel at creation, let us stay curious about the wonders around us and give you thanks.\n\nThank you for this school family; help us grow in faith and love this month.\n\nAmen."},"11":{"phrase":"Rooted in Hope","text":"Lord, root us in hope as we await the coming of your Son.\n\nLike scientists who trust that answers can be found, help us trust in your promises, even in the dark or the unknown.\n\nFill our school with your light and peace as we grow in faith together.\n\nAmen."},"0":{"phrase":"Growing in Wisdom","text":"Lord, help us grow in wisdom this month — the wisdom that begins with knowing and loving you.\n\nAs scientists and disciples, may we stay curious, test our ideas, and seek your wisdom above all else.\n\nGuide our minds and hearts as we pursue excellence in faith and learning.\n\nAmen."},"1":{"phrase":"Growing in Love","text":"Lord, help us grow in love — to love others, include the left out, and build true community, just as you call us to.\n\nLike scientists who test their ideas with care, let us test our actions against your greatest command: to love one another.\n\nRoot our friendships and our faith in you this month.\n\nAmen."},"2":{"phrase":"Growing in Discipline","text":"Lord, help us grow in discipline — the steady, daily effort it takes to become who you made us to be.\n\nLike scientists who don't give up after one try, teach us patience and perseverance in our faith and our work.\n\nStrengthen our habits of prayer, kindness, and hard work this month.\n\nAmen."},"3":{"phrase":"Growing in Leadership","text":"Lord, help us grow in leadership — to serve first and lead by example, the way Jesus did.\n\nLike scientists who test their ideas before sharing them with others, may we lead with humility, honesty, and courage.\n\nUse us to encourage faith in those around us this month.\n\nAmen."},"4":{"phrase":"Growing in Excellence","text":"Lord, as this school year ends, help us grow in excellence — doing all things with integrity, responsibility, and purpose.\n\nLike scientists reflecting on all they've discovered, let us look back with gratitude, still curious, still seeking your wisdom.\n\nThank you for rooting us in faith and growing us in excellence this year. Send us forth to leave the world better than we found it.\n\nAmen."}};
+
+/* ---------- LEARNING TARGETS ---------- */
+let targets = [];
+let editingId = null;
+const targetSelect = document.getElementById('target-select');
+const targetList = document.getElementById('target-list');
+const targetsCount = document.getElementById('targets-count');
+const targetSearch = document.getElementById('target-search');
+const addTargetBtn = document.getElementById('add-target-btn');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+const targetLabelInput = document.getElementById('target-label-input');
+const targetTextInput = document.getElementById('target-text-input');
+const targetGradeInput = document.getElementById('target-grade-input');
+
+async function loadTargets(){
+  const raw = await storageGet('learning-targets');
+  targets = raw ? JSON.parse(raw) : [];
+  renderTargets();
+}
+async function saveTargets(){
+  await storageSet('learning-targets', JSON.stringify(targets));
+  renderTargets();
+}
+function padEp(n){ return String(n).padStart(3,'0'); }
+function targetLine(t){
+  if(t.grade==='special') return 'SPECIAL &middot; '+t.label.replace(/</g,'&lt;');
+  return 'EP. '+padEp(t.episode)+' &middot; GRADE '+t.grade+' &middot; '+t.label.replace(/</g,'&lt;');
+}
+
+function renderTargets(){
+  targetsCount.textContent = targets.length + (targets.length===1 ? ' saved' : ' saved');
+
+  const specialTargets = targets.filter(t=>t.grade==='special')
+    .sort((a,b)=>a.label.localeCompare(b.label));
+  const classTargets = targets.filter(t=>t.grade===currentClass)
+    .sort((a,b)=>a.episode-b.episode);
+
+  let selectHtml = '<option value="">Select a target...</option>';
+  if(specialTargets.length){
+    selectHtml += '<optgroup label="Special Target">' +
+      specialTargets.map(t=>'<option value="'+t.id+'">'+targetLine(t)+'</option>').join('') +
+      '</optgroup>';
+  }
+  selectHtml += '<optgroup label="Grade '+currentClass+'">' +
+    classTargets.map(t=>'<option value="'+t.id+'">'+targetLine(t)+'</option>').join('') +
+    '</optgroup>';
+  targetSelect.innerHTML = selectHtml;
+
+  const query = (targetSearch.value||'').trim().toLowerCase();
+  const filterFn = t => !query || t.label.toLowerCase().includes(query);
+  const filteredSpecial = specialTargets.filter(filterFn);
+  const filteredClass = classTargets.filter(filterFn);
+
+  function rowHtml(t){
+    return '<div class="target-row'+(t.id===editingId?' editing':'')+'"><span class="tname" data-id="'+t.id+'">'+targetLine(t)+'</span>'+
+      '<button class="tdel" data-id="'+t.id+'" title="Delete">&#10005;</button></div>';
+  }
+
+  let listHtml = '';
+  if(filteredSpecial.length){
+    listHtml += '<div class="target-group-label">Special Target</div>' + filteredSpecial.map(rowHtml).join('');
+  }
+  if(filteredClass.length){
+    listHtml += '<div class="target-group-label">Grade '+currentClass+'</div>' + filteredClass.map(rowHtml).join('');
+  }
+  targetList.innerHTML = listHtml || '<div style="font-size:12px;color:var(--chalk-dim);">No targets for grade '+currentClass+' yet.</div>';
+
+  targetList.querySelectorAll('.tdel').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      targets = targets.filter(t=>t.id !== btn.dataset.id);
+      if(editingId === btn.dataset.id) exitEditMode();
+      await saveTargets();
+    });
+  });
+  targetList.querySelectorAll('.tname').forEach(span=>{
+    span.addEventListener('click', ()=>{
+      const t = targets.find(x=>x.id===span.dataset.id);
+      if(!t) return;
+      enterEditMode(t);
+    });
+  });
+}
+targetSearch.addEventListener('input', renderTargets);
+
+function enterEditMode(t){
+  editingId = t.id;
+  targetLabelInput.value = t.label;
+  targetGradeInput.value = t.grade;
+  targetTextInput.value = t.text;
+  addTargetBtn.textContent = 'Save changes';
+  cancelEditBtn.style.display = '';
+  renderTargets();
+  targetLabelInput.focus();
+}
+function exitEditMode(){
+  editingId = null;
+  targetLabelInput.value=''; targetTextInput.value='';
+  targetGradeInput.value = currentClass;
+  addTargetBtn.textContent = 'Add target';
+  cancelEditBtn.style.display = 'none';
+}
+cancelEditBtn.addEventListener('click', ()=>{ exitEditMode(); renderTargets(); });
+
+addTargetBtn.addEventListener('click', async ()=>{
+  const label = targetLabelInput.value.trim();
+  const text = targetTextInput.value.trim();
+  const grade = targetGradeInput.value;
+  if(!label || !text) return;
+  if(editingId){
+    const t = targets.find(x=>x.id===editingId);
+    if(t){ t.label=label; t.text=text; t.grade=grade; }
+  } else {
+    const nextEp = targets.reduce((max,t)=>Math.max(max, t.episode||0), 0) + 1;
+    targets.push({id: Date.now().toString(36), label: label, text: text, grade: grade, episode: nextEp});
+  }
+  exitEditMode();
+  await saveTargets();
+});
+
+document.getElementById('import-all-btn').addEventListener('click', async ()=>{
+  const existingIds = new Set(targets.map(t=>t.id));
+  let added = 0;
+  PRESET_TARGETS.forEach(pt=>{
+    if(!existingIds.has(pt.id)){
+      targets.push(pt);
+      existingIds.add(pt.id);
+      added++;
+    }
+  });
+  document.getElementById('import-note').textContent = added>0
+    ? 'Added '+added+' terms.'
+    : 'All 316 terms are already loaded.';
+  await saveTargets();
+});
+
+const fsTargetBody = document.querySelector('.fs-target-body');
+const fsTargetContent = document.querySelector('.fs-target-content');
+const fsTargetTextEl = document.getElementById('fs-target-text');
+const FS_TEXT_MAX = 84;
+const FS_TEXT_MIN = 22;
+function fitLearningTarget(){
+  let size = FS_TEXT_MAX;
+  fsTargetTextEl.style.fontSize = size + 'px';
+  while(fsTargetContent.scrollHeight > fsTargetBody.clientHeight && size > FS_TEXT_MIN){
+    size -= 2;
+    fsTargetTextEl.style.fontSize = size + 'px';
+  }
+}
+window.addEventListener('resize', ()=>{
+  if(modeTarget.style.display !== 'none') fitLearningTarget();
+});
+
+targetSelect.addEventListener('change', ()=>{
+  const id = targetSelect.value;
+  if(!id) return;
+  const t = targets.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('fs-eyebrow').innerHTML = targetLine(t);
+  fsTargetTextEl.textContent = t.text;
+  showOverlay(modeTarget);
+  fitLearningTarget();
+  targetSelect.value='';
+});
+
+/* ---------- ROSTER / PICKER ---------- */
+let currentClass = '6';
+let usedNames = [];
+
+const classTabsWrap = document.getElementById('class-tabs');
+const rosterArea = document.getElementById('roster');
+const rosterCount = document.getElementById('roster-count');
+const rosterSaveHint = document.getElementById('roster-save-hint');
+const poolStatus = document.getElementById('pool-status');
+const indexCard = document.getElementById('index-card');
+const pickedNameEl = document.getElementById('picked-name');
+
+function parseRoster(text){
+  return text.split('\n').map(s=>s.trim()).filter(Boolean);
+}
+
+async function loadRoster(cls){
+  rosterSaveHint.textContent = 'loading...';
+  const raw = await storageGet('roster-'+cls);
+  rosterArea.value = raw ? (JSON.parse(raw).text || '') : '';
+  rosterSaveHint.textContent = 'saves automatically';
+  updateRosterCount();
+  resetPool();
+}
+let rosterSaveTimer=null;
+function scheduleRosterSave(){
+  clearTimeout(rosterSaveTimer);
+  rosterSaveHint.textContent='saving...';
+  rosterSaveTimer = setTimeout(async ()=>{
+    const ok = await storageSet('roster-'+currentClass, JSON.stringify({text: rosterArea.value}));
+    rosterSaveHint.textContent = ok ? 'saved' : 'save failed — try again';
+    updateRosterCount();
+  }, 500);
+}
+rosterArea.addEventListener('input', scheduleRosterSave);
+
+function updateRosterCount(){
+  const n = parseRoster(rosterArea.value).length;
+  rosterCount.textContent = n + (n===1 ? ' name' : ' names');
+}
+function resetPool(){
+  usedNames = [];
+  indexCard.classList.remove('flip');
+  updatePoolStatus();
+}
+function updatePoolStatus(){
+  const total = parseRoster(rosterArea.value).length;
+  if(total===0){ poolStatus.textContent=''; return; }
+  poolStatus.textContent = (total - usedNames.length) + ' of ' + total + ' left in the pool';
+}
+
+classTabsWrap.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    classTabsWrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentClass = btn.dataset.class;
+    loadRoster(currentClass);
+    document.getElementById('group-cards').innerHTML='';
+    exitEditMode();
+    targetSearch.value='';
+    renderTargets();
+  });
+});
+
+document.getElementById('launch-name').addEventListener('click', ()=>{
+  document.getElementById('name-mode-class').textContent = 'Class '+currentClass;
+  showOverlay(modeName);
+});
+document.getElementById('launch-groups').addEventListener('click', ()=>{
+  document.getElementById('groups-mode-class').textContent = 'Class '+currentClass;
+  document.getElementById('group-cards').innerHTML='';
+  showOverlay(modeGroups);
+});
+
+document.getElementById('reset-pool-btn').addEventListener('click', resetPool);
+document.getElementById('pick-btn').addEventListener('click', ()=>{
+  const names = parseRoster(rosterArea.value);
+  if(names.length===0){
+    pickedNameEl.textContent='Add names first';
+    indexCard.classList.remove('flip'); void indexCard.offsetWidth; indexCard.classList.add('flip');
+    return;
+  }
+  let remaining = names.filter(n=>!usedNames.includes(n));
+  if(remaining.length===0){ usedNames=[]; remaining = names.slice(); }
+  const choice = remaining[Math.floor(Math.random()*remaining.length)];
+  usedNames.push(choice);
+  pickedNameEl.textContent = choice;
+  indexCard.classList.remove('flip'); void indexCard.offsetWidth; indexCard.classList.add('flip');
+  updatePoolStatus();
+});
+
+/* ---------- GROUPS ---------- */
+const groupMode = document.getElementById('group-mode');
+const groupNumLabel = document.getElementById('group-num-label');
+groupMode.addEventListener('change', ()=>{
+  groupNumLabel.textContent = groupMode.value==='count' ? 'Groups' : 'Per group';
+});
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+document.getElementById('make-groups-btn').addEventListener('click', ()=>{
+  const names = shuffle(parseRoster(rosterArea.value));
+  const container = document.getElementById('group-cards');
+  container.innerHTML='';
+  if(names.length===0){
+    container.innerHTML = '<div class="empty-note">Add a roster for this class first.</div>';
+    return;
+  }
+  const num = Math.max(1, parseInt(document.getElementById('group-num').value)||1);
+  let groups = [];
+  if(groupMode.value==='count'){
+    const groupCount = Math.min(num, names.length);
+    groups = Array.from({length:groupCount}, ()=>[]);
+    names.forEach((name,i)=> groups[i % groupCount].push(name));
+  } else {
+    const size = Math.max(1, num);
+    for(let i=0;i<names.length;i+=size){ groups.push(names.slice(i,i+size)); }
+  }
+  groups.forEach((g,i)=>{
+    const card = document.createElement('div');
+    card.className='group-card';
+    card.innerHTML = '<h4>Group '+(i+1)+'</h4><ul>'+g.map(n=>'<li>'+n.replace(/</g,'&lt;')+'</li>').join('')+'</ul>';
+    container.appendChild(card);
+  });
+});
+
+/* ---------- BREATHING & PRAYER ---------- */
+const breathingEnabledInput = document.getElementById('breathing-enabled-input');
+const toneEnabledInput = document.getElementById('tone-enabled-input');
+const breathCountInput = document.getElementById('breath-count-input');
+const breathCountMinus = document.getElementById('breath-count-minus');
+const breathCountPlus = document.getElementById('breath-count-plus');
+const breathCounterLabel = document.getElementById('breath-counter-label');
+const breathPhaseText = document.getElementById('breath-phase-text');
+const breathCountdown = document.getElementById('breath-countdown');
+const breathCrossWrap = document.getElementById('breath-cross-wrap');
+const breathStartBtn = document.getElementById('breath-start-btn');
+const breathSkipBtn = document.getElementById('breath-skip-btn');
+const breathSkipAllBtn = document.getElementById('breath-skip-all-btn');
+const breathLiveMinus = document.getElementById('breath-live-minus');
+const breathLivePlus = document.getElementById('breath-live-plus');
+
+/* ---- calming tone (Web Audio, synced to breath phases) ---- */
+let toneEnabled = true;
+let audioCtx = null;
+let toneGain = null;
+let toneOsc1 = null;
+let toneOsc2 = null;
+let toneOsc3 = null;
+const TONE_MAX = 0.075;
+const TONE_MIN = 0.0;
+
+function ensureAudioContext(){
+  if(audioCtx) { if(audioCtx.state==='suspended') audioCtx.resume(); return; }
+  try{
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    toneGain = audioCtx.createGain();
+    toneGain.gain.value = 0;
+    toneGain.connect(audioCtx.destination);
+
+    // Deep organ-style tone: fundamental + octave + fifth, all exact integer
+    // ratios of a shared base — harmonically locked, so there's no beating/warble.
+    const mkVoice = (freq, level)=>{
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const g = audioCtx.createGain();
+      g.gain.value = level;
+      osc.connect(g);
+      g.connect(toneGain);
+      osc.start();
+      return osc;
+    };
+    toneOsc1 = mkVoice(110, 1.0);   // fundamental (deep, A2)
+    toneOsc2 = mkVoice(220, 0.4);   // octave above
+    toneOsc3 = mkVoice(165, 0.22);  // fifth above the octave (organ "quint" stop)
+  }catch(e){ audioCtx = null; }
+}
+function scheduleAudioForPhase(phase, remainingMs){
+  if(!toneEnabled || !audioCtx || !toneGain) return;
+  const now = audioCtx.currentTime;
+  const dur = Math.max(0.05, remainingMs/1000);
+  toneGain.gain.cancelScheduledValues(now);
+  toneGain.gain.setValueAtTime(toneGain.gain.value, now);
+  if(phase==='in'){
+    toneGain.gain.linearRampToValueAtTime(TONE_MAX, now+dur);
+  } else if(phase==='hold1'){
+    toneGain.gain.linearRampToValueAtTime(TONE_MAX, now+Math.min(0.05,dur));
+  } else if(phase==='out'){
+    toneGain.gain.linearRampToValueAtTime(TONE_MIN, now+dur);
+  } else {
+    toneGain.gain.linearRampToValueAtTime(TONE_MIN, now+Math.min(0.05,dur));
+  }
+}
+function fadeOutAudioQuick(){
+  if(!audioCtx || !toneGain) return;
+  const now = audioCtx.currentTime;
+  toneGain.gain.cancelScheduledValues(now);
+  toneGain.gain.setValueAtTime(toneGain.gain.value, now);
+  toneGain.gain.linearRampToValueAtTime(0, now+0.3);
+}
+function playSingleDing(startTime, freq){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq || 880;
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(0.16, startTime+0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0008, startTime+0.42);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(startTime);
+  osc.stop(startTime+0.45);
+}
+function playDing(count){
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const gap = 0.75; // roughly the time to silently think "Breathe in" / "Breathe out slow" between each ding
+  playSingleDing(now, 880);
+  if(count>=2) playSingleDing(now+gap, 880);
+  if(count>=3) playSingleDing(now+gap*2, 880);
+}
+function playCountdownDing(){
+  if(!toneEnabled || !audioCtx) return;
+  playSingleDing(audioCtx.currentTime, 660); // related but distinct from the breathing dings
+}
+function playCountdownDoubleDing(){
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  playSingleDing(now, 660);
+  playSingleDing(now+0.18, 660);
+}
+function playPrayerChime(){
+  ensureAudioContext();
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  // Soft staggered bell/wind-chime tones (C5-E5-G5-C6) with long, gentle decay —
+  // distinct from both the drone and the short breathing dings, so it reads
+  // clearly as "we've moved into prayer" even with eyes closed.
+  const freqs = [523.25, 659.25, 783.99, 1046.5];
+  freqs.forEach((f,i)=>{
+    const start = now + i*0.16;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(0.06, start+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0006, start+2.4);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start+2.5);
+  });
+}
+toneEnabledInput.addEventListener('change', ()=>{
+  toneEnabled = toneEnabledInput.checked;
+  storageSet('tone-enabled', String(toneEnabled));
+  if(!toneEnabled){
+    fadeOutAudioQuick();
+  } else if(breathRunning){
+    scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed);
+  }
+});
+
+const breathLiveTotal = document.getElementById('breath-live-total');
+const prayerTextEl = document.getElementById('prayer-text');
+const prayerMonthHeading = document.getElementById('prayer-month-heading');
+const monthGrid = document.getElementById('month-grid');
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_DISPLAY_ORDER = [7,8,9,10,11,0,1,2,3,4]; // August through May, school-year order
+let monthlyPrayers = {};
+let selectedMonth = new Date().getMonth();
+
+const PHASE_MS = 4000;
+const DING_GAP_MS = 750; // must match the gap used in playDing()
+// 'in' opens with a 2-ding cue (1 gap), 'out' opens with a 3-ding cue (2 gaps).
+// Extend those phases by that lead time so there's a full 4s of breathing
+// after the last ding finishes, not 4s total including the dings.
+const PHASE_LEAD_MS = {in: DING_GAP_MS, hold1: 0, out: DING_GAP_MS*2, hold2: 0};
+function phaseDurationMs(phase){ return PHASE_MS + (PHASE_LEAD_MS[phase]||0); }
+const PHASES = ['in','hold1','out','hold2'];
+const PHASE_LABELS = {in:'Breathe in', hold1:'Hold', out:'Breathe out slow', hold2:'Hold'};
+let currentPhaseLabel = 'Ready';
+let phaseWordTimeouts = [];
+function clearPhaseWordTimeouts(){ phaseWordTimeouts.forEach(id=>clearTimeout(id)); phaseWordTimeouts=[]; }
+function setPhaseLabelInstant(label){
+  clearPhaseWordTimeouts();
+  currentPhaseLabel = label;
+  breathPhaseText.textContent = label;
+}
+function revealPhaseWords(words){
+  clearPhaseWordTimeouts();
+  const gapMs = 750; // matches the ding spacing so words land right on each chime
+  words.forEach((w,i)=>{
+    const id = setTimeout(()=>{
+      currentPhaseLabel = words.slice(0,i+1).join(' ');
+      breathPhaseText.textContent = currentPhaseLabel;
+    }, i*gapMs);
+    phaseWordTimeouts.push(id);
+  });
+  currentPhaseLabel = words[0];
+}
+function beginPhaseDisplay(phase){
+  if(phase==='in') revealPhaseWords(['Breathe','in']);
+  else if(phase==='out') revealPhaseWords(['Breathe','out','slow']);
+  else setPhaseLabelInstant('Hold');
+}
+let breathTotal = 3;
+let breathIndex = 1;
+let breathPhase = 'in';
+let phaseElapsed = 0;
+let breathRunning = false;
+let breathRafId = null;
+let breathLastTs = null;
+let breathStarted = false;
+const breathBodyEl = document.getElementById('breath-body');
+
+function clampBreathTotal(n){ return Math.max(1, Math.min(99, n)); }
+
+async function loadBreathingSettings(){
+  const enabledRaw = await storageGet('breathing-enabled');
+  const enabled = enabledRaw === null ? true : enabledRaw === 'true';
+  breathingEnabledInput.checked = enabled;
+  const toneRaw = await storageGet('tone-enabled');
+  toneEnabled = toneRaw === null ? true : toneRaw === 'true';
+  toneEnabledInput.checked = toneEnabled;
+  const countRaw = await storageGet('breath-count');
+  breathTotal = clampBreathTotal(parseInt(countRaw) || 3);
+  breathCountInput.value = breathTotal;
+  const monthlyRaw = await storageGet('monthly-prayers');
+  if(monthlyRaw){
+    monthlyPrayers = JSON.parse(monthlyRaw);
+  } else {
+    const legacy = await storageGet('prayer-text');
+    monthlyPrayers = {};
+    if(legacy){ monthlyPrayers[new Date().getMonth()] = {phrase:'', text: legacy}; }
+  }
+}
+breathingEnabledInput.addEventListener('change', ()=>{
+  storageSet('breathing-enabled', String(breathingEnabledInput.checked));
+});
+function setBreathCountInput(n){
+  breathTotal = clampBreathTotal(n);
+  breathCountInput.value = breathTotal;
+  storageSet('breath-count', String(breathTotal));
+}
+breathCountInput.addEventListener('change', ()=> setBreathCountInput(parseInt(breathCountInput.value)||3));
+breathCountMinus.addEventListener('click', ()=> setBreathCountInput((parseInt(breathCountInput.value)||3) - 1));
+breathCountPlus.addEventListener('click', ()=> setBreathCountInput((parseInt(breathCountInput.value)||3) + 1));
+
+let prayerSaveTimer = null;
+prayerTextEl.addEventListener('input', ()=>{
+  clearTimeout(prayerSaveTimer);
+  prayerSaveTimer = setTimeout(()=>{
+    const existingPhrase = (monthlyPrayers[selectedMonth] && monthlyPrayers[selectedMonth].phrase) || '';
+    monthlyPrayers[selectedMonth] = {phrase: existingPhrase, text: prayerTextEl.textContent};
+    storageSet('monthly-prayers', JSON.stringify(monthlyPrayers));
+    renderMonthGrid();
+  }, 500);
+});
+
+function renderMonthGrid(){
+  const nowMonth = new Date().getMonth();
+  monthGrid.innerHTML = MONTH_DISPLAY_ORDER.map(i=>{
+    const name = MONTH_NAMES[i];
+    const entry = monthlyPrayers[i];
+    const hasText = !!(entry && entry.text && entry.text.trim());
+    const badge = hasText ? (entry.phrase || 'saved') : 'empty';
+    return '<button type="button" class="month-btn'+(i===nowMonth?' current':'')+'" data-month="'+i+'">'+name+
+      '<span class="m-badge">'+badge.replace(/</g,'&lt;')+'</span></button>';
+  }).join('');
+  monthGrid.querySelectorAll('.month-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> chooseMonth(parseInt(btn.dataset.month)));
+  });
+}
+async function loadDefaultPrayers(){
+  let added = 0;
+  Object.keys(PRESET_PRAYERS).forEach(key=>{
+    const existing = monthlyPrayers[key];
+    if(!existing || !existing.text || !existing.text.trim()){
+      monthlyPrayers[key] = PRESET_PRAYERS[key];
+      added++;
+    }
+  });
+  if(added>0){
+    await storageSet('monthly-prayers', JSON.stringify(monthlyPrayers));
+    renderMonthGrid();
+  }
+  return added;
+}
+document.getElementById('load-default-prayers-btn').addEventListener('click', async ()=>{
+  const added = await loadDefaultPrayers();
+  const note = document.getElementById('month-default-note');
+  note.textContent = added>0 ? 'Loaded '+added+' default prayers (August–May).' : 'Defaults already loaded for every month that had one.';
+});
+function goToMonthSelect(){
+  renderMonthGrid();
+  showOverlay(modeMonth);
+}
+function chooseMonth(i){
+  selectedMonth = i;
+  if(breathingEnabledInput.checked){
+    resetBreathingState();
+    showOverlay(modeBreathing);
+    updateBreathDisplay();
+  } else {
+    showSelectedPrayer();
+  }
+}
+function showSelectedPrayer(){
+  playPrayerChime();
+  const entry = monthlyPrayers[selectedMonth];
+  prayerMonthHeading.textContent = MONTH_NAMES[selectedMonth] + (entry && entry.phrase ? ' — ' + entry.phrase : ' — Let us pray');
+  prayerTextEl.textContent = (entry && entry.text) || '';
+  modePrayer.style.opacity = '0';
+  showOverlay(modePrayer);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      modePrayer.style.opacity = '1';
+    });
+  });
+}
+
+function updateBreathDisplay(){
+  breathCounterLabel.textContent = 'Breath ' + breathIndex + ' of ' + breathTotal;
+  breathLiveTotal.textContent = breathTotal;
+  breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? currentPhaseLabel : 'Ready';
+  const lead = PHASE_LEAD_MS[breathPhase] || 0;
+  let secondsLeft;
+  if(phaseElapsed < lead){
+    // still in the word/ding lead-in (e.g. "Breathe" / "in" or "Breathe" / "out" / "slow") —
+    // hold at 4 rather than counting down time that isn't part of the actual breath.
+    secondsLeft = 4;
+  } else {
+    const coreElapsed = phaseElapsed - lead;
+    secondsLeft = Math.max(1, Math.ceil((PHASE_MS - coreElapsed)/1000));
+  }
+  breathCountdown.textContent = (breathRunning ? secondsLeft : '') || '\u00A0';
+  let scale;
+  if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsed/phaseDurationMs('in')); }
+  else if(breathPhase==='hold1'){ scale = 1.4; }
+  else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsed/phaseDurationMs('out')); }
+  else { scale = 1; }
+  breathCrossWrap.style.transform = 'scale(' + scale.toFixed(3) + ')';
+  breathStartBtn.textContent = breathCountingDown ? 'Starting...' : breathRunning ? 'Pause' : (phaseElapsed>0 || breathIndex>1 ? 'Resume' : 'Start');
+}
+
+let breathCountingDown = false;
+let countdownTimeouts = [];
+function clearCountdownTimeouts(){ countdownTimeouts.forEach(id=>clearTimeout(id)); countdownTimeouts=[]; }
+
+function resetBreathingState(){
+  breathIndex = 1;
+  breathPhase = 'in';
+  phaseElapsed = 0;
+  breathRunning = false;
+  breathStarted = false;
+  breathCountingDown = false;
+  clearCountdownTimeouts();
+  breathBodyEl.classList.add('pre-start');
+  fadeOutAudioQuick();
+  setPhaseLabelInstant('Ready');
+  updateBreathDisplay();
+}
+
+const DING_COUNTS = {in:1, hold1:3, out:1, hold2:2};
+function advancePhase(){
+  const endingPhase = breathPhase;
+  const idx = PHASES.indexOf(breathPhase);
+  if(idx < PHASES.length - 1){
+    breathPhase = PHASES[idx+1];
+    phaseElapsed = 0;
+  } else {
+    breathIndex += 1;
+    breathPhase = 'in';
+    phaseElapsed = 0;
+    if(breathIndex > breathTotal){
+      stopBreathing();
+      showSelectedPrayer();
+      return;
+    }
+  }
+  playDing(DING_COUNTS[endingPhase]);
+  beginPhaseDisplay(breathPhase);
+  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
+}
+
+function breathTick(ts){
+  if(!breathRunning) return;
+  if(breathLastTs === null) breathLastTs = ts;
+  const dt = ts - breathLastTs;
+  breathLastTs = ts;
+  phaseElapsed += dt;
+  if(phaseElapsed >= phaseDurationMs(breathPhase)){
+    phaseElapsed = 0;
+    advancePhase();
+    if(!breathRunning) return;
+  }
+  updateBreathDisplay();
+  breathRafId = requestAnimationFrame(breathTick);
+}
+
+function runPreCountdown(onDone){
+  clearCountdownTimeouts();
+  const steps = [
+    {label: 'Get ready to start breathing.', ding: 'none'},
+    {label: '3', ding: 'single'},
+    {label: '2', ding: 'single'},
+    {label: '1', ding: 'single'}
+  ];
+  steps.forEach((step,i)=>{
+    const id = setTimeout(()=>{
+      currentPhaseLabel = step.label;
+      breathPhaseText.textContent = step.label;
+      if(step.ding==='single') playCountdownDing();
+    }, i*1000);
+    countdownTimeouts.push(id);
+  });
+  const doneId = setTimeout(onDone, steps.length*1000);
+  countdownTimeouts.push(doneId);
+}
+
+function actuallyStartBreathingEngine(){
+  breathRunning = true;
+  breathLastTs = null;
+  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed);
+  if(phaseElapsed === 0){
+    // Fresh phase start. For the very first breath's inhale, there's no prior
+    // "hold" transition to trigger the usual 2-ding start-of-inhale cue — so
+    // play it explicitly here, matching every later breath from the start.
+    if(breathIndex===1 && breathPhase==='in'){
+      playDing(DING_COUNTS.hold2);
+    }
+    beginPhaseDisplay(breathPhase);
+  } else {
+    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+  }
+  updateBreathDisplay();
+  breathRafId = requestAnimationFrame(breathTick);
+}
+
+function startBreathing(){
+  if(breathRunning || breathCountingDown) return;
+  breathBodyEl.classList.remove('pre-start');
+  ensureAudioContext();
+  if(!breathStarted){
+    breathStarted = true;
+    breathCountingDown = true;
+    updateBreathDisplay();
+    runPreCountdown(()=>{
+      breathCountingDown = false;
+      actuallyStartBreathingEngine();
+    });
+    return;
+  }
+  actuallyStartBreathingEngine();
+}
+function pauseBreathing(){
+  breathRunning = false;
+  if(breathRafId) cancelAnimationFrame(breathRafId);
+  breathRafId = null;
+  fadeOutAudioQuick();
+  clearPhaseWordTimeouts();
+  updateBreathDisplay();
+}
+function stopBreathing(){
+  breathRunning = false;
+  breathCountingDown = false;
+  if(breathRafId) cancelAnimationFrame(breathRafId);
+  breathRafId = null;
+  fadeOutAudioQuick();
+  clearPhaseWordTimeouts();
+  clearCountdownTimeouts();
+}
+
+breathStartBtn.addEventListener('click', ()=>{
+  if(breathRunning) pauseBreathing(); else startBreathing();
+});
+breathSkipBtn.addEventListener('click', ()=>{
+  phaseElapsed = 0;
+  breathIndex += 1;
+  breathPhase = 'in';
+  if(breathIndex > breathTotal){
+    stopBreathing();
+    showSelectedPrayer();
+    return;
+  }
+  breathLastTs = null;
+  if(breathRunning){
+    scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
+    beginPhaseDisplay(breathPhase);
+  } else {
+    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+  }
+  updateBreathDisplay();
+});
+breathSkipAllBtn.addEventListener('click', ()=>{
+  stopBreathing();
+  showSelectedPrayer();
+});
+breathLiveMinus.addEventListener('click', ()=>{
+  breathTotal = clampBreathTotal(breathTotal - 1);
+  storageSet('breath-count', String(breathTotal));
+  if(breathIndex > breathTotal){ stopBreathing(); showSelectedPrayer(); return; }
+  updateBreathDisplay();
+});
+breathLivePlus.addEventListener('click', ()=>{
+  breathTotal = clampBreathTotal(breathTotal + 1);
+  storageSet('breath-count', String(breathTotal));
+  updateBreathDisplay();
+});
+
+document.getElementById('launch-prayer').addEventListener('click', ()=>{
+  goToMonthSelect();
+});
+
+
+document.getElementById('export-btn').addEventListener('click', async ()=>{
+  const data = {
+    exportedAt: new Date().toISOString(),
+    learningTargets: JSON.parse(await storageGet('learning-targets') || '[]'),
+    rosters: {
+      '6': JSON.parse(await storageGet('roster-6') || '{"text":""}'),
+      '7': JSON.parse(await storageGet('roster-7') || '{"text":""}'),
+      '8': JSON.parse(await storageGet('roster-8') || '{"text":""}')
+    },
+    breathingEnabled: (await storageGet('breathing-enabled')) === 'true',
+    breathCount: parseInt(await storageGet('breath-count')) || 3,
+    monthlyPrayers: JSON.parse(await storageGet('monthly-prayers') || '{}')
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'field-kit-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('import-btn').addEventListener('click', ()=>{
+  document.getElementById('import-file').click();
+});
+document.getElementById('import-file').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const note = document.getElementById('backup-note');
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(data.learningTargets){ await storageSet('learning-targets', JSON.stringify(data.learningTargets)); }
+    if(data.rosters){
+      for(const cls of ['6','7','8']){
+        if(data.rosters[cls]){ await storageSet('roster-'+cls, JSON.stringify(data.rosters[cls])); }
+      }
+    }
+    if(typeof data.breathingEnabled === 'boolean'){ await storageSet('breathing-enabled', String(data.breathingEnabled)); }
+    if(data.breathCount){ await storageSet('breath-count', String(data.breathCount)); }
+    if(data.monthlyPrayers){ await storageSet('monthly-prayers', JSON.stringify(data.monthlyPrayers)); }
+    note.textContent = 'Backup restored — reloading...';
+    setTimeout(()=> location.reload(), 700);
+  }catch(err){
+    note.textContent = 'Could not read that file — make sure it\'s a Field Kit backup.';
+  }
+  e.target.value = '';
+});
+
+/* ---------- TIMER ---------- */
+const timerModeTabs = document.getElementById('timer-mode-tabs');
+const timerDisplay = document.getElementById('timer-display');
+const timerStatus = document.getElementById('timer-status');
+const timerPresets = document.getElementById('timer-presets');
+const timerStartBtn = document.getElementById('timer-start-btn');
+const timerResetBtn = document.getElementById('timer-reset-btn');
+
+let timerMode = 'countdown';
+let timerTargetMs = 5*60*1000;   // used by countdown & countup
+let timerElapsedMs = 0;          // used by stopwatch & countup, and to derive countdown remaining
+let timerRunning = false;
+let timerDone = false;
+let timerRafId = null;
+let timerLastTs = null;
+
+function clampNonNeg(ms){ return Math.max(0, ms); }
+
+function formatTime(ms){
+  const totalSec = Math.round(ms/1000);
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  const mm = String(m).padStart(2,'0');
+  const ss = String(s).padStart(2,'0');
+  return h>0 ? (h+':'+mm+':'+ss) : (mm+':'+ss);
+}
+
+function currentDisplayMs(){
+  if(timerMode==='countdown') return clampNonNeg(timerTargetMs - timerElapsedMs);
+  if(timerMode==='countup') return Math.min(timerElapsedMs, timerTargetMs);
+  return timerElapsedMs; // stopwatch
+}
+
+function updateTimerDisplay(){
+  timerDisplay.textContent = formatTime(currentDisplayMs());
+  timerDisplay.classList.toggle('done', timerDone);
+  if(timerDone){
+    timerStatus.textContent = timerMode==='countdown' ? "Time's up!" : 'Goal reached!';
+  } else if(timerRunning){
+    timerStatus.textContent = timerMode==='countdown' ? 'Counting down...' : timerMode==='countup' ? 'Counting up...' : 'Running...';
+  } else {
+    timerStatus.textContent = '\u00A0';
+  }
+  timerStartBtn.textContent = timerRunning ? 'Pause' : (timerElapsedMs>0 ? 'Resume' : 'Start');
+  timerPresets.style.display = timerMode==='stopwatch' ? 'none' : 'flex';
+}
+
+function timerTick(ts){
+  if(!timerRunning) return;
+  if(timerLastTs===null) timerLastTs = ts;
+  const dt = ts - timerLastTs;
+  timerLastTs = ts;
+  timerElapsedMs += dt;
+
+  if(timerMode==='countdown' && timerElapsedMs >= timerTargetMs){
+    timerElapsedMs = timerTargetMs;
+    timerRunning = false;
+    timerDone = true;
+    updateTimerDisplay();
+    return;
+  }
+  if(timerMode==='countup' && timerElapsedMs >= timerTargetMs){
+    timerElapsedMs = timerTargetMs;
+    timerRunning = false;
+    timerDone = true;
+    updateTimerDisplay();
+    return;
+  }
+  updateTimerDisplay();
+  timerRafId = requestAnimationFrame(timerTick);
+}
+
+function startTimer(){
+  if(timerRunning) return;
+  if(timerDone) resetTimerValue();
+  timerRunning = true;
+  timerLastTs = null;
+  updateTimerDisplay();
+  timerRafId = requestAnimationFrame(timerTick);
+}
+function pauseTimer(){
+  timerRunning = false;
+  if(timerRafId) cancelAnimationFrame(timerRafId);
+  timerRafId = null;
+  updateTimerDisplay();
+}
+function stopTimer(){
+  timerRunning = false;
+  if(timerRafId) cancelAnimationFrame(timerRafId);
+  timerRafId = null;
+}
+function resetTimerValue(){
+  timerElapsedMs = 0;
+  timerDone = false;
+}
+
+timerStartBtn.addEventListener('click', ()=>{
+  if(timerRunning) pauseTimer(); else startTimer();
+});
+timerResetBtn.addEventListener('click', ()=>{
+  stopTimer();
+  resetTimerValue();
+  updateTimerDisplay();
+});
+
+timerModeTabs.querySelectorAll('.timer-mode-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    timerModeTabs.querySelectorAll('.timer-mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    timerMode = btn.dataset.mode;
+    stopTimer();
+    resetTimerValue();
+    updateTimerDisplay();
+  });
+});
+
+timerPresets.querySelectorAll('button[data-preset]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    timerTargetMs = parseInt(btn.dataset.preset) * 1000;
+    stopTimer();
+    resetTimerValue();
+    updateTimerDisplay();
+  });
+});
+
+function adjustTimer(deltaMs){
+  if(timerMode==='stopwatch'){
+    timerElapsedMs = clampNonNeg(timerElapsedMs + deltaMs);
+  } else {
+    // countdown & countup: adjust the target duration (changes remaining / goal live, even while running)
+    timerTargetMs = clampNonNeg(timerTargetMs + deltaMs);
+    if(timerMode==='countup' && timerElapsedMs >= timerTargetMs){
+      timerElapsedMs = timerTargetMs;
+      stopTimer();
+      timerDone = true;
+    }
+  }
+  if(timerDone && currentDisplayMs() > 0){ timerDone = false; }
+  updateTimerDisplay();
+}
+document.getElementById('timer-plus-min').addEventListener('click', ()=> adjustTimer(60*1000));
+document.getElementById('timer-minus-min').addEventListener('click', ()=> adjustTimer(-60*1000));
+document.getElementById('timer-plus-sec').addEventListener('click', ()=> adjustTimer(1000));
+document.getElementById('timer-minus-sec').addEventListener('click', ()=> adjustTimer(-1000));
+
+document.getElementById('launch-timer').addEventListener('click', ()=>{
+  stopTimer();
+  resetTimerValue();
+  updateTimerDisplay();
+  showOverlay(modeTimer);
+});
+
+/* ---------- VIEW MODE (mobile / desktop) ---------- */
+const modeViewChooser = document.getElementById('mode-view-chooser');
+const viewModeSwitch = document.getElementById('view-mode-switch');
+
+function applyViewMode(mode){
+  document.body.classList.toggle('view-mobile', mode==='mobile');
+  document.body.classList.toggle('view-desktop', mode==='desktop');
+  viewModeSwitch.textContent = mode==='mobile' ? 'Mobile view' : 'Desktop view';
+}
+async function setViewMode(mode){
+  await storageSet('view-mode', mode);
+  applyViewMode(mode);
+  await loadDefaultPrayers();
+}
+viewModeSwitch.addEventListener('click', ()=>{
+  const next = document.body.classList.contains('view-mobile') ? 'desktop' : 'mobile';
+  setViewMode(next);
+});
+document.getElementById('choose-view-desktop').addEventListener('click', async ()=>{
+  await setViewMode('desktop');
+  modeViewChooser.style.display = 'none';
+});
+document.getElementById('choose-view-mobile').addEventListener('click', async ()=>{
+  await setViewMode('mobile');
+  modeViewChooser.style.display = 'none';
+});
+async function initViewMode(){
+  const saved = await storageGet('view-mode');
+  if(saved==='mobile' || saved==='desktop'){
+    applyViewMode(saved);
+  } else {
+    // No preference saved yet — ask before showing the main screen.
+    applyViewMode('desktop');
+    modeViewChooser.style.display = 'flex';
+  }
+}
+
+/* ---------- init ---------- */
+(async function init(){
+  await initViewMode();
+  await loadTargets();
+  await loadRoster(currentClass);
+  await loadBreathingSettings();
+  await loadDefaultPrayers();
+})();
+</script>
+</body>
+</html>
