@@ -1113,6 +1113,7 @@ function playDing(count){
   const now = audioCtx.currentTime;
   playSingleDing(now);
   if(count>=2) playSingleDing(now+0.2);
+  if(count>=3) playSingleDing(now+0.4);
 }
 toneEnabledInput.addEventListener('change', ()=>{
   toneEnabled = toneEnabledInput.checked;
@@ -1271,7 +1272,7 @@ function resetBreathingState(){
   updateBreathDisplay();
 }
 
-const DING_COUNTS = {in:1, hold1:2, out:1, hold2:2};
+const DING_COUNTS = {in:1, hold1:3, out:1, hold2:2};
 function advancePhase(){
   const endingPhase = breathPhase;
   const idx = PHASES.indexOf(breathPhase);
