@@ -1111,9 +1111,10 @@ function playSingleDing(startTime){
 function playDing(count){
   if(!toneEnabled || !audioCtx) return;
   const now = audioCtx.currentTime;
+  const gap = 0.75; // roughly the time to silently think "Breathe in" / "Breathe out slow" between each ding
   playSingleDing(now);
-  if(count>=2) playSingleDing(now+0.2);
-  if(count>=3) playSingleDing(now+0.4);
+  if(count>=2) playSingleDing(now+gap);
+  if(count>=3) playSingleDing(now+gap*2);
 }
 toneEnabledInput.addEventListener('change', ()=>{
   toneEnabled = toneEnabledInput.checked;
