@@ -1137,7 +1137,32 @@ let selectedMonth = new Date().getMonth();
 
 const PHASE_MS = 4000;
 const PHASES = ['in','hold1','out','hold2'];
-const PHASE_LABELS = {in:'Breathe in', hold1:'Hold', out:'Breathe out', hold2:'Hold'};
+const PHASE_LABELS = {in:'Breathe in', hold1:'Hold', out:'Breathe out slow', hold2:'Hold'};
+let currentPhaseLabel = 'Ready';
+let phaseWordTimeouts = [];
+function clearPhaseWordTimeouts(){ phaseWordTimeouts.forEach(id=>clearTimeout(id)); phaseWordTimeouts=[]; }
+function setPhaseLabelInstant(label){
+  clearPhaseWordTimeouts();
+  currentPhaseLabel = label;
+  breathPhaseText.textContent = label;
+}
+function revealPhaseWords(words){
+  clearPhaseWordTimeouts();
+  const gapMs = 750; // matches the ding spacing so words land right on each chime
+  words.forEach((w,i)=>{
+    const id = setTimeout(()=>{
+      currentPhaseLabel = words.slice(0,i+1).join(' ');
+      breathPhaseText.textContent = currentPhaseLabel;
+    }, i*gapMs);
+    phaseWordTimeouts.push(id);
+  });
+  currentPhaseLabel = words[0];
+}
+function beginPhaseDisplay(phase){
+  if(phase==='in') revealPhaseWords(['Breathe','in']);
+  else if(phase==='out') revealPhaseWords(['Breathe','out','slow']);
+  else setPhaseLabelInstant('Hold');
+}
 let breathTotal = 3;
 let breathIndex = 1;
 let breathPhase = 'in';
@@ -1250,7 +1275,7 @@ function showSelectedPrayer(){
 function updateBreathDisplay(){
   breathCounterLabel.textContent = 'Breath ' + breathIndex + ' of ' + breathTotal;
   breathLiveTotal.textContent = breathTotal;
-  breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? PHASE_LABELS[breathPhase] : 'Ready';
+  breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? currentPhaseLabel : 'Ready';
   const secondsLeft = Math.max(1, Math.ceil((PHASE_MS - phaseElapsed)/1000));
   breathCountdown.textContent = (breathRunning ? secondsLeft : '') || '\u00A0';
   let scale;
@@ -1270,6 +1295,7 @@ function resetBreathingState(){
   breathStarted = false;
   breathBodyEl.classList.add('pre-start');
   fadeOutAudioQuick();
+  setPhaseLabelInstant('Ready');
   updateBreathDisplay();
 }
 
@@ -1292,6 +1318,7 @@ function advancePhase(){
     }
   }
   playDing(DING_COUNTS[endingPhase]);
+  beginPhaseDisplay(breathPhase);
   scheduleAudioForPhase(breathPhase, PHASE_MS);
 }
 
@@ -1318,6 +1345,11 @@ function startBreathing(){
   breathLastTs = null;
   ensureAudioContext();
   scheduleAudioForPhase(breathPhase, PHASE_MS - phaseElapsed);
+  if(phaseElapsed === 0){
+    beginPhaseDisplay(breathPhase);
+  } else {
+    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+  }
   updateBreathDisplay();
   breathRafId = requestAnimationFrame(breathTick);
 }
@@ -1326,6 +1358,7 @@ function pauseBreathing(){
   if(breathRafId) cancelAnimationFrame(breathRafId);
   breathRafId = null;
   fadeOutAudioQuick();
+  clearPhaseWordTimeouts();
   updateBreathDisplay();
 }
 function stopBreathing(){
@@ -1333,6 +1366,7 @@ function stopBreathing(){
   if(breathRafId) cancelAnimationFrame(breathRafId);
   breathRafId = null;
   fadeOutAudioQuick();
+  clearPhaseWordTimeouts();
 }
 
 breathStartBtn.addEventListener('click', ()=>{
@@ -1348,7 +1382,12 @@ breathSkipBtn.addEventListener('click', ()=>{
     return;
   }
   breathLastTs = null;
-  if(breathRunning) scheduleAudioForPhase(breathPhase, PHASE_MS);
+  if(breathRunning){
+    scheduleAudioForPhase(breathPhase, PHASE_MS);
+    beginPhaseDisplay(breathPhase);
+  } else {
+    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+  }
   updateBreathDisplay();
 });
 breathSkipAllBtn.addEventListener('click', ()=>{
