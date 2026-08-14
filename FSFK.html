@@ -263,15 +263,52 @@
   .month-btn.current{border-color:var(--chalk-yellow);}
   .month-btn .m-badge{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--chalk-dim);margin-top:6px;}
   .month-btn.current .m-badge{color:var(--chalk-yellow);}
+
+  /* ---- mobile view (9:16 portrait) overrides ---- */
+  body.view-mobile .fullscreen-overlay{padding:18px 16px;}
+  body.view-mobile .breath-intro{max-width:94vw;column-gap:8px;row-gap:8px;}
+  body.view-mobile .breath-intro-label{font-size:13px;white-space:normal;text-align:left;}
+  body.view-mobile .breath-intro-text{font-size:13px;line-height:1.4;white-space:normal !important;}
+  body.view-mobile .breath-stage{width:min(62vmin, 300px);height:min(62vmin, 300px);}
+  body.view-mobile .prayer-body{padding:2vh 18px 16px;gap:8px;}
+  body.view-mobile .prayer-heading{font-size:18px;}
+  body.view-mobile .prayer-opening{font-size:11px;letter-spacing:1px;padding-bottom:8px;max-width:92vw;}
+  body.view-mobile .prayer-opening span{font-size:0.85em;}
+  body.view-mobile .prayer-text{font-size:14.5px;line-height:1.28;max-width:94vw;}
+  body.view-mobile .prayer-body svg{width:52px;height:52px;}
+  body.view-mobile .month-grid{grid-template-columns:repeat(2, 1fr);}
+  body.view-mobile .launch-grid{grid-template-columns:1fr;}
+  body.view-mobile .timer-display{font-size:clamp(48px,16vw,90px);}
 </style>
 </head>
 <body>
+<div class="fullscreen-overlay" id="mode-view-chooser" style="display:none;align-items:center;justify-content:center;">
+  <div style="text-align:center;max-width:520px;">
+    <div class="target-eyebrow" style="margin-bottom:14px;">Before we start</div>
+    <div style="font-family:'Zilla Slab',serif;font-weight:600;font-size:26px;color:var(--chalk);margin-bottom:10px;">How is this being displayed?</div>
+    <div style="font-size:14px;color:var(--chalk-dim);margin-bottom:26px;line-height:1.6;">This adjusts text size and layout so everything fits cleanly on the screen you're using. You can change this anytime from the main screen.</div>
+    <div class="launch-grid" style="grid-template-columns:1fr 1fr;">
+      <button class="launch-card" id="choose-view-desktop" style="text-align:center;">
+        <h3>Desktop / PC</h3>
+        <p>A classroom computer, laptop, or TV in landscape.</p>
+      </button>
+      <button class="launch-card" id="choose-view-mobile" style="text-align:center;">
+        <h3>Mobile</h3>
+        <p>A phone or tablet in portrait (9:16).</p>
+      </button>
+    </div>
+  </div>
+</div>
 <div class="wrap" id="main-page">
 
   <header>
     <div class="brand">Faith and Science Field Kit</div>
-    <div class="date" id="today-date"></div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button id="view-mode-switch" style="background:none;border:1px solid var(--line);border-radius:7px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 10px;cursor:pointer;">Desktop view</button>
+      <div class="date" id="today-date"></div>
+    </div>
   </header>
+
 
   <div class="panel">
 
@@ -1095,11 +1132,11 @@ function fadeOutAudioQuick(){
   toneGain.gain.setValueAtTime(toneGain.gain.value, now);
   toneGain.gain.linearRampToValueAtTime(0, now+0.3);
 }
-function playSingleDing(startTime){
+function playSingleDing(startTime, freq){
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = 'sine';
-  osc.frequency.value = 880;
+  osc.frequency.value = freq || 880;
   gain.gain.setValueAtTime(0, startTime);
   gain.gain.linearRampToValueAtTime(0.16, startTime+0.012);
   gain.gain.exponentialRampToValueAtTime(0.0008, startTime+0.42);
@@ -1112,9 +1149,13 @@ function playDing(count){
   if(!toneEnabled || !audioCtx) return;
   const now = audioCtx.currentTime;
   const gap = 0.75; // roughly the time to silently think "Breathe in" / "Breathe out slow" between each ding
-  playSingleDing(now);
-  if(count>=2) playSingleDing(now+gap);
-  if(count>=3) playSingleDing(now+gap*2);
+  playSingleDing(now, 880);
+  if(count>=2) playSingleDing(now+gap, 880);
+  if(count>=3) playSingleDing(now+gap*2, 880);
+}
+function playCountdownDing(){
+  if(!toneEnabled || !audioCtx) return;
+  playSingleDing(audioCtx.currentTime, 660); // related but distinct from the breathing dings
 }
 toneEnabledInput.addEventListener('change', ()=>{
   toneEnabled = toneEnabledInput.checked;
@@ -1284,8 +1325,12 @@ function updateBreathDisplay(){
   else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsed/PHASE_MS); }
   else { scale = 1; }
   breathCrossWrap.style.transform = 'scale(' + scale.toFixed(3) + ')';
-  breathStartBtn.textContent = breathRunning ? 'Pause' : (phaseElapsed>0 || breathIndex>1 ? 'Resume' : 'Start');
+  breathStartBtn.textContent = breathCountingDown ? 'Starting...' : breathRunning ? 'Pause' : (phaseElapsed>0 || breathIndex>1 ? 'Resume' : 'Start');
 }
+
+let breathCountingDown = false;
+let countdownTimeouts = [];
+function clearCountdownTimeouts(){ countdownTimeouts.forEach(id=>clearTimeout(id)); countdownTimeouts=[]; }
 
 function resetBreathingState(){
   breathIndex = 1;
@@ -1293,6 +1338,8 @@ function resetBreathingState(){
   phaseElapsed = 0;
   breathRunning = false;
   breathStarted = false;
+  breathCountingDown = false;
+  clearCountdownTimeouts();
   breathBodyEl.classList.add('pre-start');
   fadeOutAudioQuick();
   setPhaseLabelInstant('Ready');
@@ -1337,21 +1384,55 @@ function breathTick(ts){
   breathRafId = requestAnimationFrame(breathTick);
 }
 
-function startBreathing(){
-  if(breathRunning) return;
+function runPreCountdown(onDone){
+  clearCountdownTimeouts();
+  [5,4,3,2,1].forEach((n,i)=>{
+    const id = setTimeout(()=>{
+      const label = 'Start breathing in in '+n;
+      currentPhaseLabel = label;
+      breathPhaseText.textContent = label;
+      if(n<=3) playCountdownDing();
+    }, i*1000);
+    countdownTimeouts.push(id);
+  });
+  const doneId = setTimeout(onDone, 5*1000);
+  countdownTimeouts.push(doneId);
+}
+
+function actuallyStartBreathingEngine(){
   breathRunning = true;
-  breathStarted = true;
-  breathBodyEl.classList.remove('pre-start');
   breathLastTs = null;
-  ensureAudioContext();
   scheduleAudioForPhase(breathPhase, PHASE_MS - phaseElapsed);
   if(phaseElapsed === 0){
+    // Fresh phase start. For the very first breath's inhale, there's no prior
+    // "hold" transition to trigger the usual 2-ding start-of-inhale cue — so
+    // play it explicitly here, matching every later breath from the start.
+    if(breathIndex===1 && breathPhase==='in'){
+      playDing(DING_COUNTS.hold2);
+    }
     beginPhaseDisplay(breathPhase);
   } else {
     setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
   }
   updateBreathDisplay();
   breathRafId = requestAnimationFrame(breathTick);
+}
+
+function startBreathing(){
+  if(breathRunning || breathCountingDown) return;
+  breathBodyEl.classList.remove('pre-start');
+  ensureAudioContext();
+  if(!breathStarted){
+    breathStarted = true;
+    breathCountingDown = true;
+    updateBreathDisplay();
+    runPreCountdown(()=>{
+      breathCountingDown = false;
+      actuallyStartBreathingEngine();
+    });
+    return;
+  }
+  actuallyStartBreathingEngine();
 }
 function pauseBreathing(){
   breathRunning = false;
@@ -1363,10 +1444,12 @@ function pauseBreathing(){
 }
 function stopBreathing(){
   breathRunning = false;
+  breathCountingDown = false;
   if(breathRafId) cancelAnimationFrame(breathRafId);
   breathRafId = null;
   fadeOutAudioQuick();
   clearPhaseWordTimeouts();
+  clearCountdownTimeouts();
 }
 
 breathStartBtn.addEventListener('click', ()=>{
@@ -1613,8 +1696,45 @@ document.getElementById('launch-timer').addEventListener('click', ()=>{
   showOverlay(modeTimer);
 });
 
+/* ---------- VIEW MODE (mobile / desktop) ---------- */
+const modeViewChooser = document.getElementById('mode-view-chooser');
+const viewModeSwitch = document.getElementById('view-mode-switch');
+
+function applyViewMode(mode){
+  document.body.classList.toggle('view-mobile', mode==='mobile');
+  document.body.classList.toggle('view-desktop', mode==='desktop');
+  viewModeSwitch.textContent = mode==='mobile' ? 'Mobile view' : 'Desktop view';
+}
+async function setViewMode(mode){
+  await storageSet('view-mode', mode);
+  applyViewMode(mode);
+}
+viewModeSwitch.addEventListener('click', ()=>{
+  const next = document.body.classList.contains('view-mobile') ? 'desktop' : 'mobile';
+  setViewMode(next);
+});
+document.getElementById('choose-view-desktop').addEventListener('click', async ()=>{
+  await setViewMode('desktop');
+  modeViewChooser.style.display = 'none';
+});
+document.getElementById('choose-view-mobile').addEventListener('click', async ()=>{
+  await setViewMode('mobile');
+  modeViewChooser.style.display = 'none';
+});
+async function initViewMode(){
+  const saved = await storageGet('view-mode');
+  if(saved==='mobile' || saved==='desktop'){
+    applyViewMode(saved);
+  } else {
+    // No preference saved yet — ask before showing the main screen.
+    applyViewMode('desktop');
+    modeViewChooser.style.display = 'flex';
+  }
+}
+
 /* ---------- init ---------- */
 (async function init(){
+  await initViewMode();
   await loadTargets();
   await loadRoster(currentClass);
   await loadBreathingSettings();
