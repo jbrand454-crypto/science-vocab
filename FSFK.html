@@ -279,6 +279,7 @@
   body.view-mobile .month-grid{grid-template-columns:repeat(2, 1fr);}
   body.view-mobile .launch-grid{grid-template-columns:1fr;}
   body.view-mobile .timer-display{font-size:clamp(48px,16vw,90px);}
+  #load-default-prayers-btn, #month-default-note{display:none;}
 </style>
 </head>
 <body>
@@ -1307,7 +1308,7 @@ function renderMonthGrid(){
     btn.addEventListener('click', ()=> chooseMonth(parseInt(btn.dataset.month)));
   });
 }
-document.getElementById('load-default-prayers-btn').addEventListener('click', async ()=>{
+async function loadDefaultPrayers(){
   let added = 0;
   Object.keys(PRESET_PRAYERS).forEach(key=>{
     const existing = monthlyPrayers[key];
@@ -1316,8 +1317,14 @@ document.getElementById('load-default-prayers-btn').addEventListener('click', as
       added++;
     }
   });
-  await storageSet('monthly-prayers', JSON.stringify(monthlyPrayers));
-  renderMonthGrid();
+  if(added>0){
+    await storageSet('monthly-prayers', JSON.stringify(monthlyPrayers));
+    renderMonthGrid();
+  }
+  return added;
+}
+document.getElementById('load-default-prayers-btn').addEventListener('click', async ()=>{
+  const added = await loadDefaultPrayers();
   const note = document.getElementById('month-default-note');
   note.textContent = added>0 ? 'Loaded '+added+' default prayers (August–May).' : 'Defaults already loaded for every month that had one.';
 });
@@ -1748,6 +1755,7 @@ function applyViewMode(mode){
 async function setViewMode(mode){
   await storageSet('view-mode', mode);
   applyViewMode(mode);
+  await loadDefaultPrayers();
 }
 viewModeSwitch.addEventListener('click', ()=>{
   const next = document.body.classList.contains('view-mobile') ? 'desktop' : 'mobile';
@@ -1778,6 +1786,7 @@ async function initViewMode(){
   await loadTargets();
   await loadRoster(currentClass);
   await loadBreathingSettings();
+  await loadDefaultPrayers();
 })();
 </script>
 </body>
