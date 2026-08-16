@@ -474,53 +474,87 @@ toneEnabledInput.addEventListener('change', ()=>{
   toneEnabled = toneEnabledInput.checked;
   storageSet('tone-enabled', String(toneEnabled));
   if(!toneEnabled){ fadeOutAudioQuick(); }
-  else if(breathRunning){ scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed); }
+  else if(breathRunning){ scheduleAudioForPhase(breathPhase, phaseTotalMs(breathPhase) - phaseElapsedTotal); }
 });
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 let monthlyPrayers = {};
 let selectedMonth = new Date().getMonth();
 
-const PHASE_MS = 4000;
-const DING_GAP_MS = 750;
-const PHASE_LEAD_MS = {in: DING_GAP_MS, hold1: 0, out: DING_GAP_MS*2, hold2: 0};
-function phaseDurationMs(phase){ return PHASE_MS + (PHASE_LEAD_MS[phase]||0); }
-const PHASES = ['in','hold1','out','hold2'];
-const PHASE_LABELS = {in:'Breathe in', hold1:'Hold', out:'Breathe out slow', hold2:'Hold'};
+/* ---------- unified breathing clock ----------
+   Every phase is a plan of four ~1-second ticks (the last tick of "out" runs
+   ~1.5s for a natural pause at the bottom of the exhale). One
+   requestAnimationFrame loop drives the growing/shrinking cross, the phase
+   word, the ding, and the countdown number together from the same tick
+   state, so none of them can drift apart from — or skip past — the others. */
+const TICK_MS = 1000;
+const OUT_SETTLE_MS = 1500;
+
+function buildPhaseTicks(phase){
+  if(phase === 'in'){
+    return [
+      {words:['Breathe'],              ding:true,  ms:TICK_MS},
+      {words:['Breathe','in'],         ding:true,  ms:TICK_MS},
+      {words:null,                     ding:false, ms:TICK_MS},
+      {words:null,                     ding:false, ms:TICK_MS}
+    ];
+  }
+  if(phase === 'out'){
+    return [
+      {words:['Breathe'],              ding:true,  ms:TICK_MS},
+      {words:['Breathe','out'],        ding:true,  ms:TICK_MS},
+      {words:['Breathe','out','slow'], ding:true,  ms:TICK_MS},
+      {words:null,                     ding:false, ms:OUT_SETTLE_MS}
+    ];
+  }
+  // hold1 / hold2 — identical plan
+  return [
+    {words:['Hold'], ding:true,  ms:TICK_MS},
+    {words:null,     ding:false, ms:TICK_MS},
+    {words:null,     ding:false, ms:TICK_MS},
+    {words:null,     ding:false, ms:TICK_MS}
+  ];
+}
+function phaseTotalMs(phase){
+  return buildPhaseTicks(phase).reduce((sum,t)=> sum+t.ms, 0);
+}
+const NEXT_PHASE = {in:'hold1', hold1:'out', out:'hold2'}; // hold2's "next" is handled separately (next breath, or prayer)
+
 let currentPhaseLabel = 'Ready';
-let phaseWordTimeouts = [];
-function clearPhaseWordTimeouts(){ phaseWordTimeouts.forEach(id=>clearTimeout(id)); phaseWordTimeouts=[]; }
-function setPhaseLabelInstant(label){
-  clearPhaseWordTimeouts();
-  currentPhaseLabel = label;
-  breathPhaseText.textContent = label;
-}
-function revealPhaseWords(words){
-  clearPhaseWordTimeouts();
-  const gapMs = 750;
-  words.forEach((w,i)=>{
-    const id = setTimeout(()=>{
-      currentPhaseLabel = words.slice(0,i+1).join(' ');
-      breathPhaseText.textContent = currentPhaseLabel;
-    }, i*gapMs);
-    phaseWordTimeouts.push(id);
-  });
-  currentPhaseLabel = words[0];
-}
-function beginPhaseDisplay(phase){
-  if(phase==='in') revealPhaseWords(['Breathe','in']);
-  else if(phase==='out') revealPhaseWords(['Breathe','out','slow']);
-  else setPhaseLabelInstant('Hold');
-}
 let breathTotal = 3;
 let breathIndex = 1;
 let breathPhase = 'in';
-let phaseElapsed = 0;
+let currentTicks = buildPhaseTicks('in');
+let tickIndex = 0;          // which of the phase's ~4 ticks we're on
+let tickElapsed = 0;        // ms elapsed within the current tick
+let phaseElapsedTotal = 0;  // ms elapsed within the current phase (drives the cross scale)
 let breathRunning = false;
 let breathRafId = null;
 let breathLastTs = null;
-let breathStarted = false;
+let breathStarted = false;      // has the user ever pressed Start (gates the one-time pre-countdown)
+let breathEngineStarted = false; // has the tick engine itself begun (gates the very-first ding/announce vs. a Resume)
 const breathBodyEl = document.getElementById('breath-body');
+
+// The single place that ever changes the displayed word, plays a ding, or
+// resets the tick clock — so word, ding, and number can never disagree.
+function enterTick(phase, idx, opts){
+  opts = opts || {};
+  breathPhase = phase;
+  currentTicks = buildPhaseTicks(phase);
+  tickIndex = idx;
+  tickElapsed = 0;
+  if(idx === 0){ phaseElapsedTotal = 0; }
+  const tick = currentTicks[idx];
+  if(tick.words){ currentPhaseLabel = tick.words.join(' '); }
+  breathPhaseText.textContent = currentPhaseLabel;
+  if(idx === 0 && breathRunning){
+    scheduleAudioForPhase(phase, phaseTotalMs(phase));
+  }
+  if(tick.ding && !opts.silent && breathRunning){
+    playDing(1); // every dinging tick gets exactly one chime, right as it starts
+  }
+  updateBreathDisplay();
+}
 
 function clampBreathTotal(n){ return Math.max(1, Math.min(99, n)); }
 
@@ -585,25 +619,17 @@ function showSelectedPrayer(){
 function updateBreathDisplay(){
   breathCounterLabel.textContent = 'Breath ' + breathIndex + ' of ' + breathTotal;
   breathLiveTotal.textContent = breathTotal;
-  breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? currentPhaseLabel : 'Ready';
-  const lead = PHASE_LEAD_MS[breathPhase] || 0;
-  let secondsLeft;
-  if(phaseElapsed < lead){
-    // still in the word/ding lead-in (e.g. "Breathe" / "in" or "Breathe" / "out" / "slow") —
-    // hold at 4 rather than counting down time that isn't part of the actual breath.
-    secondsLeft = 4;
-  } else {
-    const coreElapsed = phaseElapsed - lead;
-    secondsLeft = Math.max(1, Math.ceil((PHASE_MS - coreElapsed)/1000));
-  }
+  breathPhaseText.textContent = breathRunning || phaseElapsedTotal>0 ? currentPhaseLabel : 'Ready';
+  const secondsLeft = 4 - tickIndex; // discrete, tick-driven — always exactly 4, 3, 2, or 1
   breathCountdown.textContent = (breathRunning ? secondsLeft : '') || '\u00A0';
+  const totalMs = phaseTotalMs(breathPhase);
   let scale;
-  if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsed/phaseDurationMs('in')); }
+  if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsedTotal/totalMs); }
   else if(breathPhase==='hold1'){ scale = 1.4; }
-  else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsed/phaseDurationMs('out')); }
+  else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsedTotal/totalMs); }
   else { scale = 1; }
   breathCrossWrap.style.transform = 'scale(' + scale.toFixed(3) + ')';
-  breathStartBtn.textContent = breathCountingDown ? 'Starting...' : breathRunning ? 'Pause' : (phaseElapsed>0 || breathIndex>1 ? 'Resume' : 'Start');
+  breathStartBtn.textContent = breathCountingDown ? 'Starting...' : breathRunning ? 'Pause' : (phaseElapsedTotal>0 || breathIndex>1 ? 'Resume' : 'Start');
 }
 
 let breathCountingDown = false;
@@ -613,37 +639,42 @@ function clearCountdownTimeouts(){ countdownTimeouts.forEach(id=>clearTimeout(id
 function resetBreathingState(){
   breathIndex = 1;
   breathPhase = 'in';
-  phaseElapsed = 0;
+  currentTicks = buildPhaseTicks('in');
+  tickIndex = 0;
+  tickElapsed = 0;
+  phaseElapsedTotal = 0;
   breathRunning = false;
   breathStarted = false;
+  breathEngineStarted = false;
   breathCountingDown = false;
   clearCountdownTimeouts();
   breathBodyEl.classList.add('pre-start');
   fadeOutAudioQuick();
-  setPhaseLabelInstant('Ready');
+  currentPhaseLabel = 'Ready';
+  breathPhaseText.textContent = 'Ready';
   updateBreathDisplay();
 }
 
-const DING_COUNTS = {in:1, hold1:3, out:1, hold2:2};
-function advancePhase(){
-  const endingPhase = breathPhase;
-  const idx = PHASES.indexOf(breathPhase);
-  if(idx < PHASES.length - 1){
-    breathPhase = PHASES[idx+1];
-    phaseElapsed = 0;
-  } else {
+// Called when the current tick's time is up — moves to the next tick, the
+// next phase, the next breath, or (after the final hold) straight into
+// prayer. This is the only place ticks advance, so there's one path in and
+// one path out — nothing to fall out of sync.
+function advanceFromTickEnd(){
+  if(tickIndex < currentTicks.length - 1){
+    enterTick(breathPhase, tickIndex + 1);
+    return;
+  }
+  if(breathPhase === 'hold2'){
     breathIndex += 1;
-    breathPhase = 'in';
-    phaseElapsed = 0;
     if(breathIndex > breathTotal){
       stopBreathing();
-      showSelectedPrayer();
+      showSelectedPrayer(); // no ding here — the wind chime is the only sound marking this handoff
       return;
     }
+    enterTick('in', 0); // next breath's "in", tick 0 — dings exactly like every other "in"
+    return;
   }
-  playDing(DING_COUNTS[endingPhase]);
-  beginPhaseDisplay(breathPhase);
-  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
+  enterTick(NEXT_PHASE[breathPhase], 0);
 }
 
 function breathTick(ts){
@@ -651,10 +682,10 @@ function breathTick(ts){
   if(breathLastTs === null) breathLastTs = ts;
   const dt = ts - breathLastTs;
   breathLastTs = ts;
-  phaseElapsed += dt;
-  if(phaseElapsed >= phaseDurationMs(breathPhase)){
-    phaseElapsed = 0;
-    advancePhase();
+  tickElapsed += dt;
+  phaseElapsedTotal += dt;
+  if(tickElapsed >= currentTicks[tickIndex].ms){
+    advanceFromTickEnd();
     if(!breathRunning) return;
   }
   updateBreathDisplay();
@@ -684,12 +715,13 @@ function runPreCountdown(onDone){
 function actuallyStartBreathingEngine(){
   breathRunning = true;
   breathLastTs = null;
-  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed);
-  if(phaseElapsed === 0){
-    if(breathIndex===1 && breathPhase==='in'){ playDing(DING_COUNTS.hold2); }
-    beginPhaseDisplay(breathPhase);
+  if(!breathEngineStarted){
+    breathEngineStarted = true;
+    enterTick('in', 0); // first breath, first tick — dings the same way every "in" does
   } else {
-    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+    // Resuming mid-tick after a pause: keep the current word/number exactly
+    // as they were, just pick the tone ramp back up from where it left off.
+    scheduleAudioForPhase(breathPhase, phaseTotalMs(breathPhase) - phaseElapsedTotal);
   }
   updateBreathDisplay();
   breathRafId = requestAnimationFrame(breathTick);
@@ -716,7 +748,6 @@ function pauseBreathing(){
   if(breathRafId) cancelAnimationFrame(breathRafId);
   breathRafId = null;
   fadeOutAudioQuick();
-  clearPhaseWordTimeouts();
   updateBreathDisplay();
 }
 function stopBreathing(){
@@ -725,7 +756,6 @@ function stopBreathing(){
   if(breathRafId) cancelAnimationFrame(breathRafId);
   breathRafId = null;
   fadeOutAudioQuick();
-  clearPhaseWordTimeouts();
   clearCountdownTimeouts();
 }
 
@@ -733,18 +763,11 @@ breathStartBtn.addEventListener('click', ()=>{
   if(breathRunning) pauseBreathing(); else startBreathing();
 });
 breathSkipBtn.addEventListener('click', ()=>{
-  phaseElapsed = 0;
+  // Manual skip stays silent (as before) — it's a user override, not a
+  // natural phase entry, so it doesn't trigger a ding.
+  if(breathIndex >= breathTotal){ stopBreathing(); showSelectedPrayer(); return; }
   breathIndex += 1;
-  breathPhase = 'in';
-  if(breathIndex > breathTotal){ stopBreathing(); showSelectedPrayer(); return; }
-  breathLastTs = null;
-  if(breathRunning){
-    scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
-    beginPhaseDisplay(breathPhase);
-  } else {
-    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
-  }
-  updateBreathDisplay();
+  enterTick('in', 0, {silent:true});
 });
 breathSkipAllBtn.addEventListener('click', ()=>{
   stopBreathing();
