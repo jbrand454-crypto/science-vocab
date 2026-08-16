@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Breathing &amp; Prayer — Faith &amp; Science Field Notes</title>
+<meta name="description" content="A calming box-breathing and prayer moment from Faith & Science Field Notes.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F2A44">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Breathe &amp; Pray">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#0F2A44;
+    --board-2:#173A5C;
+    --chalk:#EDF1F5;
+    --chalk-dim:#8FA6BE;
+    --chalk-yellow:#F5C518;
+    --chalk-blue:#0B6FB8;
+    --line:#254C71;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--board);
+    color:var(--chalk);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    min-height:100dvh;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:36px 22px 48px;}
+
+  header{text-align:center;margin-bottom:26px;}
+  .brand{font-family:'Anton',sans-serif;font-weight:400;font-size:22px;letter-spacing:0.5px;text-transform:uppercase;color:var(--chalk);}
+  .brand span{color:var(--chalk-yellow);}
+  .subbrand{font-family:'Zilla Slab',serif;font-weight:600;font-size:15px;color:var(--chalk-dim);margin-top:4px;letter-spacing:0.5px;}
+
+  .card{
+    background:var(--board-2);border:1px solid var(--line);border-radius:14px;
+    padding:20px 22px;margin-bottom:16px;
+  }
+  .card h3{font-family:'Zilla Slab',serif;font-size:17px;margin:0 0 6px;color:var(--chalk-yellow);}
+  .card p{font-size:13.5px;color:var(--chalk-dim);margin:0 0 12px;line-height:1.55;}
+
+  .begin-wrap{text-align:center;margin:30px 0 8px;}
+  button.begin-btn{
+    font-family:'Zilla Slab',serif;font-weight:600;font-size:24px;
+    background:var(--chalk-yellow);color:#14202F;border:none;border-radius:16px;
+    padding:22px 44px;cursor:pointer;box-shadow:0 10px 0 #B58B12;
+    transition:transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  button.begin-btn:active{transform:translateY(6px);box-shadow:0 4px 0 #B58B12;}
+  .begin-hint{font-size:12.5px;color:var(--chalk-dim);margin-top:14px;font-family:'IBM Plex Mono',monospace;}
+
+  button.tile-btn{
+    font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:14px;
+    background:var(--chalk-yellow);color:#14202F;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;
+  }
+  button.tile-btn:hover{filter:brightness(1.06);}
+  button.tile-btn.ghost{background:transparent;color:var(--chalk);border:1px solid var(--line);}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--chalk);margin-bottom:12px;cursor:pointer;}
+  .toggle-row:last-child{margin-bottom:0;}
+  .toggle-switch{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;}
+  .toggle-slider{position:absolute;inset:0;background:var(--board);border:1px solid var(--line);border-radius:22px;transition:0.15s;}
+  .toggle-slider::before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:var(--chalk-dim);border-radius:50%;transition:0.15s;}
+  .toggle-switch input:checked + .toggle-slider{background:var(--chalk-yellow);border-color:var(--chalk-yellow);}
+  .toggle-switch input:checked + .toggle-slider::before{transform:translateX(16px);background:#14202F;}
+
+  .stepper-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--chalk);}
+  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  .stepper button{background:var(--board);color:var(--chalk);border:none;width:30px;height:32px;font-size:16px;cursor:pointer;line-height:1;}
+  .stepper button:hover{background:var(--line);}
+  .stepper span{display:inline-block;width:32px;text-align:center;color:var(--chalk);font-family:'IBM Plex Mono',monospace;font-size:14px;}
+
+  .view-switch-row{text-align:center;margin-top:22px;}
+  .view-switch-row button{
+    background:none;border:1px solid var(--line);border-radius:7px;color:var(--chalk-dim);
+    font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;cursor:pointer;
+  }
+  footer{text-align:center;margin-top:34px;font-size:11.5px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;line-height:1.7;}
+
+  /* ---- fullscreen overlays (view chooser, breathing, prayer) ---- */
+  .fullscreen-overlay{
+    position:fixed;inset:0;background:var(--board);z-index:1000;
+    display:flex;flex-direction:column;padding:26px 34px;
+  }
+  #mode-prayer{transition:opacity 1.8s ease;}
+  .fs-back-bar{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+  .back-btn{
+    font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--chalk-dim);
+    background:none;border:1px solid var(--line);border-radius:7px;padding:9px 16px;cursor:pointer;
+  }
+  .back-btn:hover{color:var(--chalk);border-color:var(--chalk-blue);}
+  .fs-breath-counter{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--chalk-dim);margin-left:auto;}
+
+  button.action{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:16px;background:var(--chalk-yellow);color:#14202F;border:none;border-radius:8px;padding:13px 26px;cursor:pointer;}
+  button.action.secondary{background:transparent;color:var(--chalk);border:1px solid var(--line);}
+  button.action:hover{filter:brightness(1.06);}
+
+  /* ---- breathing ---- */
+  .breath-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:min(3.5vh, 26px);min-height:0;}
+  .breath-stage{width:min(47.4vmin, 462px);height:min(47.4vmin, 462px);display:flex;align-items:center;justify-content:center;position:relative;transition:width 0.5s ease, height 0.5s ease;}
+  .breath-body.pre-start .breath-stage{width:min(21vmin, 205px);height:min(21vmin, 205px);}
+  .breath-body.pre-start .breath-phase-text, .breath-body.pre-start .breath-countdown{display:none;}
+  .breath-intro{display:none;}
+  .breath-body.pre-start .breath-intro{display:inline-grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:12px;max-width:min(620px, 74vw);}
+  .breath-intro-label{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:clamp(16.5px,2.2vw,19px);color:var(--chalk-yellow);white-space:nowrap;text-align:right;}
+  .breath-intro-text{font-family:'IBM Plex Sans',sans-serif;font-size:clamp(16.5px,2.2vw,19px);line-height:1.5;color:var(--chalk-dim);text-align:left;}
+  .breath-glow{
+    position:absolute;inset:0;margin:auto;width:82%;height:82%;border-radius:50%;
+    background:radial-gradient(circle, rgba(232,196,24,0.14) 0%, rgba(11,111,184,0.08) 45%, transparent 72%);
+    filter:blur(6px);pointer-events:none;
+  }
+  .breath-cross-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;transform:scale(1);transition:transform 0.05s linear;will-change:transform;}
+  @keyframes orbitspin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+  @media (prefers-reduced-motion: reduce){
+    .breath-cross-wrap g[style*="orbitspin"]{ animation:none !important; }
+  }
+  .breath-phase-text{font-family:'Zilla Slab',serif;font-weight:600;font-size:30px;color:var(--chalk);text-align:center;}
+  .breath-countdown{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--chalk-yellow);text-align:center;margin-top:4px;}
+  .breath-controls{display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .breath-btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .breath-stepper-row{display:flex;align-items:center;gap:12px;color:var(--chalk-dim);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+
+  /* ---- prayer ---- */
+  .prayer-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:12px;text-align:center;padding:2.5vh 60px 20px;overflow-y:auto;}
+  .prayer-heading{font-family:'Zilla Slab',serif;font-weight:600;font-size:28px;color:var(--chalk-yellow);letter-spacing:0.5px;}
+  .prayer-opening{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-blue);text-align:center;max-width:600px;padding-bottom:13px;border-bottom:1px dashed var(--line);}
+  .prayer-opening span{display:block;color:var(--chalk-dim);font-weight:400;font-size:0.8em;text-transform:none;letter-spacing:normal;margin-top:6px;font-style:italic;}
+  .prayer-text{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:clamp(14.5px,2.2vw,25px);line-height:1.32;color:var(--chalk);max-width:800px;white-space:pre-wrap;cursor:text;}
+  .prayer-text:empty::before{content:"Tap to type today's prayer or intention...";color:var(--chalk-dim);}
+  .prayer-text:focus{outline:none;}
+
+  .target-eyebrow{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--chalk-blue);}
+  .launch-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .launch-card{
+    background:var(--board-2);border:1px solid var(--line);border-radius:12px;
+    padding:22px 20px;text-align:center;color:var(--chalk);cursor:pointer;
+  }
+  .launch-card h3{font-family:'Zilla Slab',serif;font-size:19px;margin:0 0 8px;color:var(--chalk-yellow);}
+  .launch-card p{font-size:12.5px;color:var(--chalk-dim);margin:0;line-height:1.55;}
+
+  /* ---- mobile view (9:16 portrait) overrides ---- */
+  body.view-mobile .fullscreen-overlay{padding:18px 16px;}
+  body.view-mobile .breath-intro{max-width:94vw;column-gap:8px;row-gap:8px;}
+  body.view-mobile .breath-intro-label{font-size:13px;white-space:normal;text-align:left;}
+  body.view-mobile .breath-intro-text{font-size:13px;line-height:1.4;white-space:normal !important;}
+  body.view-mobile .breath-stage{width:min(62vmin, 300px);height:min(62vmin, 300px);}
+  body.view-mobile .prayer-body{padding:2vh 18px 16px;gap:8px;}
+  body.view-mobile .prayer-heading{font-size:18px;}
+  body.view-mobile .prayer-opening{font-size:11px;letter-spacing:1px;padding-bottom:8px;max-width:92vw;}
+  body.view-mobile .prayer-opening span{font-size:0.85em;}
+  body.view-mobile .prayer-text{font-size:14.5px;line-height:1.28;max-width:94vw;}
+  body.view-mobile .prayer-body svg{width:52px;height:52px;}
+  body.view-mobile .wrap{padding:24px 18px 40px;}
+</style>
+</head>
+<body>
+
+<!-- view chooser (first run only) -->
+<div class="fullscreen-overlay" id="mode-view-chooser" style="display:none;align-items:center;justify-content:center;">
+  <div style="text-align:center;max-width:520px;">
+    <div class="target-eyebrow" style="margin-bottom:14px;">Before we start</div>
+    <div style="font-family:'Zilla Slab',serif;font-weight:600;font-size:26px;color:var(--chalk);margin-bottom:10px;">How is this being displayed?</div>
+    <div style="font-size:14px;color:var(--chalk-dim);margin-bottom:26px;line-height:1.6;">This adjusts text size and layout so everything fits cleanly on your screen. You can change this anytime.</div>
+    <div class="launch-grid">
+      <button class="launch-card" id="choose-view-desktop">
+        <h3>Desktop / PC</h3>
+        <p>A computer, laptop, or TV in landscape.</p>
+      </button>
+      <button class="launch-card" id="choose-view-mobile">
+        <h3>Mobile</h3>
+        <p>A phone or tablet in portrait.</p>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- main landing screen -->
+<div class="wrap" id="main-page">
+  <header>
+    <div class="brand">Faith <span>&amp;</span> Science Field Notes</div>
+    <div class="subbrand">Breathing &amp; Prayer</div>
+  </header>
+
+  <div class="card" id="install-card" style="display:none;">
+    <h3 id="install-title">Add to your home screen</h3>
+    <p id="install-body">Get here in one tap next time.</p>
+    <button class="tile-btn" id="install-btn" style="display:none;">Add to Home Screen</button>
+    <button class="tile-btn ghost" id="install-dismiss">Not now</button>
+  </div>
+
+  <div class="card">
+    <h3>Settings</h3>
+    <label class="toggle-row">
+      <span>Include breathing</span>
+      <span class="toggle-switch">
+        <input type="checkbox" id="breathing-enabled-input" checked />
+        <span class="toggle-slider"></span>
+      </span>
+    </label>
+    <label class="toggle-row">
+      <span>Calming tone</span>
+      <span class="toggle-switch">
+        <input type="checkbox" id="tone-enabled-input" checked />
+        <span class="toggle-slider"></span>
+      </span>
+    </label>
+    <div class="stepper-row">
+      <span>Breaths</span>
+      <div class="stepper">
+        <button type="button" id="breath-count-minus">&minus;</button>
+        <span id="breath-count-display">3</span>
+        <button type="button" id="breath-count-plus">&plus;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="begin-wrap">
+    <button class="begin-btn" id="begin-btn">Begin</button>
+    <div class="begin-hint">Box breathing, then a moment of prayer</div>
+  </div>
+
+  <div class="view-switch-row">
+    <button id="view-mode-switch">Desktop view</button>
+  </div>
+
+  <footer>
+    Faith &amp; Science Field Notes &middot; St. Mary School<br>
+    Stay curious. Test ideas. Seek wisdom.
+  </footer>
+</div>
+
+<!-- fullscreen: breathing -->
+<div class="fullscreen-overlay" id="mode-breathing" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-breathing">&larr; Back</button>
+    <span class="fs-breath-counter" id="breath-counter-label">Breath 1 of 3</span>
+  </div>
+  <div class="breath-body pre-start" id="breath-body">
+    <div class="breath-intro" id="breath-intro">
+      <span class="breath-intro-label">Stand &amp; Root:</span><span class="breath-intro-text">Feet flat on the floor like tree roots. 🌳</span>
+      <span class="breath-intro-label">Anchor &amp; Reflect:</span><span class="breath-intro-text">One hand on your belly, one over your heart. Feel your faith grow with every breath. ❤️</span>
+      <span class="breath-intro-label">Follow the Visual:</span><span class="breath-intro-text" style="white-space:nowrap;">Breathe in for 4... hold for 4... release for 4... hold for 4. ⭕</span>
+    </div>
+    <div class="breath-stage">
+      <div class="breath-glow"></div>
+      <div class="breath-cross-wrap" id="breath-cross-wrap">
+        <svg width="100%" height="100%" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="crossGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="var(--chalk-yellow)" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="var(--chalk-yellow)" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="crossFill" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFDF6"/>
+              <stop offset="100%" stop-color="var(--chalk-yellow)"/>
+            </linearGradient>
+          </defs>
+          <circle cx="110" cy="110" r="70" fill="url(#crossGlow)"/>
+          <g transform="rotate(0 110 110)">
+            <ellipse cx="110" cy="110" rx="100" ry="36" fill="none" style="stroke:var(--chalk-blue)" stroke-width="1.4" opacity="0.45"/>
+            <g transform="translate(110 110)"><g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 7s linear infinite;"><g transform="scale(1,0.36)"><circle cx="100" cy="0" r="9" style="fill:var(--chalk-blue)" opacity="0.28"/><circle cx="100" cy="0" r="4.5" style="fill:var(--chalk-blue)"/></g></g></g>
+            <g transform="translate(110 110) rotate(180)"><g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 7s linear infinite;"><g transform="scale(1,0.36)"><circle cx="100" cy="0" r="7" style="fill:var(--chalk-blue)" opacity="0.25"/><circle cx="100" cy="0" r="3.2" style="fill:var(--chalk-blue)" opacity="0.85"/></g></g></g>
+          </g>
+          <g transform="rotate(60 110 110)">
+            <ellipse cx="110" cy="110" rx="100" ry="36" fill="none" style="stroke:var(--chalk-yellow)" stroke-width="1.4" opacity="0.45"/>
+            <g transform="translate(110 110)"><g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 9s linear infinite reverse;"><g transform="scale(1,0.36)"><circle cx="100" cy="0" r="9" style="fill:var(--chalk-yellow)" opacity="0.28"/><circle cx="100" cy="0" r="4.5" style="fill:var(--chalk-yellow)"/></g></g></g>
+            <g transform="translate(110 110) rotate(180)"><g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 9s linear infinite reverse;"><g transform="scale(1,0.36)"><circle cx="100" cy="0" r="7" style="fill:var(--chalk-yellow)" opacity="0.25"/><circle cx="100" cy="0" r="3.2" style="fill:var(--chalk-yellow)" opacity="0.85"/></g></g></g>
+          </g>
+          <g transform="rotate(120 110 110)">
+            <ellipse cx="110" cy="110" rx="100" ry="36" fill="none" style="stroke:var(--chalk-blue)" stroke-width="1.4" opacity="0.45"/>
+            <g transform="translate(110 110)"><g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 11s linear infinite;"><g transform="scale(1,0.36)"><circle cx="100" cy="0" r="9" style="fill:var(--chalk-blue)" opacity="0.28"/><circle cx="100" cy="0" r="4.5" style="fill:var(--chalk-blue)"/></g></g></g>
+            <g transform="translate(110 110) rotate(180)"><g style="transform-box:fill-box;transform-origin:0px 0px;animation:orbitspin 11s linear infinite;"><g transform="scale(1,0.36)"><circle cx="100" cy="0" r="7" style="fill:var(--chalk-blue)" opacity="0.25"/><circle cx="100" cy="0" r="3.2" style="fill:var(--chalk-blue)" opacity="0.85"/></g></g></g>
+          </g>
+          <g style="filter:drop-shadow(0 0 10px rgba(232,196,24,0.55));">
+            <g style="fill:url(#crossFill);">
+              <path d="M103,53 A7,7 0 0 1 117,53 L117,81 L151,81 A7,7 0 0 1 151,95 L117,95 L117,167 A7,7 0 0 1 103,167 L103,95 L69,95 A7,7 0 0 1 69,81 L103,81 Z"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="breath-phase-text" id="breath-phase-text">Ready</div>
+      <div class="breath-countdown" id="breath-countdown">&nbsp;</div>
+    </div>
+    <div class="breath-controls">
+      <div class="breath-btn-row">
+        <button class="action" id="breath-start-btn">Start</button>
+        <button class="action secondary" id="breath-skip-btn">Skip breath</button>
+        <button class="action secondary" id="breath-skip-all-btn">Skip to prayer</button>
+      </div>
+      <div class="breath-stepper-row">
+        <span>Total breaths</span>
+        <div class="stepper">
+          <button type="button" id="breath-live-minus">&minus;</button>
+          <span id="breath-live-total" style="display:inline-block;width:32px;text-align:center;color:var(--chalk);">3</span>
+          <button type="button" id="breath-live-plus">&plus;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- fullscreen: prayer -->
+<div class="fullscreen-overlay" id="mode-prayer" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-prayer">&larr; Back</button>
+  </div>
+  <div class="prayer-body">
+    <svg width="88" height="88" viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+      <g style="stroke:var(--chalk-yellow);stroke-width:6;stroke-linecap:round;">
+        <line x1="35" y1="8" x2="35" y2="62"/>
+        <line x1="14" y1="26" x2="56" y2="26"/>
+      </g>
+    </svg>
+    <div class="prayer-heading" id="prayer-month-heading">Let us pray</div>
+    <div class="prayer-opening">In the name of the Father, and of the Son, and of the Holy Spirit.<span>(All make the Sign of the Cross)</span></div>
+    <div class="prayer-text" id="prayer-text" contenteditable="true"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- storage helpers ---------- */
+const STORAGE_PREFIX = 'fsfnr-breathe:';
+async function storageGet(key){
+  try{ return localStorage.getItem(STORAGE_PREFIX + key); }
+  catch(e){ return null; }
+}
+async function storageSet(key, value){
+  try{ localStorage.setItem(STORAGE_PREFIX + key, value); return true; }
+  catch(e){ return false; }
+}
+
+/* ---------- overlay switching ---------- */
+const mainPage = document.getElementById('main-page');
+const modeBreathing = document.getElementById('mode-breathing');
+const modePrayer = document.getElementById('mode-prayer');
+const ALL_OVERLAYS = [modeBreathing, modePrayer];
+
+function showMain(){
+  mainPage.style.display='';
+  ALL_OVERLAYS.forEach(el=> el.style.display='none');
+  stopBreathing();
+}
+function showOverlay(el){
+  mainPage.style.display='none';
+  ALL_OVERLAYS.forEach(o=> o.style.display='none');
+  el.style.display='flex';
+}
+document.getElementById('back-from-breathing').addEventListener('click', showMain);
+document.getElementById('back-from-prayer').addEventListener('click', showMain);
+
+/* ---------- preset monthly prayers ---------- */
+const PRESET_PRAYERS = {"7":{"phrase":"Rooted in Belonging","text":"Lord, as a new school year begins, root us in belonging — help every student and teacher feel welcomed, known, and loved in this St. Mary family.\n\nLike curious scientists, let us test one idea today: that everyone here has a place.\n\nBless us as we grow in faith and knowledge together, seeking your wisdom in all we do.\n\nAmen."},"8":{"phrase":"Rooted in Responsibility","text":"Lord, root us in responsibility this month — help us do what is right, even when no one is watching.\n\nLike scientists who test their ideas, may we own our mistakes, learn from them, and try again.\n\nGuide us as we grow in faith and academics, seeking your wisdom in every choice we make.\n\nAmen."},"9":{"phrase":"Rooted in Service","text":"Lord, root us in service — help us act with kindness and use our gifts for our school, parish, and community.\n\nLike scientists who test ideas to help others, let our hands and hearts be tools for your good work.\n\nKeep us curious and humble as we grow closer to you and to each other.\n\nAmen."},"10":{"phrase":"Rooted in Gratitude","text":"Lord, root us in gratitude — open our eyes to every gift you have given us, seen and unseen.\n\nLike scientists who marvel at creation, let us stay curious about the wonders around us and give you thanks.\n\nThank you for this school family; help us grow in faith and love this month.\n\nAmen."},"11":{"phrase":"Rooted in Hope","text":"Lord, root us in hope as we await the coming of your Son.\n\nLike scientists who trust that answers can be found, help us trust in your promises, even in the dark or the unknown.\n\nFill our school with your light and peace as we grow in faith together.\n\nAmen."},"0":{"phrase":"Growing in Wisdom","text":"Lord, help us grow in wisdom this month — the wisdom that begins with knowing and loving you.\n\nAs scientists and disciples, may we stay curious, test our ideas, and seek your wisdom above all else.\n\nGuide our minds and hearts as we pursue excellence in faith and learning.\n\nAmen."},"1":{"phrase":"Growing in Love","text":"Lord, help us grow in love — to love others, include the left out, and build true community, just as you call us to.\n\nLike scientists who test their ideas with care, let us test our actions against your greatest command: to love one another.\n\nRoot our friendships and our faith in you this month.\n\nAmen."},"2":{"phrase":"Growing in Discipline","text":"Lord, help us grow in discipline — the steady, daily effort it takes to become who you made us to be.\n\nLike scientists who don't give up after one try, teach us patience and perseverance in our faith and our work.\n\nStrengthen our habits of prayer, kindness, and hard work this month.\n\nAmen."},"3":{"phrase":"Growing in Leadership","text":"Lord, help us grow in leadership — to serve first and lead by example, the way Jesus did.\n\nLike scientists who test their ideas before sharing them with others, may we lead with humility, honesty, and courage.\n\nUse us to encourage faith in those around us this month.\n\nAmen."},"4":{"phrase":"Growing in Excellence","text":"Lord, as this school year ends, help us grow in excellence — doing all things with integrity, responsibility, and purpose.\n\nLike scientists reflecting on all they've discovered, let us look back with gratitude, still curious, still seeking your wisdom.\n\nThank you for rooting us in faith and growing us in excellence this year. Send us forth to leave the world better than we found it.\n\nAmen."}};
+
+/* ---------- BREATHING & PRAYER ---------- */
+const breathingEnabledInput = document.getElementById('breathing-enabled-input');
+const toneEnabledInput = document.getElementById('tone-enabled-input');
+const breathCountDisplay = document.getElementById('breath-count-display');
+const breathCountMinus = document.getElementById('breath-count-minus');
+const breathCountPlus = document.getElementById('breath-count-plus');
+const breathCounterLabel = document.getElementById('breath-counter-label');
+const breathPhaseText = document.getElementById('breath-phase-text');
+const breathCountdown = document.getElementById('breath-countdown');
+const breathCrossWrap = document.getElementById('breath-cross-wrap');
+const breathStartBtn = document.getElementById('breath-start-btn');
+const breathSkipBtn = document.getElementById('breath-skip-btn');
+const breathSkipAllBtn = document.getElementById('breath-skip-all-btn');
+const breathLiveMinus = document.getElementById('breath-live-minus');
+const breathLivePlus = document.getElementById('breath-live-plus');
+const breathLiveTotal = document.getElementById('breath-live-total');
+const prayerTextEl = document.getElementById('prayer-text');
+const prayerMonthHeading = document.getElementById('prayer-month-heading');
+
+let toneEnabled = true;
+let audioCtx = null, toneGain = null, toneOsc1 = null, toneOsc2 = null, toneOsc3 = null;
+const TONE_MAX = 0.075, TONE_MIN = 0.0;
+
+function ensureAudioContext(){
+  if(audioCtx) { if(audioCtx.state==='suspended') audioCtx.resume(); return; }
+  try{
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    toneGain = audioCtx.createGain();
+    toneGain.gain.value = 0;
+    toneGain.connect(audioCtx.destination);
+    const mkVoice = (freq, level)=>{
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const g = audioCtx.createGain();
+      g.gain.value = level;
+      osc.connect(g);
+      g.connect(toneGain);
+      osc.start();
+      return osc;
+    };
+    toneOsc1 = mkVoice(110, 1.0);
+    toneOsc2 = mkVoice(220, 0.4);
+    toneOsc3 = mkVoice(165, 0.22);
+  }catch(e){ audioCtx = null; }
+}
+function scheduleAudioForPhase(phase, remainingMs){
+  if(!toneEnabled || !audioCtx || !toneGain) return;
+  const now = audioCtx.currentTime;
+  const dur = Math.max(0.05, remainingMs/1000);
+  toneGain.gain.cancelScheduledValues(now);
+  toneGain.gain.setValueAtTime(toneGain.gain.value, now);
+  if(phase==='in'){ toneGain.gain.linearRampToValueAtTime(TONE_MAX, now+dur); }
+  else if(phase==='hold1'){ toneGain.gain.linearRampToValueAtTime(TONE_MAX, now+Math.min(0.05,dur)); }
+  else if(phase==='out'){ toneGain.gain.linearRampToValueAtTime(TONE_MIN, now+dur); }
+  else { toneGain.gain.linearRampToValueAtTime(TONE_MIN, now+Math.min(0.05,dur)); }
+}
+function fadeOutAudioQuick(){
+  if(!audioCtx || !toneGain) return;
+  const now = audioCtx.currentTime;
+  toneGain.gain.cancelScheduledValues(now);
+  toneGain.gain.setValueAtTime(toneGain.gain.value, now);
+  toneGain.gain.linearRampToValueAtTime(0, now+0.3);
+}
+function playSingleDing(startTime, freq){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq || 880;
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(0.16, startTime+0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0008, startTime+0.42);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(startTime);
+  osc.stop(startTime+0.45);
+}
+function playDing(count){
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const gap = 0.75;
+  playSingleDing(now, 880);
+  if(count>=2) playSingleDing(now+gap, 880);
+  if(count>=3) playSingleDing(now+gap*2, 880);
+}
+function playCountdownDing(){
+  if(!toneEnabled || !audioCtx) return;
+  playSingleDing(audioCtx.currentTime, 660);
+}
+function playPrayerChime(){
+  ensureAudioContext();
+  if(!toneEnabled || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const freqs = [523.25, 659.25, 783.99, 1046.5];
+  freqs.forEach((f,i)=>{
+    const start = now + i*0.16;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(0.06, start+0.06);
+    g.gain.exponentialRampToValueAtTime(0.0006, start+2.4);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start+2.5);
+  });
+}
+toneEnabledInput.addEventListener('change', ()=>{
+  toneEnabled = toneEnabledInput.checked;
+  storageSet('tone-enabled', String(toneEnabled));
+  if(!toneEnabled){ fadeOutAudioQuick(); }
+  else if(breathRunning){ scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed); }
+});
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+let monthlyPrayers = {};
+let selectedMonth = new Date().getMonth();
+
+const PHASE_MS = 4000;
+const DING_GAP_MS = 750;
+const PHASE_LEAD_MS = {in: DING_GAP_MS, hold1: 0, out: DING_GAP_MS*2, hold2: 0};
+function phaseDurationMs(phase){ return PHASE_MS + (PHASE_LEAD_MS[phase]||0); }
+const PHASES = ['in','hold1','out','hold2'];
+const PHASE_LABELS = {in:'Breathe in', hold1:'Hold', out:'Breathe out slow', hold2:'Hold'};
+let currentPhaseLabel = 'Ready';
+let phaseWordTimeouts = [];
+function clearPhaseWordTimeouts(){ phaseWordTimeouts.forEach(id=>clearTimeout(id)); phaseWordTimeouts=[]; }
+function setPhaseLabelInstant(label){
+  clearPhaseWordTimeouts();
+  currentPhaseLabel = label;
+  breathPhaseText.textContent = label;
+}
+function revealPhaseWords(words){
+  clearPhaseWordTimeouts();
+  const gapMs = 750;
+  words.forEach((w,i)=>{
+    const id = setTimeout(()=>{
+      currentPhaseLabel = words.slice(0,i+1).join(' ');
+      breathPhaseText.textContent = currentPhaseLabel;
+    }, i*gapMs);
+    phaseWordTimeouts.push(id);
+  });
+  currentPhaseLabel = words[0];
+}
+function beginPhaseDisplay(phase){
+  if(phase==='in') revealPhaseWords(['Breathe','in']);
+  else if(phase==='out') revealPhaseWords(['Breathe','out','slow']);
+  else setPhaseLabelInstant('Hold');
+}
+let breathTotal = 3;
+let breathIndex = 1;
+let breathPhase = 'in';
+let phaseElapsed = 0;
+let breathRunning = false;
+let breathRafId = null;
+let breathLastTs = null;
+let breathStarted = false;
+const breathBodyEl = document.getElementById('breath-body');
+
+function clampBreathTotal(n){ return Math.max(1, Math.min(99, n)); }
+
+async function loadBreathingSettings(){
+  const enabledRaw = await storageGet('breathing-enabled');
+  const enabled = enabledRaw === null ? true : enabledRaw === 'true';
+  breathingEnabledInput.checked = enabled;
+  const toneRaw = await storageGet('tone-enabled');
+  toneEnabled = toneRaw === null ? true : toneRaw === 'true';
+  toneEnabledInput.checked = toneEnabled;
+  const countRaw = await storageGet('breath-count');
+  breathTotal = clampBreathTotal(parseInt(countRaw) || 3);
+  breathCountDisplay.textContent = breathTotal;
+  const monthlyRaw = await storageGet('monthly-prayers');
+  if(monthlyRaw){ monthlyPrayers = JSON.parse(monthlyRaw); }
+}
+breathingEnabledInput.addEventListener('change', ()=>{
+  storageSet('breathing-enabled', String(breathingEnabledInput.checked));
+});
+function setBreathCountValue(n){
+  breathTotal = clampBreathTotal(n);
+  breathCountDisplay.textContent = breathTotal;
+  storageSet('breath-count', String(breathTotal));
+}
+breathCountMinus.addEventListener('click', ()=> setBreathCountValue(breathTotal - 1));
+breathCountPlus.addEventListener('click', ()=> setBreathCountValue(breathTotal + 1));
+
+let prayerSaveTimer = null;
+prayerTextEl.addEventListener('input', ()=>{
+  clearTimeout(prayerSaveTimer);
+  prayerSaveTimer = setTimeout(()=>{
+    const existingPhrase = (monthlyPrayers[selectedMonth] && monthlyPrayers[selectedMonth].phrase) || '';
+    monthlyPrayers[selectedMonth] = {phrase: existingPhrase, text: prayerTextEl.textContent};
+    storageSet('monthly-prayers', JSON.stringify(monthlyPrayers));
+  }, 500);
+});
+
+async function loadDefaultPrayers(){
+  let added = 0;
+  Object.keys(PRESET_PRAYERS).forEach(key=>{
+    const existing = monthlyPrayers[key];
+    if(!existing || !existing.text || !existing.text.trim()){
+      monthlyPrayers[key] = PRESET_PRAYERS[key];
+      added++;
+    }
+  });
+  if(added>0){ await storageSet('monthly-prayers', JSON.stringify(monthlyPrayers)); }
+  return added;
+}
+
+function showSelectedPrayer(){
+  playPrayerChime();
+  selectedMonth = new Date().getMonth();
+  const entry = monthlyPrayers[selectedMonth];
+  prayerMonthHeading.textContent = MONTH_NAMES[selectedMonth] + (entry && entry.phrase ? ' — ' + entry.phrase : ' — Let us pray');
+  prayerTextEl.textContent = (entry && entry.text) || '';
+  modePrayer.style.opacity = '0';
+  showOverlay(modePrayer);
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ modePrayer.style.opacity = '1'; }); });
+}
+
+function updateBreathDisplay(){
+  breathCounterLabel.textContent = 'Breath ' + breathIndex + ' of ' + breathTotal;
+  breathLiveTotal.textContent = breathTotal;
+  breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? currentPhaseLabel : 'Ready';
+  const lead = PHASE_LEAD_MS[breathPhase] || 0;
+  let secondsLeft;
+  if(phaseElapsed < lead){
+    // still in the word/ding lead-in (e.g. "Breathe" / "in" or "Breathe" / "out" / "slow") —
+    // hold at 4 rather than counting down time that isn't part of the actual breath.
+    secondsLeft = 4;
+  } else {
+    const coreElapsed = phaseElapsed - lead;
+    secondsLeft = Math.max(1, Math.ceil((PHASE_MS - coreElapsed)/1000));
+  }
+  breathCountdown.textContent = (breathRunning ? secondsLeft : '') || '\u00A0';
+  let scale;
+  if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsed/phaseDurationMs('in')); }
+  else if(breathPhase==='hold1'){ scale = 1.4; }
+  else if(breathPhase==='out'){ scale = 1.4 - 0.4*(phaseElapsed/phaseDurationMs('out')); }
+  else { scale = 1; }
+  breathCrossWrap.style.transform = 'scale(' + scale.toFixed(3) + ')';
+  breathStartBtn.textContent = breathCountingDown ? 'Starting...' : breathRunning ? 'Pause' : (phaseElapsed>0 || breathIndex>1 ? 'Resume' : 'Start');
+}
+
+let breathCountingDown = false;
+let countdownTimeouts = [];
+function clearCountdownTimeouts(){ countdownTimeouts.forEach(id=>clearTimeout(id)); countdownTimeouts=[]; }
+
+function resetBreathingState(){
+  breathIndex = 1;
+  breathPhase = 'in';
+  phaseElapsed = 0;
+  breathRunning = false;
+  breathStarted = false;
+  breathCountingDown = false;
+  clearCountdownTimeouts();
+  breathBodyEl.classList.add('pre-start');
+  fadeOutAudioQuick();
+  setPhaseLabelInstant('Ready');
+  updateBreathDisplay();
+}
+
+const DING_COUNTS = {in:1, hold1:3, out:1, hold2:2};
+function advancePhase(){
+  const endingPhase = breathPhase;
+  const idx = PHASES.indexOf(breathPhase);
+  if(idx < PHASES.length - 1){
+    breathPhase = PHASES[idx+1];
+    phaseElapsed = 0;
+  } else {
+    breathIndex += 1;
+    breathPhase = 'in';
+    phaseElapsed = 0;
+    if(breathIndex > breathTotal){
+      stopBreathing();
+      showSelectedPrayer();
+      return;
+    }
+  }
+  playDing(DING_COUNTS[endingPhase]);
+  beginPhaseDisplay(breathPhase);
+  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
+}
+
+function breathTick(ts){
+  if(!breathRunning) return;
+  if(breathLastTs === null) breathLastTs = ts;
+  const dt = ts - breathLastTs;
+  breathLastTs = ts;
+  phaseElapsed += dt;
+  if(phaseElapsed >= phaseDurationMs(breathPhase)){
+    phaseElapsed = 0;
+    advancePhase();
+    if(!breathRunning) return;
+  }
+  updateBreathDisplay();
+  breathRafId = requestAnimationFrame(breathTick);
+}
+
+function runPreCountdown(onDone){
+  clearCountdownTimeouts();
+  const steps = [
+    {label: 'Get ready to start breathing.', ding: 'none'},
+    {label: '3', ding: 'single'},
+    {label: '2', ding: 'single'},
+    {label: '1', ding: 'single'}
+  ];
+  steps.forEach((step,i)=>{
+    const id = setTimeout(()=>{
+      currentPhaseLabel = step.label;
+      breathPhaseText.textContent = step.label;
+      if(step.ding==='single') playCountdownDing();
+    }, i*1000);
+    countdownTimeouts.push(id);
+  });
+  const doneId = setTimeout(onDone, steps.length*1000);
+  countdownTimeouts.push(doneId);
+}
+
+function actuallyStartBreathingEngine(){
+  breathRunning = true;
+  breathLastTs = null;
+  scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase) - phaseElapsed);
+  if(phaseElapsed === 0){
+    if(breathIndex===1 && breathPhase==='in'){ playDing(DING_COUNTS.hold2); }
+    beginPhaseDisplay(breathPhase);
+  } else {
+    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+  }
+  updateBreathDisplay();
+  breathRafId = requestAnimationFrame(breathTick);
+}
+
+function startBreathing(){
+  if(breathRunning || breathCountingDown) return;
+  breathBodyEl.classList.remove('pre-start');
+  ensureAudioContext();
+  if(!breathStarted){
+    breathStarted = true;
+    breathCountingDown = true;
+    updateBreathDisplay();
+    runPreCountdown(()=>{
+      breathCountingDown = false;
+      actuallyStartBreathingEngine();
+    });
+    return;
+  }
+  actuallyStartBreathingEngine();
+}
+function pauseBreathing(){
+  breathRunning = false;
+  if(breathRafId) cancelAnimationFrame(breathRafId);
+  breathRafId = null;
+  fadeOutAudioQuick();
+  clearPhaseWordTimeouts();
+  updateBreathDisplay();
+}
+function stopBreathing(){
+  breathRunning = false;
+  breathCountingDown = false;
+  if(breathRafId) cancelAnimationFrame(breathRafId);
+  breathRafId = null;
+  fadeOutAudioQuick();
+  clearPhaseWordTimeouts();
+  clearCountdownTimeouts();
+}
+
+breathStartBtn.addEventListener('click', ()=>{
+  if(breathRunning) pauseBreathing(); else startBreathing();
+});
+breathSkipBtn.addEventListener('click', ()=>{
+  phaseElapsed = 0;
+  breathIndex += 1;
+  breathPhase = 'in';
+  if(breathIndex > breathTotal){ stopBreathing(); showSelectedPrayer(); return; }
+  breathLastTs = null;
+  if(breathRunning){
+    scheduleAudioForPhase(breathPhase, phaseDurationMs(breathPhase));
+    beginPhaseDisplay(breathPhase);
+  } else {
+    setPhaseLabelInstant(PHASE_LABELS[breathPhase]);
+  }
+  updateBreathDisplay();
+});
+breathSkipAllBtn.addEventListener('click', ()=>{
+  stopBreathing();
+  showSelectedPrayer();
+});
+breathLiveMinus.addEventListener('click', ()=>{
+  breathTotal = clampBreathTotal(breathTotal - 1);
+  storageSet('breath-count', String(breathTotal));
+  if(breathIndex > breathTotal){ stopBreathing(); showSelectedPrayer(); return; }
+  updateBreathDisplay();
+});
+breathLivePlus.addEventListener('click', ()=>{
+  breathTotal = clampBreathTotal(breathTotal + 1);
+  storageSet('breath-count', String(breathTotal));
+  updateBreathDisplay();
+});
+
+/* ---------- Begin button: the "seconds to breathing" entry point ---------- */
+document.getElementById('begin-btn').addEventListener('click', ()=>{
+  if(breathingEnabledInput.checked){
+    resetBreathingState();
+    showOverlay(modeBreathing);
+    updateBreathDisplay();
+  } else {
+    showSelectedPrayer();
+  }
+});
+
+/* ---------- VIEW MODE (mobile / desktop) ---------- */
+const modeViewChooser = document.getElementById('mode-view-chooser');
+const viewModeSwitch = document.getElementById('view-mode-switch');
+
+function applyViewMode(mode){
+  document.body.classList.toggle('view-mobile', mode==='mobile');
+  document.body.classList.toggle('view-desktop', mode==='desktop');
+  viewModeSwitch.textContent = mode==='mobile' ? 'Mobile view' : 'Desktop view';
+}
+async function setViewMode(mode){
+  await storageSet('view-mode', mode);
+  applyViewMode(mode);
+}
+viewModeSwitch.addEventListener('click', ()=>{
+  const next = document.body.classList.contains('view-mobile') ? 'desktop' : 'mobile';
+  setViewMode(next);
+});
+document.getElementById('choose-view-desktop').addEventListener('click', async ()=>{
+  await setViewMode('desktop');
+  modeViewChooser.style.display = 'none';
+});
+document.getElementById('choose-view-mobile').addEventListener('click', async ()=>{
+  await setViewMode('mobile');
+  modeViewChooser.style.display = 'none';
+});
+async function initViewMode(){
+  const saved = await storageGet('view-mode');
+  if(saved==='mobile' || saved==='desktop'){
+    applyViewMode(saved);
+  } else {
+    const guess = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    applyViewMode(guess);
+    modeViewChooser.style.display = 'flex';
+  }
+}
+
+/* ---------- INSTALL / ADD TO HOME SCREEN ---------- */
+const installCard = document.getElementById('install-card');
+const installTitle = document.getElementById('install-title');
+const installBody = document.getElementById('install-body');
+const installBtn = document.getElementById('install-btn');
+const installDismiss = document.getElementById('install-dismiss');
+let deferredInstallPrompt = null;
+
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+async function initInstallCard(){
+  if(isStandalone()) return; // already installed — skip entirely, get straight to Begin
+  const dismissed = await storageGet('install-dismissed');
+  if(dismissed === 'true') return;
+
+  window.addEventListener('beforeinstallprompt', (e)=>{
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    installTitle.textContent = 'Add to your home screen';
+    installBody.textContent = 'One tap gets you straight to breathing next time.';
+    installBtn.style.display = '';
+    installBtn.textContent = 'Add to Home Screen';
+    installCard.style.display = '';
+  });
+
+  if(isIOS()){
+    installTitle.textContent = 'Add to your home screen';
+    installBody.textContent = 'Tap the Share icon, then "Add to Home Screen."';
+    installBtn.style.display = 'none';
+    installCard.style.display = '';
+  } else if(!deferredInstallPrompt){
+    // Desktop / browser without install prompt support: offer bookmarking
+    const isMac = /Mac/.test(navigator.platform);
+    installTitle.textContent = 'Save to your favorites';
+    installBody.textContent = 'Press ' + (isMac ? 'Cmd+D' : 'Ctrl+D') + ' to bookmark this page for quick access.';
+    installBtn.style.display = 'none';
+    installCard.style.display = '';
+  }
+}
+installBtn.addEventListener('click', async ()=>{
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  installCard.style.display = 'none';
+});
+installDismiss.addEventListener('click', ()=>{
+  storageSet('install-dismissed', 'true');
+  installCard.style.display = 'none';
+});
+
+/* ---------- init ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+(async function init(){
+  await initViewMode();
+  await loadBreathingSettings();
+  await loadDefaultPrayers();
+  await initInstallCard();
+})();
+</script>
+</body>
+</html>
