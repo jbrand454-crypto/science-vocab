@@ -823,6 +823,11 @@ function isStandalone(){
 function isIOS(){
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
+function isMobileDevice(){
+  const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent);
+  const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  return uaMobile || coarsePointer;
+}
 
 async function initInstallCard(){
   if(isStandalone()) return; // already installed — skip entirely, get straight to Begin
@@ -844,14 +849,30 @@ async function initInstallCard(){
     installBody.textContent = 'Tap the Share icon, then "Add to Home Screen."';
     installBtn.style.display = 'none';
     installCard.style.display = '';
-  } else if(!deferredInstallPrompt){
-    // Desktop / browser without install prompt support: offer bookmarking
-    const isMac = /Mac/.test(navigator.platform);
-    installTitle.textContent = 'Save to your favorites';
-    installBody.textContent = 'Press ' + (isMac ? 'Cmd+D' : 'Ctrl+D') + ' to bookmark this page for quick access.';
-    installBtn.style.display = 'none';
-    installCard.style.display = '';
+    return;
   }
+
+  // Give the browser a moment to fire beforeinstallprompt (Chrome/Edge) before
+  // falling back to manual instructions, so supported browsers always get the
+  // real one-tap install button instead of a flash of fallback text.
+  setTimeout(()=>{
+    if(deferredInstallPrompt || installCard.style.display !== 'none') return;
+    if(isMobileDevice()){
+      // Mobile browser without automatic install support (e.g. Firefox for
+      // Android, some in-app browsers): give menu-based instructions instead
+      // of a desktop keyboard shortcut.
+      installTitle.textContent = 'Save a shortcut to your home screen';
+      installBody.textContent = 'Open your browser menu and choose "Add to Home Screen" or "Install App."';
+      installBtn.style.display = 'none';
+      installCard.style.display = '';
+    } else {
+      const isMac = /Mac/.test(navigator.platform);
+      installTitle.textContent = 'Save to your favorites';
+      installBody.textContent = 'Press ' + (isMac ? 'Cmd+D' : 'Ctrl+D') + ' to bookmark this page for quick access.';
+      installBtn.style.display = 'none';
+      installCard.style.display = '';
+    }
+  }, 1200);
 }
 installBtn.addEventListener('click', async ()=>{
   if(!deferredInstallPrompt) return;
