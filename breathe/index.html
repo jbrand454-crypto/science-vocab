@@ -147,6 +147,23 @@
   .launch-card p{font-size:12.5px;color:var(--chalk-dim);margin:0;line-height:1.55;}
 
   /* ---- mobile view (9:16 portrait) overrides ---- */
+
+  /* ---- fullscreen month select ---- */
+  .month-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:20px 40px;}
+  .month-heading{font-family:'Zilla Slab',serif;font-weight:600;font-size:26px;color:var(--chalk-yellow);}
+  .month-grid{display:grid;grid-template-columns:repeat(4, minmax(120px,1fr));gap:14px;width:100%;max-width:760px;}
+  @media (max-width:600px){ .month-grid{grid-template-columns:repeat(3, 1fr);} }
+  .month-btn{
+    background:var(--board-2);border:1px solid var(--line);border-radius:10px;
+    padding:20px 10px;cursor:pointer;color:var(--chalk);text-align:center;
+    font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:16px;
+  }
+  .month-btn:hover{border-color:var(--chalk-blue);}
+  .month-btn.current{border-color:var(--chalk-yellow);}
+  .month-btn .m-badge{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--chalk-dim);margin-top:6px;}
+  .month-btn.current .m-badge{color:var(--chalk-yellow);}
+  .import-note{font-size:12px;color:var(--chalk-dim);max-width:420px;line-height:1.5;}
+  body.view-mobile .month-grid{grid-template-columns:repeat(2, 1fr);}
   body.view-mobile .fullscreen-overlay{padding:18px 16px;}
   body.view-mobile .breath-intro{max-width:94vw;column-gap:8px;row-gap:8px;}
   body.view-mobile .breath-intro-label{font-size:13px;white-space:normal;text-align:left;}
@@ -235,6 +252,21 @@
     Faith &amp; Science Field Notes &middot; St. Mary School<br>
     Stay curious. Test ideas. Seek wisdom.
   </footer>
+</div>
+
+<!-- fullscreen: month select -->
+<div class="fullscreen-overlay" id="mode-month" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-month">&larr; Back</button>
+  </div>
+  <div class="month-body">
+    <div class="month-heading">Select this month's prayer</div>
+    <div class="month-grid" id="month-grid"></div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <button class="tile-btn" id="load-default-prayers-btn" style="width:auto;padding:9px 16px;">Load default prayers</button>
+      <span class="import-note" id="month-default-note">Fills in August&ndash;May with the Rooted in Faith series. Won't overwrite a month you've already edited.</span>
+    </div>
+  </div>
 </div>
 
 <!-- fullscreen: breathing -->
@@ -341,9 +373,10 @@ async function storageSet(key, value){
 
 /* ---------- overlay switching ---------- */
 const mainPage = document.getElementById('main-page');
+const modeMonth = document.getElementById('mode-month');
 const modeBreathing = document.getElementById('mode-breathing');
 const modePrayer = document.getElementById('mode-prayer');
-const ALL_OVERLAYS = [modeBreathing, modePrayer];
+const ALL_OVERLAYS = [modeMonth, modeBreathing, modePrayer];
 
 function showMain(){
   mainPage.style.display='';
@@ -355,8 +388,9 @@ function showOverlay(el){
   ALL_OVERLAYS.forEach(o=> o.style.display='none');
   el.style.display='flex';
 }
-document.getElementById('back-from-breathing').addEventListener('click', showMain);
-document.getElementById('back-from-prayer').addEventListener('click', showMain);
+document.getElementById('back-from-month').addEventListener('click', showMain);
+document.getElementById('back-from-breathing').addEventListener('click', ()=> goToMonthSelect());
+document.getElementById('back-from-prayer').addEventListener('click', ()=> goToMonthSelect());
 
 /* ---------- preset monthly prayers ---------- */
 const PRESET_PRAYERS = {"7":{"phrase":"Rooted in Belonging","text":"Lord, as a new school year begins, root us in belonging — help every student and teacher feel welcomed, known, and loved in this St. Mary family.\n\nLike curious scientists, let us test one idea today: that everyone here has a place.\n\nBless us as we grow in faith and knowledge together, seeking your wisdom in all we do.\n\nAmen."},"8":{"phrase":"Rooted in Responsibility","text":"Lord, root us in responsibility this month — help us do what is right, even when no one is watching.\n\nLike scientists who test their ideas, may we own our mistakes, learn from them, and try again.\n\nGuide us as we grow in faith and academics, seeking your wisdom in every choice we make.\n\nAmen."},"9":{"phrase":"Rooted in Service","text":"Lord, root us in service — help us act with kindness and use our gifts for our school, parish, and community.\n\nLike scientists who test ideas to help others, let our hands and hearts be tools for your good work.\n\nKeep us curious and humble as we grow closer to you and to each other.\n\nAmen."},"10":{"phrase":"Rooted in Gratitude","text":"Lord, root us in gratitude — open our eyes to every gift you have given us, seen and unseen.\n\nLike scientists who marvel at creation, let us stay curious about the wonders around us and give you thanks.\n\nThank you for this school family; help us grow in faith and love this month.\n\nAmen."},"11":{"phrase":"Rooted in Hope","text":"Lord, root us in hope as we await the coming of your Son.\n\nLike scientists who trust that answers can be found, help us trust in your promises, even in the dark or the unknown.\n\nFill our school with your light and peace as we grow in faith together.\n\nAmen."},"0":{"phrase":"Growing in Wisdom","text":"Lord, help us grow in wisdom this month — the wisdom that begins with knowing and loving you.\n\nAs scientists and disciples, may we stay curious, test our ideas, and seek your wisdom above all else.\n\nGuide our minds and hearts as we pursue excellence in faith and learning.\n\nAmen."},"1":{"phrase":"Growing in Love","text":"Lord, help us grow in love — to love others, include the left out, and build true community, just as you call us to.\n\nLike scientists who test their ideas with care, let us test our actions against your greatest command: to love one another.\n\nRoot our friendships and our faith in you this month.\n\nAmen."},"2":{"phrase":"Growing in Discipline","text":"Lord, help us grow in discipline — the steady, daily effort it takes to become who you made us to be.\n\nLike scientists who don't give up after one try, teach us patience and perseverance in our faith and our work.\n\nStrengthen our habits of prayer, kindness, and hard work this month.\n\nAmen."},"3":{"phrase":"Growing in Leadership","text":"Lord, help us grow in leadership — to serve first and lead by example, the way Jesus did.\n\nLike scientists who test their ideas before sharing them with others, may we lead with humility, honesty, and courage.\n\nUse us to encourage faith in those around us this month.\n\nAmen."},"4":{"phrase":"Growing in Excellence","text":"Lord, as this school year ends, help us grow in excellence — doing all things with integrity, responsibility, and purpose.\n\nLike scientists reflecting on all they've discovered, let us look back with gratitude, still curious, still seeking your wisdom.\n\nThank you for rooting us in faith and growing us in excellence this year. Send us forth to leave the world better than we found it.\n\nAmen."}};
@@ -478,6 +512,8 @@ toneEnabledInput.addEventListener('change', ()=>{
 });
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_DISPLAY_ORDER = [7,8,9,10,11,0,1,2,3,4]; // August through May, school-year order
+const monthGrid = document.getElementById('month-grid');
 let monthlyPrayers = {};
 let selectedMonth = new Date().getMonth();
 
@@ -601,13 +637,49 @@ async function loadDefaultPrayers(){
       added++;
     }
   });
-  if(added>0){ await storageSet('monthly-prayers', JSON.stringify(monthlyPrayers)); }
+  if(added>0){
+    await storageSet('monthly-prayers', JSON.stringify(monthlyPrayers));
+    renderMonthGrid();
+  }
   return added;
+}
+document.getElementById('load-default-prayers-btn').addEventListener('click', async ()=>{
+  const added = await loadDefaultPrayers();
+  const note = document.getElementById('month-default-note');
+  note.textContent = added>0 ? 'Loaded '+added+' default prayers (August–May).' : 'Defaults already loaded for every month that had one.';
+});
+
+function renderMonthGrid(){
+  const nowMonth = new Date().getMonth();
+  monthGrid.innerHTML = MONTH_DISPLAY_ORDER.map(i=>{
+    const name = MONTH_NAMES[i];
+    const entry = monthlyPrayers[i];
+    const hasText = !!(entry && entry.text && entry.text.trim());
+    const badge = hasText ? (entry.phrase || 'saved') : 'empty';
+    return '<button type="button" class="month-btn'+(i===nowMonth?' current':'')+'" data-month="'+i+'">'+name+
+      '<span class="m-badge">'+badge.replace(/</g,'&lt;')+'</span></button>';
+  }).join('');
+  monthGrid.querySelectorAll('.month-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> chooseMonth(parseInt(btn.dataset.month)));
+  });
+}
+function goToMonthSelect(){
+  renderMonthGrid();
+  showOverlay(modeMonth);
+}
+function chooseMonth(i){
+  selectedMonth = i;
+  if(breathingEnabledInput.checked){
+    resetBreathingState();
+    showOverlay(modeBreathing);
+    updateBreathDisplay();
+  } else {
+    showSelectedPrayer();
+  }
 }
 
 function showSelectedPrayer(){
   playPrayerChime();
-  selectedMonth = new Date().getMonth();
   const entry = monthlyPrayers[selectedMonth];
   prayerMonthHeading.textContent = MONTH_NAMES[selectedMonth] + (entry && entry.phrase ? ' — ' + entry.phrase : ' — Let us pray');
   prayerTextEl.textContent = (entry && entry.text) || '';
@@ -785,15 +857,9 @@ breathLivePlus.addEventListener('click', ()=>{
   updateBreathDisplay();
 });
 
-/* ---------- Begin button: the "seconds to breathing" entry point ---------- */
+/* ---------- Begin button: goes to month select first, matching the classroom tool's flow ---------- */
 document.getElementById('begin-btn').addEventListener('click', ()=>{
-  if(breathingEnabledInput.checked){
-    resetBreathingState();
-    showOverlay(modeBreathing);
-    updateBreathDisplay();
-  } else {
-    showSelectedPrayer();
-  }
+  goToMonthSelect();
 });
 
 /* ---------- VIEW MODE (mobile / desktop) ---------- */
