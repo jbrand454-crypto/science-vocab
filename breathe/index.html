@@ -780,7 +780,7 @@ const viewModeSwitch = document.getElementById('view-mode-switch');
 function applyViewMode(mode){
   document.body.classList.toggle('view-mobile', mode==='mobile');
   document.body.classList.toggle('view-desktop', mode==='desktop');
-  viewModeSwitch.textContent = mode==='mobile' ? 'Mobile view' : 'Desktop view';
+  viewModeSwitch.textContent = mode==='mobile' ? 'Switch to Desktop View' : 'Switch to Mobile View';
 }
 async function setViewMode(mode){
   await storageSet('view-mode', mode);
