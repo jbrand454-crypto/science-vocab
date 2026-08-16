@@ -1360,7 +1360,16 @@ function updateBreathDisplay(){
   breathCounterLabel.textContent = 'Breath ' + breathIndex + ' of ' + breathTotal;
   breathLiveTotal.textContent = breathTotal;
   breathPhaseText.textContent = breathRunning || phaseElapsed>0 ? currentPhaseLabel : 'Ready';
-  const secondsLeft = Math.max(1, Math.ceil((phaseDurationMs(breathPhase) - phaseElapsed)/1000));
+  const lead = PHASE_LEAD_MS[breathPhase] || 0;
+  let secondsLeft;
+  if(phaseElapsed < lead){
+    // still in the word/ding lead-in (e.g. "Breathe" / "in" or "Breathe" / "out" / "slow") —
+    // hold at 4 rather than counting down time that isn't part of the actual breath.
+    secondsLeft = 4;
+  } else {
+    const coreElapsed = phaseElapsed - lead;
+    secondsLeft = Math.max(1, Math.ceil((PHASE_MS - coreElapsed)/1000));
+  }
   breathCountdown.textContent = (breathRunning ? secondsLeft : '') || '\u00A0';
   let scale;
   if(breathPhase==='in'){ scale = 1 + 0.4*(phaseElapsed/phaseDurationMs('in')); }
@@ -1429,10 +1438,10 @@ function breathTick(ts){
 function runPreCountdown(onDone){
   clearCountdownTimeouts();
   const steps = [
-    {label: 'Get ready to breathe in', ding: 'none'},
-    {label: 'Start breathing in in 3', ding: 'single'},
-    {label: 'Start breathing in in 2', ding: 'single'},
-    {label: 'Start breathing in in 1', ding: 'single'}
+    {label: 'Get ready to start breathing.', ding: 'none'},
+    {label: '3', ding: 'single'},
+    {label: '2', ding: 'single'},
+    {label: '1', ding: 'single'}
   ];
   steps.forEach((step,i)=>{
     const id = setTimeout(()=>{
