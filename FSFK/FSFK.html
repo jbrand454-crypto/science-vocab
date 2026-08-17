@@ -798,6 +798,7 @@
     <div class="seating-controls">
       <button class="action secondary" id="seating-layout-btn">Set layout</button>
       <button class="action secondary" id="seating-reset-btn">Reset to default</button>
+      <button class="action secondary" id="seating-randomize-btn">Randomize seating</button>
       <button class="action secondary" id="seating-save-default-btn">Save current as default</button>
     </div>
     <div id="seating-layout-hint" style="display:none;font-size:12.5px;color:var(--chalk-dim);text-align:center;margin-top:10px;max-width:600px;">
@@ -2201,7 +2202,17 @@ document.getElementById('seating-reset-btn').addEventListener('click', async ()=
   renderSeating(cls);
 });
 
+let seatingPendingAction = null; // 'save-default' | 'randomize'
+
 document.getElementById('seating-save-default-btn').addEventListener('click', ()=>{
+  seatingPendingAction = 'save-default';
+  seatingPasswordRow.style.display = 'flex';
+  seatingPasswordInput.value = '';
+  seatingPasswordNote.textContent = '';
+  seatingPasswordInput.focus();
+});
+document.getElementById('seating-randomize-btn').addEventListener('click', ()=>{
+  seatingPendingAction = 'randomize';
   seatingPasswordRow.style.display = 'flex';
   seatingPasswordInput.value = '';
   seatingPasswordNote.textContent = '';
@@ -2209,6 +2220,7 @@ document.getElementById('seating-save-default-btn').addEventListener('click', ()
 });
 document.getElementById('seating-password-cancel').addEventListener('click', ()=>{
   seatingPasswordRow.style.display = 'none';
+  seatingPendingAction = null;
 });
 document.getElementById('seating-password-confirm').addEventListener('click', async ()=>{
   const cls = seatingModeClass.textContent.replace('Class ','');
@@ -2218,10 +2230,21 @@ document.getElementById('seating-password-confirm').addEventListener('click', as
     return;
   }
   const chart = seatingData[cls];
-  chart.defaultAssignments = Object.assign({}, chart.assignments);
+  if(seatingPendingAction === 'randomize'){
+    const names = Object.values(chart.assignments).filter(Boolean);
+    const shuffled = shuffleArray(names);
+    const seatIds = allSeatIds();
+    const newAssignments = {};
+    seatIds.forEach((id,i)=>{ newAssignments[id] = shuffled[i] || null; });
+    chart.assignments = newAssignments;
+  } else {
+    chart.defaultAssignments = Object.assign({}, chart.assignments);
+  }
   await saveSeatingData();
   seatingPasswordRow.style.display = 'none';
   seatingPasswordNote.textContent = '';
+  seatingPendingAction = null;
+  renderSeating(cls);
 });
 seatingPasswordInput.addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') document.getElementById('seating-password-confirm').click();
