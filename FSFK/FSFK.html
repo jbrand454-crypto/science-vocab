@@ -142,7 +142,7 @@
     display:flex;flex-direction:column;padding:26px 34px;
   }
   #mode-prayer{transition:opacity 1.8s ease;}
-  .fs-back-bar{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+  .fs-back-bar{display:flex;align-items:center;gap:16px;margin-bottom:10px;position:relative;z-index:50;}
   .back-btn{
     font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--chalk-dim);
     background:none;border:1px solid var(--line);border-radius:7px;padding:9px 16px;cursor:pointer;
@@ -280,6 +280,77 @@
   body.view-mobile .launch-grid{grid-template-columns:1fr;}
   body.view-mobile .timer-display{font-size:clamp(48px,16vw,90px);}
   #load-default-prayers-btn, #month-default-note{display:none;}
+
+  /* ---- seating chart ---- */
+  .seating-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 24px 24px;overflow-y:auto;}
+  .seating-body.layout-active{padding:6px 10px 16px;}
+  .seating-legend{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:center;margin-bottom:18px;font-size:12.5px;color:var(--chalk-dim);}
+  .seating-legend span{display:flex;align-items:center;gap:6px;}
+  .seat-dot{display:inline-block;width:11px;height:11px;border-radius:3px;}
+  .seat-dot.present{background:#4CAF6B;}
+  .seat-dot.atschool{background:var(--chalk-yellow);}
+  .seat-dot.absent{background:#D9534F;}
+  .seating-hint{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--chalk-dim);}
+
+  .seating-room-labels{display:none;}
+  .seating-orientation-label{
+    position:fixed;left:0;right:0;text-align:center;z-index:40;pointer-events:none;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--chalk-dim);
+  }
+  .seating-orientation-label.top{top:66px;}
+  .seating-orientation-label.bottom{bottom:118px;}
+  .seating-orientation-label span{border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:5px 18px;}
+
+  .seating-canvas{
+    position:fixed;inset:66px 0 118px 0;
+    background:none;border:none;border-radius:0;overflow:visible;
+    pointer-events:none;
+  }
+  .table-block{ pointer-events:auto; }
+
+  .table-block{
+    position:absolute;display:flex;gap:8px;background:rgba(202,128,36,0.08);border:1.5px solid rgba(232,196,24,0.55);
+    border-radius:10px;padding:8px;width:min(150px, 24vw);transform-origin:center center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  }
+  .layout-mode .table-block{cursor:grab;touch-action:none;}
+  .layout-mode .table-block:active{cursor:grabbing;}
+  .layout-mode .table-block.dragging-table{z-index:20;box-shadow:0 8px 18px rgba(0,0,0,0.4);}
+  .table-rotate-btn{
+    position:absolute;top:-11px;right:-11px;width:22px;height:22px;border-radius:50%;
+    background:var(--chalk-yellow);color:var(--ink);border:none;font-size:13px;line-height:22px;
+    text-align:center;cursor:pointer;padding:0;
+  }
+  .table-label-only{
+    flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.5px;
+    text-transform:uppercase;color:var(--chalk-dim);padding:8px 2px;user-select:none;
+  }
+
+  .seat-card{
+    flex:1;background:var(--paper);border-radius:8px;padding:10px 6px;text-align:center;
+    cursor:grab;user-select:none;border:3px solid transparent;min-width:0;
+    box-shadow:0 3px 0 var(--paper-shadow);transition:transform 0.1s, opacity 0.15s;
+  }
+  .seat-card:active{cursor:grabbing;}
+  .seat-card.present{border-color:#4CAF6B;}
+  .seat-card.atschool{border-color:var(--chalk-yellow);}
+  .seat-card.absent{border-color:#D9534F;}
+  .seat-card.empty{background:transparent;box-shadow:none;border:2px dashed var(--line);opacity:0.5;cursor:default;}
+  .seat-card.drag-over{transform:scale(1.06);}
+  .seat-card.dragging{opacity:0.35;}
+  .seat-name{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:16px;}
+  .seat-status-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-soft);margin-top:4px;}
+  .seat-card.empty .seat-status-label{color:var(--chalk-dim);}
+
+  .seating-controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:50;}
+  .seating-controls #seating-layout-btn.active{background:var(--chalk-yellow);color:var(--ink);border-color:var(--chalk-yellow);}
+  .seating-password-row{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap;justify-content:center;}
+  .seating-password-row input{
+    background:var(--board-2);color:var(--chalk);border:1px solid var(--line);border-radius:7px;
+    padding:9px 11px;font-family:'IBM Plex Sans',sans-serif;font-size:14px;width:160px;
+  }
+  .seating-empty{font-size:14px;color:var(--chalk-dim);text-align:center;padding:30px 0;}
 </style>
 </head>
 <body>
@@ -333,6 +404,8 @@
         </div>
       </div>
     </div>
+
+    <button class="tile-btn" id="launch-seating" style="width:100%;margin-bottom:16px;text-align:center;">Open Seating Chart</button>
 
     <div class="collapsible" id="targets-collapsible">
       <button class="coll-toggle" id="targets-toggle">
@@ -708,6 +781,37 @@
   </div>
 </div>
 
+<!-- fullscreen: seating chart -->
+<div class="fullscreen-overlay" id="mode-seating" style="display:none;">
+  <div class="fs-back-bar">
+    <button class="back-btn" id="back-from-seating">&larr; Back</button>
+    <span class="fs-mode-class" id="seating-mode-class">Class 6</span>
+  </div>
+  <div class="seating-body" id="seating-body-el">
+    <div class="seating-legend" id="seating-legend-el">
+      <span><span class="seat-dot present"></span>Present</span>
+      <span><span class="seat-dot atschool"></span>At school, not in class</span>
+      <span><span class="seat-dot absent"></span>Absent</span>
+      <span class="seating-hint">Drag a seat to move it &middot; tap a seat to cycle status</span>
+    </div>
+    <div class="seating-grid" id="seating-grid"></div>
+    <div class="seating-controls">
+      <button class="action secondary" id="seating-layout-btn">Set layout</button>
+      <button class="action secondary" id="seating-reset-btn">Reset to default</button>
+      <button class="action secondary" id="seating-save-default-btn">Save current as default</button>
+    </div>
+    <div id="seating-layout-hint" style="display:none;font-size:12.5px;color:var(--chalk-dim);text-align:center;margin-top:10px;max-width:600px;">
+      Drag tables to reposition them. Tap the &#8635; on a table to rotate it 90&deg;. This layout is shared by all three classes — student seats stay the same relative to each table.
+    </div>
+    <div class="seating-password-row" id="seating-password-row" style="display:none;">
+      <input type="password" id="seating-password-input" placeholder="Password" />
+      <button class="action" id="seating-password-confirm" style="padding:9px 16px;">Confirm</button>
+      <button class="action secondary" id="seating-password-cancel" style="padding:9px 16px;">Cancel</button>
+      <span id="seating-password-note" style="font-size:12px;color:var(--chalk-dim);"></span>
+    </div>
+  </div>
+</div>
+
 <script>
 document.getElementById('today-date').textContent =
   new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
@@ -732,13 +836,21 @@ const modeBreathing = document.getElementById('mode-breathing');
 const modeMonth = document.getElementById('mode-month');
 const modePrayer = document.getElementById('mode-prayer');
 const modeTimer = document.getElementById('mode-timer');
-const ALL_OVERLAYS = [modeTarget, modeName, modeGroups, modeBreathing, modeMonth, modePrayer, modeTimer];
+const modeSeating = document.getElementById('mode-seating');
+const ALL_OVERLAYS = [modeTarget, modeName, modeGroups, modeBreathing, modeMonth, modePrayer, modeTimer, modeSeating];
 
+function hideSeatingOrientationLabels(){
+  const e = document.getElementById('seating-label-entrance');
+  const t = document.getElementById('seating-label-teacher');
+  if(e) e.style.display = 'none';
+  if(t) t.style.display = 'none';
+}
 function showMain(){
   mainPage.style.display='';
   ALL_OVERLAYS.forEach(el=> el.style.display='none');
   stopBreathing();
   stopTimer();
+  hideSeatingOrientationLabels();
 }
 function showOverlay(el){
   mainPage.style.display='none';
@@ -752,6 +864,7 @@ document.getElementById('back-from-breathing').addEventListener('click', ()=> go
 document.getElementById('back-from-month').addEventListener('click', showMain);
 document.getElementById('back-from-prayer').addEventListener('click', ()=> goToMonthSelect());
 document.getElementById('back-from-timer').addEventListener('click', showMain);
+document.getElementById('back-from-seating').addEventListener('click', showMain);
 
 /* ---------- collapsibles ---------- */
 document.getElementById('roster-toggle').addEventListener('click', ()=>{
@@ -946,10 +1059,22 @@ function parseRoster(text){
   return text.split('\n').map(s=>s.trim()).filter(Boolean);
 }
 
+// Seeded once on first load for a device with no saved roster yet — the
+// current class lists as of 2026-08-17. Once a roster is saved (even edited),
+// this seed is never consulted again for that class.
+const SEED_ROSTERS = {"6": "RJ\nAniston\nJacob\nGloria\nBrock\nRicky\nNik\nMaggie\nEmmi\nLayken\nCarmela\nLuke\nMax\nIzzy\nGianna\nAiden\nEmmett\nAli\nCamila\nRyder\nMaddie\nAvi", "7": "Mya\nLuke\nMackson\nEmma\nBen\nRonan\nJoey\nJeremy\nDavid\nJaxon\nGabe\nLily\nGrayson\nRose*\nViolet\nBella\nMikey\nPeter", "8": "Vivian*\nZoe\nCody\nBeau\nDylan\nRosie*\nSophia\nEymi\nJoAnn\nEllie*\nKyler\nWill\nTegan"};
+
 async function loadRoster(cls){
   rosterSaveHint.textContent = 'loading...';
   const raw = await storageGet('roster-'+cls);
-  rosterArea.value = raw ? (JSON.parse(raw).text || '') : '';
+  if(raw){
+    rosterArea.value = JSON.parse(raw).text || '';
+  } else if(SEED_ROSTERS[cls]){
+    rosterArea.value = SEED_ROSTERS[cls];
+    await storageSet('roster-'+cls, JSON.stringify({text: SEED_ROSTERS[cls]}));
+  } else {
+    rosterArea.value = '';
+  }
   rosterSaveHint.textContent = 'saves automatically';
   updateRosterCount();
   resetPool();
@@ -975,8 +1100,19 @@ function resetPool(){
   indexCard.classList.remove('flip');
   updatePoolStatus();
 }
+function availableRosterNames(){
+  const chart = seatingData[currentClass];
+  const excluded = new Set();
+  if(chart && chart.statuses){
+    Object.keys(chart.statuses).forEach(name=>{
+      const s = chart.statuses[name];
+      if(s==='absent' || s==='atschool') excluded.add(name);
+    });
+  }
+  return parseRoster(rosterArea.value).filter(n=>!excluded.has(n));
+}
 function updatePoolStatus(){
-  const total = parseRoster(rosterArea.value).length;
+  const total = availableRosterNames().length;
   if(total===0){ poolStatus.textContent=''; return; }
   poolStatus.textContent = (total - usedNames.length) + ' of ' + total + ' left in the pool';
 }
@@ -1006,9 +1142,9 @@ document.getElementById('launch-groups').addEventListener('click', ()=>{
 
 document.getElementById('reset-pool-btn').addEventListener('click', resetPool);
 document.getElementById('pick-btn').addEventListener('click', ()=>{
-  const names = parseRoster(rosterArea.value);
+  const names = availableRosterNames();
   if(names.length===0){
-    pickedNameEl.textContent='Add names first';
+    pickedNameEl.textContent = parseRoster(rosterArea.value).length ? 'No one available' : 'Add names first';
     indexCard.classList.remove('flip'); void indexCard.offsetWidth; indexCard.classList.add('flip');
     return;
   }
@@ -1033,11 +1169,13 @@ function shuffle(arr){
   return a;
 }
 document.getElementById('make-groups-btn').addEventListener('click', ()=>{
-  const names = shuffle(parseRoster(rosterArea.value));
+  const names = shuffle(availableRosterNames());
   const container = document.getElementById('group-cards');
   container.innerHTML='';
   if(names.length===0){
-    container.innerHTML = '<div class="empty-note">Add a roster for this class first.</div>';
+    container.innerHTML = '<div class="empty-note">' +
+      (parseRoster(rosterArea.value).length ? 'No one available — everyone is marked absent or at school, not in class.' : 'Add a roster for this class first.') +
+      '</div>';
     return;
   }
   const num = Math.max(1, parseInt(document.getElementById('group-num').value)||1);
@@ -1561,7 +1699,9 @@ document.getElementById('export-btn').addEventListener('click', async ()=>{
     },
     breathingEnabled: (await storageGet('breathing-enabled')) === 'true',
     breathCount: parseInt(await storageGet('breath-count')) || 3,
-    monthlyPrayers: JSON.parse(await storageGet('monthly-prayers') || '{}')
+    monthlyPrayers: JSON.parse(await storageGet('monthly-prayers') || '{}'),
+    seatingCharts: JSON.parse(await storageGet('seating-charts-v3') || '{}'),
+    seatingRoomLayout: JSON.parse(await storageGet('seating-room-layout') || '[]')
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1591,6 +1731,8 @@ document.getElementById('import-file').addEventListener('change', async (e)=>{
     if(typeof data.breathingEnabled === 'boolean'){ await storageSet('breathing-enabled', String(data.breathingEnabled)); }
     if(data.breathCount){ await storageSet('breath-count', String(data.breathCount)); }
     if(data.monthlyPrayers){ await storageSet('monthly-prayers', JSON.stringify(data.monthlyPrayers)); }
+    if(data.seatingCharts){ await storageSet('seating-charts-v3', JSON.stringify(data.seatingCharts)); }
+    if(data.seatingRoomLayout){ await storageSet('seating-room-layout', JSON.stringify(data.seatingRoomLayout)); }
     note.textContent = 'Backup restored — reloading...';
     setTimeout(()=> location.reload(), 700);
   }catch(err){
@@ -1789,13 +1931,321 @@ async function initViewMode(){
   }
 }
 
+/* ---------- SEATING CHART ---------- */
+const seatingGrid = document.getElementById('seating-grid');
+const seatingCanvasWrap = document.getElementById('seating-grid');
+const seatingModeClass = document.getElementById('seating-mode-class');
+const seatingPasswordRow = document.getElementById('seating-password-row');
+const seatingPasswordInput = document.getElementById('seating-password-input');
+const seatingPasswordNote = document.getElementById('seating-password-note');
+const seatingLayoutBtn = document.getElementById('seating-layout-btn');
+const seatingLayoutHint = document.getElementById('seating-layout-hint');
+const SEATING_PASSWORD = 'bears';
+const SEAT_STATUS_CYCLE = ['present','atschool','absent'];
+const SEAT_STATUS_LABEL = {present:'Present', atschool:'At school', absent:'Absent'};
+
+// 12 tables (2 seats each = 24 seats), shared across all three classes since
+// it's one physical room. x/y are percentages of the canvas, rot in degrees.
+// This is just a starting guess — use "Set layout" to drag it to match reality.
+function defaultRoomLayout(){
+  const tables = [];
+  for(let i=0;i<5;i++){
+    tables.push({id:'t'+(i+1), x: 12 + i*19, y: 22, rot: 0});      // row nearer the front
+    tables.push({id:'t'+(i+6), x: 12 + i*19, y: 55, rot: 0});      // row nearer the entrance
+  }
+  tables.push({id:'t11', x: 8, y: 84, rot: 90});   // pod, rotated to face inward
+  tables.push({id:'t12', x: 24, y: 84, rot: 90});
+  return tables;
+}
+
+let roomLayout = [];
+let seatingData = {}; // { '6': {assignments:{seatId:name|null}, statuses:{name:status}, defaultAssignments}, ... }
+let layoutMode = false;
+let draggedSlotId = null;
+let tableDrag = null; // {id, startX, startY, origX, origY, canvasRect}
+
+async function loadRoomLayout(){
+  const raw = await storageGet('seating-room-layout');
+  roomLayout = raw ? JSON.parse(raw) : defaultRoomLayout();
+}
+async function saveRoomLayout(){
+  await storageSet('seating-room-layout', JSON.stringify(roomLayout));
+}
+async function loadSeatingData(){
+  const raw = await storageGet('seating-charts-v3');
+  seatingData = raw ? JSON.parse(raw) : {};
+}
+async function saveSeatingData(){
+  await storageSet('seating-charts-v3', JSON.stringify(seatingData));
+}
+
+async function getRosterNamesForClass(cls){
+  if(cls === currentClass) return parseRoster(rosterArea.value);
+  const raw = await storageGet('roster-'+cls);
+  return raw ? parseRoster(JSON.parse(raw).text || '') : [];
+}
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function allSeatIds(){
+  const ids = [];
+  roomLayout.forEach(t=>{ ids.push(t.id+'-a'); ids.push(t.id+'-b'); });
+  return ids;
+}
+
+async function openSeatingChart(cls){
+  seatingModeClass.textContent = 'Class ' + cls;
+  seatingPasswordRow.style.display = 'none';
+  seatingPasswordInput.value = '';
+  seatingPasswordNote.textContent = '';
+  layoutMode = false;
+  seatingLayoutBtn.classList.remove('active');
+  seatingLayoutBtn.textContent = 'Set layout';
+  seatingLayoutHint.style.display = 'none';
+
+  let chart = seatingData[cls];
+  const rosterNames = await getRosterNamesForClass(cls);
+  const seatIds = allSeatIds();
+
+  if(!chart){
+    chart = {assignments: {}, statuses: {}, defaultAssignments: null};
+    const shuffled = shuffleArray(rosterNames);
+    seatIds.forEach((id,i)=>{ chart.assignments[id] = shuffled[i] || null; });
+    rosterNames.forEach(name=> chart.statuses[name] = 'present');
+    chart.defaultAssignments = Object.assign({}, chart.assignments);
+  } else {
+    const seatedNames = new Set(Object.values(chart.assignments).filter(Boolean));
+    const unseated = rosterNames.filter(n=>!seatedNames.has(n));
+    const emptyIds = seatIds.filter(id=> !chart.assignments[id]);
+    unseated.forEach((name,i)=>{
+      if(emptyIds[i]) chart.assignments[emptyIds[i]] = name;
+      if(!chart.statuses[name]) chart.statuses[name] = 'present';
+    });
+  }
+  seatingData[cls] = chart;
+  await saveSeatingData();
+  renderSeating(cls);
+}
+
+function seatCardHtml(chart, seatId){
+  const name = chart.assignments[seatId];
+  const status = name ? (chart.statuses[name] || 'present') : null;
+  const classes = 'seat-card' + (name ? ' '+status : ' empty');
+  const label = name ? name.replace(/</g,'&lt;') : '';
+  const statusLabel = name ? SEAT_STATUS_LABEL[status] : 'Empty';
+  return '<div class="'+classes+'" draggable="true" data-seat-id="'+seatId+'">'+
+    '<div class="seat-name">'+label+'</div>'+
+    '<div class="seat-status-label">'+statusLabel+'</div></div>';
+}
+
+function renderSeating(cls){
+  const chart = seatingData[cls];
+  seatingGrid.innerHTML = '';
+  if(!chart){
+    seatingGrid.innerHTML = '<div class="seating-empty">No students in the roster for this class yet. Add a roster first.</div>';
+    return;
+  }
+
+  document.getElementById('seating-legend-el').style.display = layoutMode ? 'none' : 'flex';
+  document.getElementById('seating-body-el').classList.toggle('layout-active', layoutMode);
+
+  let entranceLabel = document.getElementById('seating-label-entrance');
+  let teacherLabel = document.getElementById('seating-label-teacher');
+  if(!entranceLabel){
+    entranceLabel = document.createElement('div');
+    entranceLabel.id = 'seating-label-entrance';
+    entranceLabel.className = 'seating-orientation-label top';
+    entranceLabel.innerHTML = '<span>Entrance</span>';
+    document.body.appendChild(entranceLabel);
+  }
+  if(!teacherLabel){
+    teacherLabel = document.createElement('div');
+    teacherLabel.id = 'seating-label-teacher';
+    teacherLabel.className = 'seating-orientation-label bottom';
+    teacherLabel.innerHTML = '<span>Teacher\'s desk</span>';
+    document.body.appendChild(teacherLabel);
+  }
+  entranceLabel.style.display = 'block';
+  teacherLabel.style.display = 'block';
+
+  const canvas = document.createElement('div');
+  canvas.className = 'seating-canvas' + (layoutMode ? ' layout-mode' : '');
+  canvas.id = 'seating-canvas-el';
+
+  roomLayout.forEach(table=>{
+    const el = document.createElement('div');
+    el.className = 'table-block';
+    el.dataset.tableId = table.id;
+    el.style.left = table.x + '%';
+    el.style.top = table.y + '%';
+    el.style.transform = 'translate(-50%,-50%) rotate(' + table.rot + 'deg)';
+
+    if(layoutMode){
+      el.innerHTML = '<div class="table-label-only">Table</div>'+
+        '<button type="button" class="table-rotate-btn" data-table-id="'+table.id+'">&#8635;</button>';
+    } else {
+      el.innerHTML = seatCardHtml(chart, table.id+'-a') + seatCardHtml(chart, table.id+'-b');
+    }
+    canvas.appendChild(el);
+  });
+
+  seatingGrid.appendChild(canvas);
+
+  if(layoutMode){
+    wireLayoutDragHandlers(canvas);
+  } else {
+    wireSeatCardHandlers(cls);
+  }
+}
+
+function wireSeatCardHandlers(cls){
+  const chart = seatingData[cls];
+  seatingGrid.querySelectorAll('.seat-card').forEach(card=>{
+    card.addEventListener('click', async ()=>{
+      const seatId = card.dataset.seatId;
+      const name = chart.assignments[seatId];
+      if(!name) return;
+      const idx = SEAT_STATUS_CYCLE.indexOf(chart.statuses[name] || 'present');
+      chart.statuses[name] = SEAT_STATUS_CYCLE[(idx+1) % SEAT_STATUS_CYCLE.length];
+      await saveSeatingData();
+      renderSeating(cls);
+    });
+    card.addEventListener('dragstart', (e)=>{
+      draggedSlotId = card.dataset.seatId;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+    card.addEventListener('dragover', (e)=>{ e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', ()=> card.classList.remove('drag-over'));
+    card.addEventListener('drop', async (e)=>{
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const toSeatId = card.dataset.seatId;
+      if(!draggedSlotId || draggedSlotId === toSeatId) return;
+      const tmp = chart.assignments[toSeatId];
+      chart.assignments[toSeatId] = chart.assignments[draggedSlotId];
+      chart.assignments[draggedSlotId] = tmp;
+      draggedSlotId = null;
+      await saveSeatingData();
+      renderSeating(cls);
+    });
+  });
+}
+
+function wireLayoutDragHandlers(canvas){
+  canvas.querySelectorAll('.table-rotate-btn').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const id = btn.dataset.tableId;
+      const table = roomLayout.find(t=>t.id===id);
+      table.rot = (table.rot + 90) % 360;
+      await saveRoomLayout();
+      renderSeating(seatingModeClass.textContent.replace('Class ',''));
+    });
+  });
+  canvas.querySelectorAll('.table-block').forEach(el=>{
+    el.addEventListener('pointerdown', (e)=>{
+      if(e.target.classList.contains('table-rotate-btn')) return;
+      const id = el.dataset.tableId;
+      const table = roomLayout.find(t=>t.id===id);
+      const canvasRect = canvas.getBoundingClientRect();
+      tableDrag = {id, canvasRect, table};
+      el.classList.add('dragging-table');
+      el.setPointerCapture(e.pointerId);
+    });
+    el.addEventListener('pointermove', (e)=>{
+      if(!tableDrag || tableDrag.id !== el.dataset.tableId) return;
+      const rect = tableDrag.canvasRect;
+      let xPct = ((e.clientX - rect.left) / rect.width) * 100;
+      let yPct = ((e.clientY - rect.top) / rect.height) * 100;
+      xPct = Math.max(1, Math.min(99, xPct));
+      yPct = Math.max(1, Math.min(99, yPct));
+      tableDrag.table.x = xPct;
+      tableDrag.table.y = yPct;
+      el.style.left = xPct + '%';
+      el.style.top = yPct + '%';
+    });
+    const endDrag = async (e)=>{
+      if(!tableDrag || tableDrag.id !== el.dataset.tableId) return;
+      el.classList.remove('dragging-table');
+      tableDrag = null;
+      await saveRoomLayout();
+    };
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+  });
+}
+
+document.getElementById('launch-seating').addEventListener('click', async ()=>{
+  await openSeatingChart(currentClass);
+  showOverlay(modeSeating);
+});
+
+seatingLayoutBtn.addEventListener('click', ()=>{
+  layoutMode = !layoutMode;
+  seatingLayoutBtn.classList.toggle('active', layoutMode);
+  seatingLayoutBtn.textContent = layoutMode ? 'Done arranging' : 'Set layout';
+  seatingLayoutHint.style.display = layoutMode ? 'block' : 'none';
+  renderSeating(seatingModeClass.textContent.replace('Class ',''));
+});
+
+document.getElementById('seating-reset-btn').addEventListener('click', async ()=>{
+  const cls = seatingModeClass.textContent.replace('Class ','');
+  const chart = seatingData[cls];
+  if(!chart || !chart.defaultAssignments) return;
+  chart.assignments = Object.assign({}, chart.defaultAssignments);
+  await saveSeatingData();
+  renderSeating(cls);
+});
+
+document.getElementById('seating-save-default-btn').addEventListener('click', ()=>{
+  seatingPasswordRow.style.display = 'flex';
+  seatingPasswordInput.value = '';
+  seatingPasswordNote.textContent = '';
+  seatingPasswordInput.focus();
+});
+document.getElementById('seating-password-cancel').addEventListener('click', ()=>{
+  seatingPasswordRow.style.display = 'none';
+});
+document.getElementById('seating-password-confirm').addEventListener('click', async ()=>{
+  const cls = seatingModeClass.textContent.replace('Class ','');
+  if(seatingPasswordInput.value !== SEATING_PASSWORD){
+    seatingPasswordNote.textContent = 'Incorrect password.';
+    seatingPasswordInput.value = '';
+    return;
+  }
+  const chart = seatingData[cls];
+  chart.defaultAssignments = Object.assign({}, chart.assignments);
+  await saveSeatingData();
+  seatingPasswordRow.style.display = 'none';
+  seatingPasswordNote.textContent = '';
+});
+seatingPasswordInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('seating-password-confirm').click();
+});
+
 /* ---------- init ---------- */
+async function seedAllRostersIfMissing(){
+  for(const cls of ['6','7','8']){
+    const raw = await storageGet('roster-'+cls);
+    if(!raw && SEED_ROSTERS[cls]){
+      await storageSet('roster-'+cls, JSON.stringify({text: SEED_ROSTERS[cls]}));
+    }
+  }
+}
+
 (async function init(){
   await initViewMode();
   await loadTargets();
+  await seedAllRostersIfMissing();
   await loadRoster(currentClass);
   await loadBreathingSettings();
   await loadDefaultPrayers();
+  await loadRoomLayout();
+  await loadSeatingData();
 })();
 </script>
 </body>
