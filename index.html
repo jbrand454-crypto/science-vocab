@@ -518,6 +518,34 @@
     margin-top:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;
     color:var(--teal-dark);
   }
+
+  .exit-ticket-block{
+    margin:22px 0 0;background:#eef2f8;border:1.5px solid #1E3A5F;border-radius:10px;
+    padding:22px 24px 24px;box-shadow:3px 3px 0 var(--line-soft);
+  }
+  .exit-ticket-badge{
+    display:inline-block;font-family:'Special Elite',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.1em;color:#fff;background:#1E3A5F;border-radius:12px;padding:3px 10px;margin-bottom:10px;
+  }
+  .exit-ticket-block p{margin:0 0 14px;font-size:14.5px;line-height:1.55;color:var(--ink);}
+  .exit-ticket-gate-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
+  .exit-ticket-code-input{
+    width:auto;min-width:180px;font-family:'Atkinson Hyperlegible',sans-serif;font-size:14.5px;
+    color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:8px;
+    padding:10px 12px;text-transform:uppercase;letter-spacing:.03em;
+  }
+  .exit-ticket-code-input:focus{outline:none;border-color:#1E3A5F;}
+  .exit-ticket-unlock-btn{
+    display:inline-block;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
+    background:#1E3A5F;color:#fff;border:none;border-radius:10px;padding:12px 22px;
+    cursor:pointer;box-shadow:2px 2px 0 var(--gold);transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .exit-ticket-unlock-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--gold);}
+  .exit-ticket-code-error{margin:6px 0 0;font-size:13px;color:#B3261E;display:none;}
+  .exit-ticket-code-error.show{display:block;}
+  .exit-ticket-unlocked-note{
+    margin:0 0 14px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;color:#1E3A5F;
+  }
   .entrance-validation-note{
     margin-top:10px;font-size:13px;color:#B23A2E;
   }
@@ -1306,6 +1334,65 @@ function buildJournalEntryFormUrl(termName, promptText){
   return `${JOURNAL_ENTRY_FORM_BASE}?${params.toString()}`;
 }
 
+/* ============================================================
+   EXIT TICKET — PILOT (Grade 6 only, this week + next week's
+   terms, added mid-year to test whether the format is worth
+   rolling out further)
+
+   Unlike the Entrance Ticket and Journal Entry, this one is
+   gated behind a simple code written on the board in class —
+   not tied to student identity or a class roster, just meant
+   to stop students from answering before or outside class.
+
+   TO CHANGE THE CODE: edit EXIT_TICKET_CODE below and redeploy.
+   Comparison is case-insensitive and trims whitespace, so
+   "Bears2026", "bears2026", and " BEARS2026 " all match.
+   ============================================================ */
+const EXIT_TICKET_CODE = "SCIENCE1";
+
+/* ------------------------------------------------------------
+   Field IDs below are PLACEHOLDERS until the Exit Ticket Google
+   Form is built. Same process as the other two forms: open the
+   new form → ⋮ menu → "Get pre-filled link" → fill in a sample
+   answer for every field → Get Link → Copy Link → update
+   EXIT_TICKET_FORM_BASE and EXIT_TICKET_FIELD_IDS below.
+   Suggested form fields, in order: First Name, Last Name, Grade,
+   Exit Ticket Term, Learning Target (prefilled paragraph),
+   Confidence Rating (multiple choice — student's real answer,
+   NOT prefilled), Explanation (long answer — student's real
+   answer, NOT prefilled).
+   ------------------------------------------------------------ */
+const EXIT_TICKET_FORM_BASE = "https://docs.google.com/forms/d/e/1FAIpQLSf88ZYsGIE2plIQQ7YzpK20VRJ-MEHY6rxxDls0pGi1ATvOmA/viewform";
+const EXIT_TICKET_FIELD_IDS = {
+  firstName: "entry.222466664",
+  lastName: "entry.1185921703",
+  grade: "entry.1522816527",
+  term: "entry.1785698677",
+  prompt: "entry.1766265184"
+};
+const EXIT_TICKET_GRADE_MAP = ENTRANCE_TICKET_GRADE_MAP;
+
+function buildExitTicketFormUrl(termName, promptText){
+  if(!EXIT_TICKET_FORM_BASE) return '#';
+  const params = new URLSearchParams();
+  params.set('usp', 'pp_url');
+  if(typeof studentIdentity !== 'undefined' && studentIdentity){
+    if(studentIdentity.firstName && EXIT_TICKET_FIELD_IDS.firstName) params.set(EXIT_TICKET_FIELD_IDS.firstName, studentIdentity.firstName);
+    if(studentIdentity.lastName && EXIT_TICKET_FIELD_IDS.lastName) params.set(EXIT_TICKET_FIELD_IDS.lastName, studentIdentity.lastName);
+    const mappedGrade = EXIT_TICKET_GRADE_MAP[studentIdentity.grade];
+    if(mappedGrade && EXIT_TICKET_FIELD_IDS.grade) params.set(EXIT_TICKET_FIELD_IDS.grade, mappedGrade);
+  }
+  if(termName && EXIT_TICKET_FIELD_IDS.term) params.set(EXIT_TICKET_FIELD_IDS.term, termName);
+  if(promptText && EXIT_TICKET_FIELD_IDS.prompt) params.set(EXIT_TICKET_FIELD_IDS.prompt, promptText);
+  return `${EXIT_TICKET_FORM_BASE}?${params.toString()}`;
+}
+
+// Tracks which term cards have had the board code entered correctly this
+// page load. Intentionally in-memory only (not saved to storage) — it
+// resets on refresh, which is the point: a new class period means a new
+// code, so nothing should stay unlocked from a previous session.
+const unlockedExitTickets = new Set();
+
 // PILOT MODE — 2026-27 school year: this flips off the Purchase, Donate,
 // and Offering Plate buttons on the Student Access modal, since this is a
 // pilot year and no student/family should see a payment ask yet. The Class
@@ -1616,7 +1703,7 @@ const TERMS = {
     ]},
 
 
-  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
+  matter: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, exitTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
     learningTarget:"I can explain that matter is anything that has mass and takes up space.",
     definition:"Matter is anything that has mass and takes up space.",
     example:"Air, water, rocks, and your own body are all matter — even though air is invisible, it still has mass and takes up space.",
@@ -1694,7 +1781,7 @@ const TERMS = {
     ]},
 
 
-  physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physical Science", name:"Physical Property", ep:6, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true, reflect:true,
+  physicalProperty: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-2", standardText:"Analyze and interpret data on the properties of substances before and after the substances interact to determine if a chemical reaction has occurred.", domain:"physical", label:"Physical Science", name:"Physical Property", ep:6, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true,
     learningTarget:"I can explain that a physical property is a characteristic of matter that can be observed or measured without changing what the substance actually is.",
     definition:"A physical property is a characteristic of matter that can be observed or measured without changing what the substance actually is.",
     example:"Color, texture, density, and melting point are all physical properties of a substance.",
@@ -1803,7 +1890,7 @@ const TERMS = {
     ]},
 
 
-  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atom", ep:2, entranceTicket:true, galileo:true, aiCohost:"quinn", reflect:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
+  atomIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atom", ep:2, entranceTicket:true, exitTicket:true, galileo:true, aiCohost:"quinn", reflect:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
     learningTarget:"I can explain that an atom is the tiny building block that all matter is made of \u2014 everything around you, including you, is built from atoms.",
     definition:"An atom is the tiny building block that all matter is made of — everything around you, including you, is built from atoms.",
     example:"A single drop of water is made of billions and billions of atoms, far too small to see even with a regular microscope.",
@@ -1883,7 +1970,7 @@ const TERMS = {
         explain:"A rock and a water droplet are both large enough to see with the naked eye. A single atom and a single molecule are both far too small — they require powerful tools like electron microscopes to observe."}
     ]},
 
-  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Element", ep:4, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true,
+  elementIntro: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Element", ep:4, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true,
     learningTarget:"I can explain that an element is a substance made of just one type of atom \u2014 it's already at its simplest, purest form and can't be broken down into anything simpler by ordinary means.",
     definition:"An element is a substance made of just one type of atom — it's already at its simplest, purest form and can't be broken down into anything simpler by ordinary means.",
     example:"Oxygen, gold, and carbon are all elements — each one made of just a single kind of atom, nothing else mixed in.",
@@ -1931,7 +2018,7 @@ const TERMS = {
         q:"Explain why your friend is mistaken.", model:"Being naturally occurring doesn't make something an element — what matters is whether it's made of just one type of atom. Carbon dioxide is made of two different elements, carbon and oxygen, chemically bonded together, which makes it a compound, not an element, no matter how common it is in nature."}
     ]},
 
-  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Molecule", ep:3, reflect:true, journalToggle:true, journalProgress:true, entranceTicket:true, galileo:true, pauseGate:true, faithBonus:true,
+  molecule: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Molecule", ep:3, reflect:true, journalToggle:true, journalProgress:true, entranceTicket:true, exitTicket:true, galileo:true, pauseGate:true, faithBonus:true,
     learningTarget:"I can explain that a molecule forms when two or more atoms bond together \u2014 sometimes atoms of the same element, sometimes atoms of different elements entirely.",
     definition:"A molecule forms when two or more atoms bond together — sometimes atoms of the same element, sometimes atoms of different elements entirely.",
     example:"Oxygen gas (O2) is a molecule made of two oxygen atoms bonded together. Water (H2O) is a molecule made of two hydrogen atoms and one oxygen atom bonded together.",
@@ -4843,7 +4930,7 @@ const TERMS = {
     ]},
 
 
-  cell: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Life Science", name:"Cell", ep:87, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true,
+  cell: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Life Science", name:"Cell", ep:87, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true,
     learningTarget:"I can explain that a cell is the basic building block of all living things \u2014 the smallest unit that can carry out the functions of life.",
     definition:"A cell is the basic building block of all living things — the smallest unit that can carry out the functions of life.",
     example:"Your skin, muscles, and blood are all made of different types of cells working together.",
@@ -4966,7 +5053,7 @@ const TERMS = {
     ]},
 
 
-  cellMembrane: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Life Science", name:"Cell Membrane", ep:89, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true,
+  cellMembrane: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-2", standardText:"Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function.", domain:"life", label:"Life Science", name:"Cell Membrane", ep:89, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true,
     learningTarget:"I can explain that the cell membrane is the thin outer boundary that surrounds a cell and controls what enters and exits it.",
     definition:"The cell membrane is the thin outer boundary that surrounds a cell and controls what enters and exits it.",
     example:"The cell membrane allows nutrients to enter a cell while keeping harmful substances out.",
@@ -10167,7 +10254,7 @@ const TERMS = {
     ]},
 
 
-  atom: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atom", ep:195, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true,
+  atom: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atom", ep:195, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true,
     learningTarget:"I can explain that an atom is the smallest basic unit of matter that still has the properties of an element.",
     definition:"An atom is the smallest basic unit of matter that still has the properties of an element.",
     example:"A single gold atom is still gold — split it further and it stops being gold at all.",
@@ -10594,7 +10681,7 @@ const TERMS = {
     ]},
 
 
-  compound: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Compound", ep:5, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true, reflect:true,
+  compound: { grade:6, unit:"Introduction to Matter", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Compound", ep:5, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true,
     learningTarget:"I can explain that a compound is a substance made of two or more different elements chemically bonded together in a fixed, specific ratio.",
     definition:"A compound is a substance made of two or more different elements chemically bonded together in a fixed, specific ratio.",
     example:"Water (H2O) is a compound made of two hydrogen atoms bonded to one oxygen atom, always in that same 2-to-1 ratio.",
@@ -10642,7 +10729,7 @@ const TERMS = {
       {type:"mc", difficulty:"hard", q:"Which best explains why water (H2O) behaves completely differently than the hydrogen and oxygen gases it's made from?", options:["Water is actually a mixture, so its properties can vary","The elements are chemically bonded into a new compound, so it has entirely new properties","Water isn't really made of hydrogen and oxygen","Gases always change their properties whenever they're combined"], correct:1, explain:"Because hydrogen and oxygen are chemically bonded into the compound water, the result has its own new set of properties — that's the defining feature of a compound, not just a general rule about combining gases."}
     ]},
 
-  cellTheory: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-1", standardText:"Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.", domain:"life", label:"Life Science", name:"Cell Theory", ep:88, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true, reflect:true,
+  cellTheory: { grade:7, unit:"The Cell System", standard:"LS1.A · MS-LS1-1", standardText:"Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells.", domain:"life", label:"Life Science", name:"Cell Theory", ep:88, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true,
     learningTarget:"I can explain that cell theory is the widely accepted scientific explanation that all living things are made of one or more cells, and that the cell is the basic unit of structure and function in life.",
     definition:"Cell theory is the widely accepted scientific explanation that all living things are made of one or more cells, and that the cell is the basic unit of structure and function in life.",
     example:"Whether you're looking at a single bacterium or a giant redwood tree, cell theory says both are built from the same basic building block — cells.",
@@ -10786,7 +10873,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"Compare the role of cytoplasm to the role of the cell membrane. How are they different?", model:"The cell membrane acts like a gatekeeper, controlling what substances enter and leave the cell. Cytoplasm, on the other hand, fills the interior space of the cell, suspending the organelles in place and hosting many of the chemical reactions that happen inside — it doesn't control what crosses into or out of the cell the way the membrane does."}
     ]},
 
-  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atomic Number", ep:196, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true, reflect:true,
+  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atomic Number", ep:196, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true,
     learningTarget:"I can explain that the atomic number of an element is the number of protons found in the nucleus of its atoms.",
     definition:"The atomic number of an element is the number of protons found in the nucleus of its atoms.",
     example:"Every atom of hydrogen has exactly 1 proton, giving it an atomic number of 1; every atom of carbon has exactly 6 protons, giving it an atomic number of 6.",
@@ -10834,7 +10921,7 @@ const TERMS = {
         explain:"Carbon (6) and Sodium (11) both have atomic numbers of 5 or greater. Hydrogen (1) and Helium (2) both have atomic numbers under 5."}
     ]},
 
-  atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atomic Mass", ep:197, journalToggle:true, pauseGate:true, entranceTicket:true, faithBonus:true, galileo:true, reflect:true,
+  atomicMass: { grade:8, unit:"Atoms and the Periodic Table", standard:"PS1.A · MS-PS1-1", standardText:"Develop models to describe the atomic composition of simple molecules and extended structures.", domain:"physical", label:"Physical Science", name:"Atomic Mass", ep:197, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true,
     learningTarget:"I can explain that atomic mass is the average mass of all the naturally occurring isotopes of an element, based on the combined number of protons and neutrons in the nucleus.",
     definition:"Atomic mass is the average mass of all the naturally occurring isotopes of an element, based on the combined number of protons and neutrons in the nucleus.",
     example:"Carbon's atomic mass is about 12, reflecting its typical combination of 6 protons and 6 neutrons.",
@@ -11835,6 +11922,32 @@ function renderCard(){
     <p class="no-media-note">📚 This Field Entry is complete just as it is above — the definition, example, misconception, analogy, faith connection, and Field Check all stand on their own. Core vocabulary terms get first priority for a dedicated video, podcast, and infographic; other terms may get media added over time. Either way, everything you need to master this term is already right here.</p>
   `;
 
+  // EXIT TICKET — pilot, Grade 6 only, gated by a board code the teacher
+  // enters live in class rather than by student identity or a timer.
+  let exitTicketHTML = '';
+  if(t.exitTicket){
+    const isUnlocked = unlockedExitTickets.has(current);
+    const exitPromptText = `Exit Ticket check: today's learning target was — ${t.learningTarget} How confident are you that this landed? Give one specific detail or example that shows why.`;
+    const exitTicketFormUrl = buildExitTicketFormUrl(t.name, exitPromptText);
+    exitTicketHTML = `
+    <div class="exit-ticket-block" id="exitTicketBlock">
+      <span class="exit-ticket-badge">🚪 Exit Ticket</span>
+      ${isUnlocked ? `
+        <p class="exit-ticket-unlocked-note">✅ Unlocked — go ahead and submit below.</p>
+        <p>Before you go: did today's learning target land? <b>${t.learningTarget}</b> On the form, rate how confident you are (Yes / Kind of / Not yet) and give one specific detail or example that shows why.</p>
+        <a class="submit-response-btn" href="${exitTicketFormUrl}" target="_blank" rel="noopener">📤 Submit Exit Ticket</a>
+      ` : `
+        <p>Your teacher will give you a code in class when it's time for the Exit Ticket. Enter it below to unlock.</p>
+        <div class="exit-ticket-gate-row">
+          <input type="text" id="exitTicketCodeInput" class="entrance-name-input exit-ticket-code-input" placeholder="Enter code…">
+          <button type="button" id="exitTicketUnlockBtn" class="exit-ticket-unlock-btn">🔓 Unlock Exit Ticket</button>
+        </div>
+        <p class="exit-ticket-code-error" id="exitTicketCodeError">That code isn't right — check the board and try again.</p>
+      `}
+    </div>
+    `;
+  }
+
   // Rolled out site-wide (was piloted on Introduction to Matter only)
   const useNewOrder = true;
   cardEl.className = useNewOrder ? 'card pilot-order' : 'card';
@@ -11914,6 +12027,7 @@ function renderCard(){
     <div class="media-panel" id="mediaPanel"></div>
     ${t.aiCohost ? `<div class="ai-cohost-panel" id="aiCohostPanel"></div>` : ''}
     </div>
+    ${exitTicketHTML}
     ${useNewOrder ? faithEntryHTML : ''}
     ${reflectHTML}
     ${t.journalProgress ? journalProgressHTML() : ''}
@@ -11948,6 +12062,29 @@ function renderCard(){
       const isShown = panel.classList.toggle('show');
       checkRevealBtn.textContent = isShown ? '💡 Hide Model Answer' : '💡 Show Model Answer';
     });
+  }
+
+  const exitTicketUnlockBtn = document.getElementById('exitTicketUnlockBtn');
+  if(exitTicketUnlockBtn){
+    const tryUnlock = ()=>{
+      const input = document.getElementById('exitTicketCodeInput');
+      const errorEl = document.getElementById('exitTicketCodeError');
+      const entered = (input.value || '').trim().toLowerCase();
+      const correct = EXIT_TICKET_CODE.trim().toLowerCase();
+      if(entered && entered === correct){
+        unlockedExitTickets.add(current);
+        renderCard();
+      } else {
+        if(errorEl) errorEl.classList.add('show');
+      }
+    };
+    exitTicketUnlockBtn.addEventListener('click', tryUnlock);
+    const codeInput = document.getElementById('exitTicketCodeInput');
+    if(codeInput){
+      codeInput.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){ e.preventDefault(); tryUnlock(); }
+      });
+    }
   }
 
   const journalToggleEl = document.getElementById('journalToggle');
