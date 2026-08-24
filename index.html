@@ -1218,6 +1218,15 @@
 const REFLECT_FORM_URL = "https://forms.gle/v1xsSNbLm9eXVYCC6";
 const ENTRANCE_TICKET_FORM_URL = "https://forms.gle/5Q5N8wB69v8ZisgL8";
 
+// PILOT MODE — 2026-27 school year: this flips off the Purchase, Donate,
+// and Offering Plate buttons on the Student Access modal, since this is a
+// pilot year and no student/family should see a payment ask yet. The Class
+// Code field still works exactly the same — it was never actually tied to
+// payment verification, so this only affects what's visually shown.
+// TO RE-ENABLE MONETIZATION LATER: just flip this to false. Nothing below
+// gets deleted, only hidden.
+const PILOT_MODE = true;
+
 // Placeholder — swap this for your real Payhip (or other) checkout link
 // once the "Purchase Student Access" product is live. Doesn't need to
 // point anywhere yet.
@@ -10941,7 +10950,9 @@ function setSiteMode(mode){
 function renderSiteModeToggle(){
   const el = document.getElementById('siteModeToggle');
   if(!el) return;
-  el.innerHTML = `
+  el.innerHTML = PILOT_MODE
+    ? `<button type="button" class="site-mode-btn active" data-site-mode="student">🎓 Student</button>`
+    : `
     <button type="button" class="site-mode-btn ${siteMode==='personal'?'active':''}" data-site-mode="personal">🌱 Personal Use</button>
     <button type="button" class="site-mode-btn ${siteMode==='student'?'active':''}" data-site-mode="student">🎓 Student</button>
   `;
@@ -12028,13 +12039,13 @@ function renderPersonalCard(t){
       <p>${t.faith}</p>
     </div>
     ${watchSectionHTML}
-    <div class="personal-donate-block">
+    ${PILOT_MODE ? '' : `<div class="personal-donate-block">
       <p>If Faith &amp; Science Field Notes has been meaningful to you, consider supporting it so it can stay free — or set aside a Student Access code for someone who needs one.</p>
       <div class="personal-donate-btn-row">
         <button type="button" id="personalDonateBtn" class="donate-btn">❤️ Make a Donation</button>
         <button type="button" id="personalOfferingPlateBtn" class="offering-plate-btn">🍽️ Add to Offering Plate</button>
       </div>
-    </div>
+    </div>`}
     <div class="section-label">Journal</div>
     <div class="reflect-block personal-reflect">
       <p>Whenever you're ready, jot down your thoughts on how <b>${t.name}</b> connects to your faith — there's no minimum length and nothing to score here.</p>
@@ -13007,6 +13018,32 @@ function renderFooterMedia(){
   if(guideEl) guideEl.innerHTML = html;
 }
 renderFooterMedia();
+
+/* ============================================================
+   PILOT MODE — hide monetization CTAs on the Student Access modal.
+   See the PILOT_MODE flag near the top of this script. Only visual;
+   the Class Code field underneath is unaffected either way.
+   ============================================================ */
+function applyPilotMode(){
+  if(!PILOT_MODE) return;
+  const ctaRow = document.querySelector('.student-access-cta-row');
+  if(ctaRow) ctaRow.style.display = 'none';
+  const hintP = document.querySelector('.offering-plate-hint');
+  if(hintP) hintP.textContent = "🎓 Ask your teacher for this year's class code.";
+
+  // Only a Student version this year — no Personal Use option. A fresh
+  // visitor (no saved identity yet) gets guided straight into the Student
+  // ID modal instead of silently landing on the Personal Use view.
+  if(siteMode === 'personal' && !studentIdentity){
+    openStudentIdModal();
+  }
+  // Defensive: if someone cancels that modal and lands on the Personal
+  // Use view anyway, the donate block is already stripped from
+  // renderPersonalCard()'s own template below (not here) — templates
+  // regenerate on every render, so hiding via querySelector at page
+  // load wouldn't reach content that doesn't exist yet.
+}
+applyPilotMode();
 
 const searchInput = document.getElementById('searchInput');
 if(searchInput){
