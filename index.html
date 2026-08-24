@@ -1335,20 +1335,346 @@ function buildJournalEntryFormUrl(termName, promptText){
 }
 
 /* ============================================================
-   EXIT TICKET — PILOT (Grade 6 only, this week + next week's
-   terms, added mid-year to test whether the format is worth
-   rolling out further)
+   EXIT TICKET — one unique board code per term (all 316), so a
+   code shared across grades or class periods is useless outside
+   its own topic and its own class. Unlike the Entrance Ticket and
+   Journal Entry, this one is gated by a code written on the board
+   in class rather than tied to student identity or a roster.
 
-   Unlike the Entrance Ticket and Journal Entry, this one is
-   gated behind a simple code written on the board in class —
-   not tied to student identity or a class roster, just meant
-   to stop students from answering before or outside class.
+   Only terms with exitTicket:true actually show the Exit Ticket
+   block on the card (currently a pilot set — see the term data
+   below) — but every one of the 316 codes is generated and ready
+   here so expanding the pilot to more terms later needs zero code
+   changes, just flip exitTicket:true on the new term(s).
 
-   TO CHANGE THE CODE: edit EXIT_TICKET_CODE below and redeploy.
-   Comparison is case-insensitive and trims whitespace, so
-   "Bears2026", "bears2026", and " BEARS2026 " all match.
+   Full code-to-term reference lives in the "Exit Ticket — Master
+   Code Sheet" document — print it, and only glance at the row for
+   whichever term is live that period before writing its code on
+   the board.
+
+   Comparison is case-insensitive and trims whitespace, so "Arc1",
+   "arc1", and " ARC1 " all match. Codes are locked to the exact
+   term shown — a Grade 6 Matter code will never unlock a Grade 7
+   Cell exit ticket, even if a student tries it.
    ============================================================ */
-const EXIT_TICKET_CODE = "SCIENCE1";
+const EXIT_TICKET_CODES = {
+  matter: "ARC1", // EP.001 · Grade 6 · Matter
+  atomIntro: "GAS2", // EP.002 · Grade 6 · Atom
+  molecule: "SUN3", // EP.003 · Grade 6 · Molecule
+  elementIntro: "MOON4", // EP.004 · Grade 6 · Element
+  compound: "ROCK5", // EP.005 · Grade 6 · Compound
+  physicalProperty: "CELL6", // EP.006 · Grade 6 · Physical Property
+  chemicalProperty: "WAVE7", // EP.007 · Grade 6 · Chemical Property
+  physicalChange: "HEAT8", // EP.008 · Grade 6 · Physical Change
+  chemicalChange: "MASS9", // EP.009 · Grade 6 · Chemical Change
+  density: "FORCE10", // EP.010 · Grade 6 · Density
+  stateOfMatter: "SPARK11", // EP.011 · Grade 6 · State of Matter
+  solid: "BOND12", // EP.012 · Grade 6 · Solid
+  liquid: "GENE13", // EP.013 · Grade 6 · Liquid
+  gas: "STAR14", // EP.014 · Grade 6 · Gas
+  meltingPoint: "TIDE15", // EP.015 · Grade 6 · Melting Point
+  freezingPoint: "SOIL16", // EP.016 · Grade 6 · Freezing Point
+  boilingPoint: "SEED17", // EP.017 · Grade 6 · Boiling Point
+  condensation: "ROOT18", // EP.018 · Grade 6 · Condensation
+  evaporation: "LEAF19", // EP.019 · Grade 6 · Evaporation
+  sublimation: "BONE20", // EP.020 · Grade 6 · Sublimation
+  vaporization: "BLOOD21", // EP.021 · Grade 6 · Vaporization
+  energy: "HEART22", // EP.022 · Grade 6 · Energy
+  kineticEnergy: "BRAIN23", // EP.023 · Grade 6 · Kinetic Energy
+  potentialEnergy: "LUNG24", // EP.024 · Grade 6 · Potential Energy
+  motionG6: "SKIN25", // EP.025 · Grade 6 · Motion
+  power: "SALT26", // EP.026 · Grade 6 · Power
+  gravitationalPotentialEnergy: "ACID27", // EP.027 · Grade 6 · Gravitational Potential Energy
+  elasticPotentialEnergy: "BASE28", // EP.028 · Grade 6 · Elastic Potential Energy
+  mechanicalEnergy: "FLAME29", // EP.029 · Grade 6 · Mechanical Energy
+  forceIntro: "SPIN30", // EP.030 · Grade 6 · Force
+  work: "CRUST31", // EP.031 · Grade 6 · Work
+  chemicalEnergy: "CORE32", // EP.032 · Grade 6 · Chemical Energy
+  electricalEnergy: "PEAK33", // EP.033 · Grade 6 · Electrical Energy
+  nuclearEnergy: "CLIFF34", // EP.034 · Grade 6 · Nuclear Energy
+  conservationOfEnergy: "STONE35", // EP.035 · Grade 6 · Law of Conservation of Energy
+  thermalEnergy: "SAND36", // EP.036 · Grade 6 · Thermal Energy
+  temperature: "WIND37", // EP.037 · Grade 6 · Temperature
+  heat: "RAIN38", // EP.038 · Grade 6 · Heat
+  conduction: "SNOW39", // EP.039 · Grade 6 · Conduction
+  convection: "HAIL40", // EP.040 · Grade 6 · Convection
+  radiation: "FOG41", // EP.041 · Grade 6 · Radiation
+  insulator: "MIST42", // EP.042 · Grade 6 · Insulator
+  conductor: "CLOUD43", // EP.043 · Grade 6 · Conductor
+  geosphere: "STORM44", // EP.044 · Grade 6 · Geosphere
+  hydrosphere: "FLOOD45", // EP.045 · Grade 6 · Hydrosphere
+  atmosphere: "DROP46", // EP.046 · Grade 6 · Atmosphere
+  biosphere: "MELT47", // EP.047 · Grade 6 · Biosphere
+  weather: "BOIL48", // EP.048 · Grade 6 · Weather
+  airMass: "STEAM49", // EP.049 · Grade 6 · Air Mass
+  front: "GLOW50", // EP.050 · Grade 6 · Front
+  airPressure: "BEAM51", // EP.051 · Grade 6 · Air Pressure
+  humidity: "RAY52", // EP.052 · Grade 6 · Humidity
+  precipitation: "LIGHT53", // EP.053 · Grade 6 · Precipitation
+  wind: "DARK54", // EP.054 · Grade 6 · Wind
+  storm: "FIELD55", // EP.055 · Grade 6 · Storm
+  hurricane: "VOLT56", // EP.056 · Grade 6 · Hurricane
+  tornado: "OHM57", // EP.057 · Grade 6 · Tornado
+  thunderstorm: "AMP58", // EP.058 · Grade 6 · Thunderstorm
+  flood: "WATT59", // EP.059 · Grade 6 · Flood
+  mineral: "FUSE60", // EP.060 · Grade 6 · Mineral
+  rockCycle: "COIL61", // EP.061 · Grade 6 · Rock Cycle
+  igneous: "PLUG62", // EP.062 · Grade 6 · Igneous Rock
+  sedimentary: "WIRE63", // EP.063 · Grade 6 · Sedimentary Rock
+  metamorphic: "GRID64", // EP.064 · Grade 6 · Metamorphic Rock
+  continentalDrift: "FLASH65", // EP.065 · Grade 6 · Continental Drift
+  earthquake: "PULSE66", // EP.066 · Grade 6 · Earthquake
+  volcano: "BEAT67", // EP.067 · Grade 6 · Volcano
+  fault: "TRAIT68", // EP.068 · Grade 6 · Fault
+  tsunami: "CLONE69", // EP.069 · Grade 6 · Tsunami
+  weathering: "TWIN70", // EP.070 · Grade 6 · Mechanical Weathering
+  chemicalWeathering: "PLANT71", // EP.071 · Grade 6 · Chemical Weathering
+  soil: "STEM72", // EP.072 · Grade 6 · Soil
+  humus: "BARK73", // EP.073 · Grade 6 · Humus
+  erosion: "TRUNK74", // EP.074 · Grade 6 · Erosion
+  deposition: "VINE75", // EP.075 · Grade 6 · Deposition
+  sediment: "FRUIT76", // EP.076 · Grade 6 · Sediment
+  glacier: "SPORE77", // EP.077 · Grade 6 · Glacier
+  organism: "YEAST78", // EP.078 · Grade 6 · Organism
+  cellIntro: "MOLD79", // EP.079 · Grade 6 · Cell
+  classification: "GERM80", // EP.080 · Grade 6 · Classification
+  species: "HOST81", // EP.081 · Grade 6 · Species
+  virus: "PREY82", // EP.082 · Grade 6 · Virus
+  bacteria: "HUNT83", // EP.083 · Grade 6 · Bacteria
+  protist: "PACK84", // EP.084 · Grade 6 · Protist
+  multicellular: "HERD85", // EP.085 · Grade 6 · Multicellular
+  unicellular: "FLOCK86", // EP.086 · Grade 6 · Unicellular
+  cell: "SWARM87", // EP.087 · Grade 7 · Cell
+  cellTheory: "NEST88", // EP.088 · Grade 7 · Cell Theory
+  cellMembrane: "EGG89", // EP.089 · Grade 7 · Cell Membrane
+  cellWall: "MOLT90", // EP.090 · Grade 7 · Cell Wall
+  cytoplasm: "GILL91", // EP.091 · Grade 7 · Cytoplasm
+  nucleus: "FIN92", // EP.092 · Grade 7 · Nucleus
+  mitochondria: "SCALE93", // EP.093 · Grade 7 · Mitochondria
+  chloroplast: "CLAW94", // EP.094 · Grade 7 · Chloroplast
+  chlorophyll: "FANG95", // EP.095 · Grade 7 · Chlorophyll
+  vacuole: "ARC96", // EP.096 · Grade 7 · Vacuole
+  photosynthesis: "GAS97", // EP.097 · Grade 7 · Photosynthesis
+  cellularRespiration: "SUN98", // EP.098 · Grade 7 · Cellular Respiration
+  autotroph: "MOON99", // EP.099 · Grade 7 · Autotroph
+  heterotroph: "ROCK100", // EP.100 · Grade 7 · Heterotroph
+  cellCycle: "CELL101", // EP.101 · Grade 7 · Cell Cycle
+  mitosis: "WAVE102", // EP.102 · Grade 7 · Mitosis
+  cytokinesis: "HEAT103", // EP.103 · Grade 7 · Cytokinesis
+  interphase: "MASS104", // EP.104 · Grade 7 · Interphase
+  diffusion: "FORCE105", // EP.105 · Grade 7 · Diffusion
+  osmosis: "SPARK106", // EP.106 · Grade 7 · Osmosis
+  selectivelyPermeable: "BOND107", // EP.107 · Grade 7 · Selectively Permeable
+  endocytosis: "GENE108", // EP.108 · Grade 7 · Endocytosis
+  exocytosis: "STAR109", // EP.109 · Grade 7 · Exocytosis
+  organ: "TIDE110", // EP.110 · Grade 7 · Organ
+  tissue: "SOIL111", // EP.111 · Grade 7 · Tissue
+  organSystem: "SEED112", // EP.112 · Grade 7 · Organ System
+  homeostasis: "ROOT113", // EP.113 · Grade 7 · Homeostasis
+  circulatorySystem: "LEAF114", // EP.114 · Grade 7 · Circulatory System
+  digestion: "BONE115", // EP.115 · Grade 7 · Digestion
+  excretion: "BLOOD116", // EP.116 · Grade 7 · Excretion
+  response: "HEART117", // EP.117 · Grade 7 · Response
+  stimulus: "BRAIN118", // EP.118 · Grade 7 · Stimulus
+  reflex: "LUNG119", // EP.119 · Grade 7 · Reflex
+  neuron: "SKIN120", // EP.120 · Grade 7 · Neuron
+  brain: "SALT121", // EP.121 · Grade 7 · Brain
+  spinalCord: "ACID122", // EP.122 · Grade 7 · Spinal Cord
+  synapse: "BASE123", // EP.123 · Grade 7 · Synapse
+  asexualReproduction: "FLAME124", // EP.124 · Grade 7 · Asexual Reproduction
+  sexualReproduction: "SPIN125", // EP.125 · Grade 7 · Sexual Reproduction
+  fertilization: "CRUST126", // EP.126 · Grade 7 · Fertilization
+  internalFertilization: "CORE127", // EP.127 · Grade 7 · Internal Fertilization
+  externalFertilization: "PEAK128", // EP.128 · Grade 7 · External Fertilization
+  zygote: "CLIFF129", // EP.129 · Grade 7 · Zygote
+  embryo: "STONE130", // EP.130 · Grade 7 · Embryo
+  ecosystem: "SAND131", // EP.131 · Grade 7 · Ecosystem
+  producer: "WIND132", // EP.132 · Grade 7 · Producer
+  consumer: "RAIN133", // EP.133 · Grade 7 · Consumer
+  decomposer: "SNOW134", // EP.134 · Grade 7 · Decomposer
+  foodChain: "HAIL135", // EP.135 · Grade 7 · Food Chain
+  foodWeb: "FOG136", // EP.136 · Grade 7 · Food Web
+  energyPyramid: "MIST137", // EP.137 · Grade 7 · Energy Pyramid
+  abioticFactor: "CLOUD138", // EP.138 · Grade 7 · Abiotic Factor
+  bioticFactor: "STORM139", // EP.139 · Grade 7 · Biotic Factor
+  habitat: "FLOOD140", // EP.140 · Grade 7 · Habitat
+  population: "DROP141", // EP.141 · Grade 7 · Population
+  community: "MELT142", // EP.142 · Grade 7 · Community
+  biodiversity: "BOIL143", // EP.143 · Grade 7 · Biodiversity
+  carryingCapacity: "STEAM144", // EP.144 · Grade 7 · Carrying Capacity
+  limitingFactor: "GLOW145", // EP.145 · Grade 7 · Limiting Factor
+  competition: "BEAM146", // EP.146 · Grade 7 · Competition
+  predation: "RAY147", // EP.147 · Grade 7 · Predation
+  symbiosis: "LIGHT148", // EP.148 · Grade 7 · Symbiosis
+  mutualism: "DARK149", // EP.149 · Grade 7 · Mutualism
+  commensalism: "FIELD150", // EP.150 · Grade 7 · Commensalism
+  parasitism: "VOLT151", // EP.151 · Grade 7 · Parasitism
+  succession: "OHM152", // EP.152 · Grade 7 · Succession
+  pioneerSpecies: "AMP153", // EP.153 · Grade 7 · Pioneer Species
+  invasiveSpecies: "WATT154", // EP.154 · Grade 7 · Invasive Species
+  keystoneSpecies: "FUSE155", // EP.155 · Grade 7 · Keystone Species
+  naturalResource: "COIL156", // EP.156 · Grade 7 · Natural Resource
+  nonrenewableResource: "PLUG157", // EP.157 · Grade 7 · Nonrenewable Resource
+  renewableResource: "WIRE158", // EP.158 · Grade 7 · Renewable Resource
+  fossilFuel: "GRID159", // EP.159 · Grade 7 · Fossil Fuel
+  ore: "FLASH160", // EP.160 · Grade 7 · Ore
+  pollution: "PULSE161", // EP.161 · Grade 7 · Pollution
+  conservation: "BEAT162", // EP.162 · Grade 7 · Conservation
+  sustainability: "TRAIT163", // EP.163 · Grade 7 · Sustainability
+  sustainable: "CLONE164", // EP.164 · Grade 7 · Sustainable
+  sustainableUse: "TWIN165", // EP.165 · Grade 7 · Sustainable Use
+  emissions: "PLANT166", // EP.166 · Grade 7 · Emissions
+  thermalPollution: "STEM167", // EP.167 · Grade 7 · Thermal Pollution
+  acidRain: "BARK168", // EP.168 · Grade 7 · Acid Rain
+  ozone: "TRUNK169", // EP.169 · Grade 7 · Ozone
+  wave: "VINE170", // EP.170 · Grade 7 · Wave
+  amplitude: "FRUIT171", // EP.171 · Grade 7 · Amplitude
+  wavelength: "SPORE172", // EP.172 · Grade 7 · Wavelength
+  frequency: "YEAST173", // EP.173 · Grade 7 · Frequency
+  mechanicalWave: "MOLD174", // EP.174 · Grade 7 · Mechanical Wave
+  electromagneticWave: "GERM175", // EP.175 · Grade 7 · Electromagnetic Wave
+  electromagneticSpectrum: "HOST176", // EP.176 · Grade 7 · Electromagnetic Spectrum
+  electromagneticRadiation: "PREY177", // EP.177 · Grade 7 · Electromagnetic Radiation
+  visibleLight: "HUNT178", // EP.178 · Grade 7 · Visible Light
+  reflection: "PACK179", // EP.179 · Grade 7 · Reflection
+  refraction: "HERD180", // EP.180 · Grade 7 · Refraction
+  electricForce: "FLOCK181", // EP.181 · Grade 7 · Electric Force
+  electricField: "SWARM182", // EP.182 · Grade 7 · Electric Field
+  magneticForce: "NEST183", // EP.183 · Grade 7 · Magnetic Force
+  magneticField: "EGG184", // EP.184 · Grade 7 · Magnetic Field
+  electromagnetism: "MOLT185", // EP.185 · Grade 7 · Electromagnetism
+  electromagnet: "GILL186", // EP.186 · Grade 7 · Electromagnet
+  electricalCircuit: "FIN187", // EP.187 · Grade 7 · Electrical Circuit
+  electricCurrent: "SCALE188", // EP.188 · Grade 7 · Electric Current
+  voltage: "CLAW189", // EP.189 · Grade 7 · Voltage
+  resistance: "FANG190", // EP.190 · Grade 7 · Resistance
+  signal: "ARC191", // EP.191 · Grade 7 · Signal
+  digitalSignal: "GAS192", // EP.192 · Grade 7 · Digital Signal
+  analogSignal: "SUN193", // EP.193 · Grade 7 · Analog Signal
+  informationTechnology: "MOON194", // EP.194 · Grade 7 · Information Technology
+  atom: "ROCK195", // EP.195 · Grade 8 · Atom
+  atomicNumber: "CELL196", // EP.196 · Grade 8 · Atomic Number
+  atomicMass: "WAVE197", // EP.197 · Grade 8 · Atomic Mass
+  proton: "HEAT198", // EP.198 · Grade 8 · Proton
+  neutron: "MASS199", // EP.199 · Grade 8 · Neutron
+  electron: "FORCE200", // EP.200 · Grade 8 · Electron
+  periodicTable: "SPARK201", // EP.201 · Grade 8 · Periodic Table
+  group: "BOND202", // EP.202 · Grade 8 · Group
+  period: "GENE203", // EP.203 · Grade 8 · Period
+  chemicalSymbol: "STAR204", // EP.204 · Grade 8 · Chemical Symbol
+  isotope: "TIDE205", // EP.205 · Grade 8 · Isotope
+  ion: "SOIL206", // EP.206 · Grade 8 · Ion
+  valenceElectron: "SEED207", // EP.207 · Grade 8 · Valence Electron
+  ionicBond: "ROOT208", // EP.208 · Grade 8 · Ionic Bond
+  covalentBond: "LEAF209", // EP.209 · Grade 8 · Covalent Bond
+  polarBond: "BONE210", // EP.210 · Grade 8 · Polar Bond
+  nonpolarBond: "BLOOD211", // EP.211 · Grade 8 · Nonpolar Bond
+  chemicalBond: "HEART212", // EP.212 · Grade 8 · Chemical Bond
+  element: "BRAIN213", // EP.213 · Grade 8 · Element
+  compoundG8: "LUNG214", // EP.214 · Grade 8 · Compound
+  moleculeG8: "SKIN215", // EP.215 · Grade 8 · Molecule
+  polyatomicIon: "SALT216", // EP.216 · Grade 8 · Polyatomic Ion
+  chemicalChangeG8: "ACID217", // EP.217 · Grade 8 · Chemical Change
+  chemicalReaction: "BASE218", // EP.218 · Grade 8 · Chemical Reaction
+  reactant: "FLAME219", // EP.219 · Grade 8 · Reactant
+  product: "SPIN220", // EP.220 · Grade 8 · Product
+  endothermicReaction: "CRUST221", // EP.221 · Grade 8 · Endothermic Reaction
+  exothermicReaction: "CORE222", // EP.222 · Grade 8 · Exothermic Reaction
+  lawOfConservationOfMass: "PEAK223", // EP.223 · Grade 8 · Law of Conservation of Mass
+  synthetic: "CLIFF224", // EP.224 · Grade 8 · Synthetic
+  polymer: "STONE225", // EP.225 · Grade 8 · Polymer
+  motion: "SAND226", // EP.226 · Grade 8 · Motion
+  speed: "WIND227", // EP.227 · Grade 8 · Speed
+  velocity: "RAIN228", // EP.228 · Grade 8 · Velocity
+  acceleration: "SNOW229", // EP.229 · Grade 8 · Acceleration
+  force: "HAIL230", // EP.230 · Grade 8 · Force
+  netForce: "FOG231", // EP.231 · Grade 8 · Net Force
+  friction: "MIST232", // EP.232 · Grade 8 · Friction
+  gravity: "CLOUD233", // EP.233 · Grade 8 · Gravity
+  lawOfUniversalGravitation: "STORM234", // EP.234 · Grade 8 · Law of Universal Gravitation
+  referencePoint: "FLOOD235", // EP.235 · Grade 8 · Reference Point
+  inertia: "DROP236", // EP.236 · Grade 8 · Inertia
+  newton: "MELT237", // EP.237 · Grade 8 · Newton
+  gene: "BOIL238", // EP.238 · Grade 8 · Gene
+  chromosome: "STEAM239", // EP.239 · Grade 8 · Chromosome
+  dna: "GLOW240", // EP.240 · Grade 8 · DNA
+  heredity: "BEAM241", // EP.241 · Grade 8 · Heredity
+  trait: "RAY242", // EP.242 · Grade 8 · Trait
+  dominantAllele: "LIGHT243", // EP.243 · Grade 8 · Dominant Allele
+  recessiveAllele: "DARK244", // EP.244 · Grade 8 · Recessive Allele
+  genotype: "FIELD245", // EP.245 · Grade 8 · Genotype
+  phenotype: "VOLT246", // EP.246 · Grade 8 · Phenotype
+  pedigree: "OHM247", // EP.247 · Grade 8 · Pedigree
+  sexChromosomes: "AMP248", // EP.248 · Grade 8 · Sex Chromosomes
+  sexLinkedGene: "WATT249", // EP.249 · Grade 8 · Sex-Linked Gene
+  autosomalChromosomes: "FUSE250", // EP.250 · Grade 8 · Autosomal Chromosomes
+  mutation: "COIL251", // EP.251 · Grade 8 · Mutation
+  mitosisG8: "PLUG252", // EP.252 · Grade 8 · Mitosis
+  meiosis: "WIRE253", // EP.253 · Grade 8 · Meiosis
+  chromatid: "GRID254", // EP.254 · Grade 8 · Chromatid
+  messengerRna: "FLASH255", // EP.255 · Grade 8 · Messenger RNA
+  transferRna: "PULSE256", // EP.256 · Grade 8 · Transfer RNA
+  proteinSynthesis: "BEAT257", // EP.257 · Grade 8 · Protein Synthesis
+  geneticEngineering: "TRAIT258", // EP.258 · Grade 8 · Genetic Engineering
+  geneTherapy: "CLONE259", // EP.259 · Grade 8 · Gene Therapy
+  genome: "TWIN260", // EP.260 · Grade 8 · Genome
+  clone: "PLANT261", // EP.261 · Grade 8 · Clone
+  probability: "STEM262", // EP.262 · Grade 8 · Probability
+  evolution: "BARK263", // EP.263 · Grade 8 · Evolution
+  naturalSelection: "TRUNK264", // EP.264 · Grade 8 · Natural Selection
+  adaptation: "VINE265", // EP.265 · Grade 8 · Adaptation
+  fossilRecord: "FRUIT266", // EP.266 · Grade 8 · Fossil Record
+  fossil: "SPORE267", // EP.267 · Grade 8 · Fossil
+  artificialSelection: "YEAST268", // EP.268 · Grade 8 · Artificial Selection
+  fitness: "MOLD269", // EP.269 · Grade 8 · Fitness
+  variation: "GERM270", // EP.270 · Grade 8 · Variation
+  homologousStructures: "HOST271", // EP.271 · Grade 8 · Homologous Structures
+  extinct: "PREY272", // EP.272 · Grade 8 · Extinct
+  massExtinction: "HUNT273", // EP.273 · Grade 8 · Mass Extinction
+  coevolution: "PACK274", // EP.274 · Grade 8 · Coevolution
+  sexualSelection: "HERD275", // EP.275 · Grade 8 · Sexual Selection
+  geologicTimeScale: "FLOCK276", // EP.276 · Grade 8 · Geologic Time Scale
+  era: "SWARM277", // EP.277 · Grade 8 · Era
+  absoluteAge: "NEST278", // EP.278 · Grade 8 · Absolute Age
+  relativeAge: "EGG279", // EP.279 · Grade 8 · Relative Age
+  radioactiveDating: "MOLT280", // EP.280 · Grade 8 · Radioactive Dating
+  radioactiveDecay: "GILL281", // EP.281 · Grade 8 · Radioactive Decay
+  lawOfSuperposition: "FIN282", // EP.282 · Grade 8 · Law of Superposition
+  unconformity: "SCALE283", // EP.283 · Grade 8 · Unconformity
+  current: "CLAW284", // EP.284 · Grade 8 · Current
+  coriolisEffect: "FANG285", // EP.285 · Grade 8 · Coriolis Effect
+  landBreeze: "ARC286", // EP.286 · Grade 8 · Land Breeze
+  seaBreeze: "GAS287", // EP.287 · Grade 8 · Sea Breeze
+  climate: "SUN288", // EP.288 · Grade 8 · Climate
+  climateChange: "MOON289", // EP.289 · Grade 8 · Climate Change
+  globalWarming: "ROCK290", // EP.290 · Grade 8 · Global Warming
+  greenhouseEffect: "CELL291", // EP.291 · Grade 8 · Greenhouse Effect
+  greenhouseGas: "WAVE292", // EP.292 · Grade 8 · Greenhouse Gas
+  elNino: "HEAT293", // EP.293 · Grade 8 · El Nino
+  laNina: "MASS294", // EP.294 · Grade 8 · La Nina
+  rotation: "FORCE295", // EP.295 · Grade 8 · Rotation
+  revolution: "SPARK296", // EP.296 · Grade 8 · Revolution
+  axis: "BOND297", // EP.297 · Grade 8 · Axis
+  tide: "GENE298", // EP.298 · Grade 8 · Tide
+  springTide: "STAR299", // EP.299 · Grade 8 · Spring Tide
+  neapTide: "TIDE300", // EP.300 · Grade 8 · Neap Tide
+  phase: "SOIL301", // EP.301 · Grade 8 · Phase
+  eclipse: "SEED302", // EP.302 · Grade 8 · Eclipse
+  umbra: "ROOT303", // EP.303 · Grade 8 · Umbra
+  penumbra: "LEAF304", // EP.304 · Grade 8 · Penumbra
+  solarSystem: "BONE305", // EP.305 · Grade 8 · Solar System
+  planet: "BLOOD306", // EP.306 · Grade 8 · Planet
+  star: "HEART307", // EP.307 · Grade 8 · Star
+  galaxy: "BRAIN308", // EP.308 · Grade 8 · Galaxy
+  orbit: "LUNG309", // EP.309 · Grade 8 · Orbit
+  sun: "SKIN310", // EP.310 · Grade 8 · Sun
+  moon: "SALT311", // EP.311 · Grade 8 · Moon
+  asteroid: "ACID312", // EP.312 · Grade 8 · Asteroid
+  comet: "BASE313", // EP.313 · Grade 8 · Comet
+  meteor: "FLAME314", // EP.314 · Grade 8 · Meteor
+  meteoroid: "SPIN315", // EP.315 · Grade 8 · Meteoroid
+  ellipse: "CRUST316", // EP.316 · Grade 8 · Ellipse
+};
 
 /* ------------------------------------------------------------
    Field IDs below are PLACEHOLDERS until the Exit Ticket Google
@@ -12070,7 +12396,8 @@ function renderCard(){
       const input = document.getElementById('exitTicketCodeInput');
       const errorEl = document.getElementById('exitTicketCodeError');
       const entered = (input.value || '').trim().toLowerCase();
-      const correct = EXIT_TICKET_CODE.trim().toLowerCase();
+      const correctCode = EXIT_TICKET_CODES[current];
+      const correct = correctCode ? correctCode.trim().toLowerCase() : '';
       if(entered && entered === correct){
         unlockedExitTickets.add(current);
         renderCard();
