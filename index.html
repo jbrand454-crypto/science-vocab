@@ -13030,6 +13030,11 @@ function applyPilotMode(){
   if(ctaRow) ctaRow.style.display = 'none';
   const hintP = document.querySelector('.offering-plate-hint');
   if(hintP) hintP.textContent = "🎓 Ask your teacher for this year's class code.";
+  // Show this year's actual code right in the field — one less thing for
+  // a student to forget. Reverts to the generic example automatically
+  // once PILOT_MODE flips off.
+  const codeField = document.getElementById('studentIdCode');
+  if(codeField) codeField.placeholder = 'BEARS2026';
 
   // Only a Student version this year — no Personal Use option. A fresh
   // visitor (no saved identity yet) gets guided straight into the Student
