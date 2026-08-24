@@ -1216,6 +1216,96 @@
 const REFLECT_FORM_URL = "https://forms.gle/v1xsSNbLm9eXVYCC6";
 const ENTRANCE_TICKET_FORM_URL = "https://forms.gle/5Q5N8wB69v8ZisgL8";
 
+/* ============================================================
+   ENTRANCE TICKET — DYNAMIC PRE-FILL
+
+   The Entrance Ticket Google Form now has five fields: First Name,
+   Last Name, Grade, Entrance Ticket Term, and Entrance Ticket Prompt
+   (in that order), with Entrance Ticket Response last. Rather than
+   linking to the bare form (ENTRANCE_TICKET_FORM_URL above, which
+   stays defined only as a fallback), every "Submit Your Response"
+   button builds a pre-filled link on the fly using the student's
+   saved identity plus the specific term/prompt on screen.
+
+   If the form is ever rebuilt and the field IDs change, regenerate
+   them the same way: open the form → ⋮ menu → "Get pre-filled link"
+   → fill in a sample answer for every field → Get Link → Copy Link
+   → pull the entry.XXXXXXXXX number after each field's "entry."
+   prefix and update ENTRANCE_TICKET_FIELD_IDS below.
+   ============================================================ */
+const ENTRANCE_TICKET_FORM_BASE = "https://docs.google.com/forms/d/e/1FAIpQLSfqfHIUdIz8Up-ALCDk-ltz0pBpVu-bHsnhWBlzHWiJTwgJVw/viewform";
+const ENTRANCE_TICKET_FIELD_IDS = {
+  firstName: "entry.222466664",
+  lastName: "entry.1185921703",
+  grade: "entry.1522816527",
+  term: "entry.1785698677",
+  prompt: "entry.1766265184"
+};
+// Site identity grade values -> exact text of this form's Grade dropdown options.
+const ENTRANCE_TICKET_GRADE_MAP = {
+  "6": "6th",
+  "7": "7th",
+  "8": "8th",
+  "Parent": "I am not a student",
+  "School Staff": "I am not a student",
+  "N/A": "I am not a student"
+};
+
+function buildEntranceTicketFormUrl(termName, promptText){
+  const params = new URLSearchParams();
+  params.set('usp', 'pp_url');
+  if(typeof studentIdentity !== 'undefined' && studentIdentity){
+    if(studentIdentity.firstName) params.set(ENTRANCE_TICKET_FIELD_IDS.firstName, studentIdentity.firstName);
+    if(studentIdentity.lastName) params.set(ENTRANCE_TICKET_FIELD_IDS.lastName, studentIdentity.lastName);
+    const mappedGrade = ENTRANCE_TICKET_GRADE_MAP[studentIdentity.grade];
+    if(mappedGrade) params.set(ENTRANCE_TICKET_FIELD_IDS.grade, mappedGrade);
+  }
+  if(termName) params.set(ENTRANCE_TICKET_FIELD_IDS.term, termName);
+  if(promptText) params.set(ENTRANCE_TICKET_FIELD_IDS.prompt, promptText);
+  return `${ENTRANCE_TICKET_FORM_BASE}?${params.toString()}`;
+}
+
+/* ============================================================
+   WEEKLY REFLECTION / JOURNAL ENTRY — DYNAMIC PRE-FILL
+
+   Same pattern as the Entrance Ticket above. The Journal Entry
+   Google Form has five fields: First Name, Last Name, Grade,
+   Journal Entry Term, and Reflection Prompt (in that order),
+   with Journal Entry Response last. The "Make a Journal Entry"
+   button builds a pre-filled link per term using the student's
+   saved identity plus that term's instructions + Faith & Science
+   in Action question.
+
+   To regenerate the field IDs if this form is ever rebuilt: open
+   the form → ⋮ menu → "Get pre-filled link" → fill in a sample
+   answer for every field → Get Link → Copy Link → update
+   JOURNAL_ENTRY_FIELD_IDS below.
+   ============================================================ */
+const JOURNAL_ENTRY_FORM_BASE = "https://docs.google.com/forms/d/e/1FAIpQLSce5jaNmdXMNnTp7JmAFfpzGlmn7hrtg9pqeduK1q69XZnbvg/viewform";
+const JOURNAL_ENTRY_FIELD_IDS = {
+  firstName: "entry.222466664",
+  lastName: "entry.1185921703",
+  grade: "entry.2121611142",
+  term: "entry.1785698677",
+  prompt: "entry.2049860936"
+};
+// Same dropdown wording as the Entrance Ticket form, so the same map applies.
+const JOURNAL_ENTRY_GRADE_MAP = ENTRANCE_TICKET_GRADE_MAP;
+
+function buildJournalEntryFormUrl(termName, promptText){
+  const params = new URLSearchParams();
+  params.set('usp', 'pp_url');
+  if(typeof studentIdentity !== 'undefined' && studentIdentity){
+    if(studentIdentity.firstName) params.set(JOURNAL_ENTRY_FIELD_IDS.firstName, studentIdentity.firstName);
+    if(studentIdentity.lastName) params.set(JOURNAL_ENTRY_FIELD_IDS.lastName, studentIdentity.lastName);
+    const mappedGrade = JOURNAL_ENTRY_GRADE_MAP[studentIdentity.grade];
+    if(mappedGrade) params.set(JOURNAL_ENTRY_FIELD_IDS.grade, mappedGrade);
+  }
+  if(termName) params.set(JOURNAL_ENTRY_FIELD_IDS.term, termName);
+  if(promptText) params.set(JOURNAL_ENTRY_FIELD_IDS.prompt, promptText);
+  return `${JOURNAL_ENTRY_FORM_BASE}?${params.toString()}`;
+}
+
 // PILOT MODE — 2026-27 school year: this flips off the Purchase, Donate,
 // and Offering Plate buttons on the Student Access modal, since this is a
 // pilot year and no student/family should see a payment ask yet. The Class
@@ -11652,6 +11742,8 @@ function renderCard(){
     const bonusPromptText = t.faithBonus
       ? `Bonus: can you think of a connection between ${t.name} and your faith?`
       : `Bonus: can you think of a cool experiment involving ${t.name}?`;
+    const fullEntrancePromptText = `Before we dig in: what do you already know about ${t.name}? Give an example if you can. What don't you know yet — what are you curious about? ${bonusPromptText}`;
+    const entranceTicketFormUrl = buildEntranceTicketFormUrl(t.name, fullEntrancePromptText);
     cardEl.innerHTML = `
       <div class="card-head">
         ${backButtonHTML}
@@ -11663,7 +11755,7 @@ function renderCard(){
         <p>Before we dig in: what do you already know about <b>${t.name}</b>? Give an example if you can. What don't you know yet — what are you curious about? ${bonusPromptText}</p>
         <div class="gate-btn-row">
           <button id="continueJourneyBtn" class="continue-journey-btn">✅ Continue Your Journey →</button>
-          <a class="submit-response-btn" href="${ENTRANCE_TICKET_FORM_URL || '#'}" target="_blank" rel="noopener">📤 Submit Your Response</a>
+          <a class="submit-response-btn" href="${entranceTicketFormUrl}" target="_blank" rel="noopener">📤 Submit Your Response</a>
         </div>
         <div class="submit-info-row">
           <button id="submitInfoBtn" class="submit-info-btn" aria-label="Where does my response go?">👁️</button>
@@ -11697,9 +11789,9 @@ function renderCard(){
     return;
   }
 
-  function journalActionsHTML(mode){
+  function journalActionsHTML(mode, journalFormUrl){
     return `<div class="journal-btn-row">
-      <a class="reflect-btn" href="${REFLECT_FORM_URL || '#'}" target="_blank" rel="noopener">📝 Make a Journal Entry</a>
+      <a class="reflect-btn" href="${journalFormUrl}" target="_blank" rel="noopener">📝 Make a Journal Entry</a>
       <button class="review-journal-btn" type="button">📖 Review My Journal</button>
     </div>
     <div class="review-journal-panel">
@@ -11709,11 +11801,14 @@ function renderCard(){
     </div>`;
   }
 
+  const reflectionPromptText = `Submit one combined paragraph reflection (at least 75 words) on ${t.name} — include your science fact, an example, and this week's Faith & Science in Action question, answered honestly in your own words. Faith & Science in Action: ${t.faith}`;
+  const journalEntryFormUrl = buildJournalEntryFormUrl(t.name, reflectionPromptText);
+
   const studentPromptHTML = `<p>Ready to go deeper? Submit one combined paragraph reflection (at least 75 words) on <b>${t.name}</b> — include your science fact, an example, and this week's Faith &amp; Science in Action question, answered honestly in your own words. Scored on Content (0–3) and Grammar &amp; Structure (0–2). All of this week's new topics need a journal entry — take your time, and turn it in by end of day on the second-to-last day of the school week for a bonus point!</p>
-    ${journalActionsHTML('student')}`;
+    ${journalActionsHTML('student', journalEntryFormUrl)}`;
 
   const personalPromptHTML = `<p>This week's topic was <b>${t.name}</b>, and the Faith &amp; Science in Action question above invited you to sit with how that idea connects to your own life. Whenever you're ready, jot down your thoughts — there's no minimum length and nothing to score here. This is simply space to think it through honestly, at your own pace.</p>
-    ${journalActionsHTML('personal')}`;
+    ${journalActionsHTML('personal', journalEntryFormUrl)}`;
 
   const reflectHTML = !t.reflect ? '' : ((t.journalToggle && !PILOT_MODE) ? `
     <div class="section-label">Weekly Reflection</div>
