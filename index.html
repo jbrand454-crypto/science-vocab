@@ -12317,13 +12317,11 @@ function renderCard(){
       <span class="slabel">End-of-Unit Mastery Goal</span>
       <span class="scode">${t.standard}</span>
       <blockquote>"${t.standardText}"</blockquote>
-      <p class="snote">This is the standard "${t.name}" supports — it's a performance goal reached through classroom investigation and modeling over a full unit, not through vocabulary recall alone. This tool builds the foundation; the standard is met in class.</p>
       <p class="ssource">Source: Ohio's Learning Standards for Science, adopted 2018 (Ohio Department of Education and Workforce).</p>
     </div>
     <div class="target-panel" id="targetPanel">
       <span class="slabel">Today's Learning Target</span>
       <p class="ttext">${t.learningTarget}</p>
-      <p class="snote">This is the simplified, student-facing version of the standard above — what you should be able to say by the end of this Field Entry.</p>
     </div>
     ${t.entranceTicket && !t.pauseGate ? `
     <div class="stay-curious-block" id="stayCuriousBlock">
