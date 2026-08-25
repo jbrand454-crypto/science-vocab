@@ -717,6 +717,8 @@
   .media-row button.on{background:var(--teal);color:#fff;}
   .drop-schedule-link{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13px;background:#fff;border:1.5px dashed #B8862E;color:#B8862E;border-radius:20px;padding:9px 16px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s ease, color .15s ease;}
   .drop-schedule-link:hover{background:#B8862E;color:#fff;}
+  .slides-link-btn{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:#fff;border:1.5px solid var(--blueprint);color:var(--blueprint);border-radius:20px;padding:9px 16px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s ease, color .15s ease;}
+  .slides-link-btn:hover{background:var(--blueprint);color:#fff;}
   .media-row button.ai-cohost-btn{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:var(--ink);border:1.5px solid var(--ink);color:#fff;border-radius:20px;padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s ease;}
   .media-row button.ai-cohost-btn:hover{background:var(--teal);border-color:var(--teal);color:#fff;}
   .media-row button.ai-cohost-btn.on{background:var(--teal);border-color:var(--teal);}
@@ -2029,7 +2031,7 @@ const TERMS = {
     ]},
 
 
-  matter: { grade:6, unit:"Introduction to Matter", standard:"6.PS.1", standardText:"Matter is made up of small particles called atoms.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, exitTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true,
+  matter: { grade:6, unit:"Introduction to Matter", standard:"6.PS.1", standardText:"Matter is made up of small particles called atoms.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, exitTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true, slidesUrl:"https://notebook.google.com/notebook/eb62f387-47bd-4d40-aec5-b7edc80ee392/artifact/c123fb4e-1857-4c8d-a6d6-27e8042a0d91?utm_source=nlm_web_share&utm_medium=google_oo&utm_campaign=art_share_1&utm_content=&utm_smc=nlm_web_share_google_oo_art_share_1_",
     learningTarget:"I can explain that matter is anything that has mass and takes up space.",
     definition:"Matter is anything that has mass and takes up space.",
     example:"Air, water, rocks, and your own body are all matter — even though air is invisible, it still has mass and takes up space.",
@@ -12347,6 +12349,7 @@ function renderCard(){
       <button data-media="video">🎬 Watch the Short</button>
       <button data-media="infographic">🖼️ Infographic</button>
       <button data-media="podcast">🎧 Listen: Faith &amp; Reflection</button>
+      ${t.slidesUrl ? `<a class="slides-link-btn" href="${t.slidesUrl}" target="_blank" rel="noopener">📊 View Slides</a>` : ''}
       ${t.aiCohost ? `<button id="aiCohostBtn" class="ai-cohost-btn">🤖 Meet Your AI Cohosts</button>` : ''}
       ${DROP_SCHEDULE_URL ? `<a class="drop-schedule-link" href="${DROP_SCHEDULE_URL}" target="_blank" rel="noopener">📅 Media not out yet? See the drop schedule</a>` : ''}
     </div>
