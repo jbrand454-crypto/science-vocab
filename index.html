@@ -717,8 +717,6 @@
   .media-row button.on{background:var(--teal);color:#fff;}
   .drop-schedule-link{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:13px;background:#fff;border:1.5px dashed #B8862E;color:#B8862E;border-radius:20px;padding:9px 16px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s ease, color .15s ease;}
   .drop-schedule-link:hover{background:#B8862E;color:#fff;}
-  .slides-link-btn{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:#fff;border:1.5px solid var(--blueprint);color:var(--blueprint);border-radius:20px;padding:9px 16px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s ease, color .15s ease;}
-  .slides-link-btn:hover{background:var(--blueprint);color:#fff;}
   .media-row button.ai-cohost-btn{font-family:'Atkinson Hyperlegible',sans-serif;font-weight:700;font-size:14px;background:var(--ink);border:1.5px solid var(--ink);color:#fff;border-radius:20px;padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s ease;}
   .media-row button.ai-cohost-btn:hover{background:var(--teal);border-color:var(--teal);color:#fff;}
   .media-row button.ai-cohost-btn.on{background:var(--teal);border-color:var(--teal);}
@@ -771,6 +769,7 @@
   .media-embed{width:100%;}
   .media-embed iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:6px;display:block;}
   .media-embed.spotify-embed iframe{aspect-ratio:auto;height:152px;border-radius:12px;}
+  .media-embed.slides-embed iframe{aspect-ratio:auto;height:min(70vh,600px);border-radius:6px;}
   .media-embed img{width:100%;border-radius:6px;display:block;}
   .media-embed audio{width:100%;}
   .media-link{display:inline-block;margin-top:10px;font-size:13.5px;font-weight:700;color:var(--teal);text-decoration:none;border-bottom:1.5px solid var(--teal);}
@@ -2031,7 +2030,7 @@ const TERMS = {
     ]},
 
 
-  matter: { grade:6, unit:"Introduction to Matter", standard:"6.PS.1", standardText:"Matter is made up of small particles called atoms.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, exitTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true, slidesUrl:"https://notebook.google.com/notebook/eb62f387-47bd-4d40-aec5-b7edc80ee392/artifact/c123fb4e-1857-4c8d-a6d6-27e8042a0d91?utm_source=nlm_web_share&utm_medium=google_oo&utm_campaign=art_share_1&utm_content=&utm_smc=nlm_web_share_google_oo_art_share_1_",
+  matter: { grade:6, unit:"Introduction to Matter", standard:"6.PS.1", standardText:"Matter is made up of small particles called atoms.", domain:"physical", label:"Physical Science", name:"Matter", ep:1, galileo:true, reflect:true, entranceTicket:true, exitTicket:true, pauseGate:true, journalToggle:true, faithBonus:true, journalProgress:true, slidesUrl:"https://drive.google.com/file/d/1xzKk4yiI3sMQH9b4mFECv2j26TY0gYsx/view?usp=sharing",
     learningTarget:"I can explain that matter is anything that has mass and takes up space.",
     definition:"Matter is anything that has mass and takes up space.",
     example:"Air, water, rocks, and your own body are all matter — even though air is invisible, it still has mass and takes up space.",
@@ -5258,7 +5257,7 @@ const TERMS = {
     ]},
 
 
-  cell: { grade:7, unit:"The Cell System", standard:"6.LS.3", standardText:"Cells carry on specific functions that sustain life.", domain:"life", label:"Life Science", name:"Cell", ep:87, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true,
+  cell: { grade:7, unit:"The Cell System", standard:"6.LS.3", standardText:"Cells carry on specific functions that sustain life.", domain:"life", label:"Life Science", name:"Cell", ep:87, reflect:true, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, slidesUrl:"https://drive.google.com/file/d/1Dg_MKM4BhlVqrFgLakwEVX4X_enEQV8b/view?usp=sharing",
     learningTarget:"I can explain that a cell is the basic building block of all living things \u2014 the smallest unit that can carry out the functions of life.",
     definition:"A cell is the basic building block of all living things — the smallest unit that can carry out the functions of life.",
     example:"Your skin, muscles, and blood are all made of different types of cells working together.",
@@ -11201,7 +11200,7 @@ const TERMS = {
       {type:"short", difficulty:"hard", q:"Compare the role of cytoplasm to the role of the cell membrane. How are they different?", model:"The cell membrane acts like a gatekeeper, controlling what substances enter and leave the cell. Cytoplasm, on the other hand, fills the interior space of the cell, suspending the organelles in place and hosting many of the chemical reactions that happen inside — it doesn't control what crosses into or out of the cell the way the membrane does."}
     ]},
 
-  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"7.PS.1", standardText:"Elements can be organized by properties.", domain:"physical", label:"Physical Science", name:"Atomic Number", ep:196, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true,
+  atomicNumber: { grade:8, unit:"Atoms and the Periodic Table", standard:"7.PS.1", standardText:"Elements can be organized by properties.", domain:"physical", label:"Physical Science", name:"Atomic Number", ep:196, journalToggle:true, pauseGate:true, entranceTicket:true, exitTicket:true, faithBonus:true, galileo:true, reflect:true, slidesUrl:"https://drive.google.com/file/d/1Lfb89gy29QsIb165c19oxVofA9OSJeRH/view?usp=sharing",
     learningTarget:"I can explain that the atomic number of an element is the number of protons found in the nucleus of its atoms.",
     definition:"The atomic number of an element is the number of protons found in the nucleus of its atoms.",
     example:"Every atom of hydrogen has exactly 1 proton, giving it an atomic number of 1; every atom of carbon has exactly 6 protons, giving it an atomic number of 6.",
@@ -11816,6 +11815,10 @@ function spotifyEmbedUrl(url){
   const m = url.match(/open\.spotify\.com\/episode\/([A-Za-z0-9]+)/);
   return m ? `https://open.spotify.com/embed/episode/${m[1]}` : null;
 }
+function driveEmbedUrl(url){
+  const m = url.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/);
+  return m ? `https://drive.google.com/file/d/${m[1]}/preview` : null;
+}
 function isImageUrl(url){ return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(url); }
 function isAudioUrl(url){ return /\.(mp3|wav|m4a|ogg)(\?.*)?$/i.test(url); }
 
@@ -12349,7 +12352,7 @@ function renderCard(){
       <button data-media="video">🎬 Watch the Short</button>
       <button data-media="infographic">🖼️ Infographic</button>
       <button data-media="podcast">🎧 Listen: Faith &amp; Reflection</button>
-      ${t.slidesUrl ? `<a class="slides-link-btn" href="${t.slidesUrl}" target="_blank" rel="noopener">📊 View Slides</a>` : ''}
+      ${t.slidesUrl ? `<button data-media="slides">📊 View Slides</button>` : ''}
       ${t.aiCohost ? `<button id="aiCohostBtn" class="ai-cohost-btn">🤖 Meet Your AI Cohosts</button>` : ''}
       ${DROP_SCHEDULE_URL ? `<a class="drop-schedule-link" href="${DROP_SCHEDULE_URL}" target="_blank" rel="noopener">📅 Media not out yet? See the drop schedule</a>` : ''}
     </div>
@@ -12941,9 +12944,11 @@ function navigateTerm(dir){
 
 function renderMedia(key){
   const t = TERMS[current];
-  const url = (t.media && t.media[key]) ? t.media[key].trim() : "";
+  const url = key === 'slides'
+    ? (t.slidesUrl ? t.slidesUrl.trim() : "")
+    : ((t.media && t.media[key]) ? t.media[key].trim() : "");
   const mediaPanel = document.getElementById('mediaPanel');
-  const labels = { video:"Video", infographic:"Infographic", podcast:"Podcast" };
+  const labels = { video:"Video", infographic:"Infographic", podcast:"Podcast", slides:"Slides" };
 
   if(!url){
     mediaPanel.innerHTML = `
@@ -12996,6 +13001,11 @@ function renderMedia(key){
       `;
     }
     embedHTML = titleHTML + playerHTML + transcriptHTML;
+  } else if(key === 'slides'){
+    const drivePreview = driveEmbedUrl(url);
+    embedHTML = drivePreview
+      ? `<div class="media-embed slides-embed"><iframe src="${drivePreview}" title="${t.name} slides" allow="autoplay" allowfullscreen></iframe></div>`
+      : `<p class="media-empty">Link added, but it's not a recognized Google Drive file link, so it can't be embedded directly.</p><a class="media-link" href="${url}" target="_blank" rel="noopener">Open slides ↗</a>`;
   }
   mediaPanel.innerHTML = `<span class="mlabel">${labels[key]}</span>${embedHTML}`;
 
