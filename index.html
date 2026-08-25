@@ -11865,6 +11865,70 @@ function getPreviousTerm(t){
   }
   return null;
 }
+// Builds the Entrance Ticket's numbered parts (3 parts normally, 4 when a
+// bridge to the previous term applies) as both a plain-text version (for the
+// pre-filled form field) and an HTML version (for on-screen display).
+function buildEntranceTicketParts(t){
+  const prevTerm = getPreviousTerm(t);
+  const faithPart = t.faithBonus
+    ? `What is one way ${t.name} can tie to your faith?`
+    : `What's a cool experiment you'd try involving ${t.name}?`;
+  const partsPlain = [];
+  const partsHTML = [];
+  if(prevTerm){
+    partsPlain.push(`Last time: in one sentence, what do you remember about ${prevTerm.name}?`);
+    partsHTML.push(`Last time: in one sentence, what do you remember about <b>${prevTerm.name}</b>?`);
+  }
+  partsPlain.push(`What is ${t.name} in your own words?`, `Provide an example.`, faithPart);
+  partsHTML.push(`What is <b>${t.name}</b> in your own words?`, `Provide an example.`, faithPart);
+  const plainText = partsPlain.map((p, i) => `${i + 1}) ${p}`).join(' ');
+  const html = partsHTML.map((p, i) => `${i + 1}) ${p}`).join('<br>');
+  return { plainText, html };
+}
+// Picks one application-level question from the term's own quiz bank for the
+// Exit Ticket's 3rd part -- same easy/medium quiz questions already used for
+// in-class review, so there's continuity from lesson content to the check.
+// Priority: short-answer medium > short-answer easy > mc/tf medium > mc/tf
+// easy (image-based and interactive question types are skipped, since this
+// needs to work as plain text on the Exit Ticket form) > t.check as a last
+// resort fallback, since every term has that field.
+function findExitTicketQuestion(t){
+  const quiz = t.quiz || [];
+  const isTextable = (item) => !item.imageOptions && !item.chart && (item.type === 'short' || item.type === 'mc' || item.type === 'tf');
+  const rank = (item) => {
+    if(item.type === 'short' && item.difficulty === 'medium') return 0;
+    if(item.type === 'short' && item.difficulty === 'easy') return 1;
+    if((item.type === 'mc' || item.type === 'tf') && item.difficulty === 'medium') return 2;
+    if((item.type === 'mc' || item.type === 'tf') && item.difficulty === 'easy') return 3;
+    return 99;
+  };
+  const candidates = quiz.filter(isTextable).sort((a, b) => rank(a) - rank(b));
+  if(candidates.length && rank(candidates[0]) < 99){
+    const item = candidates[0];
+    const passagePart = item.passage ? `${item.passage} ` : '';
+    let optionsPart = '';
+    if(item.type === 'mc' && item.options){
+      optionsPart = ` (${item.options.join(' / ')})`;
+    }
+    return `${passagePart}${item.q}${optionsPart}`;
+  }
+  return t.check || `Explain ${t.name} in your own words, using what you learned today.`;
+}
+function buildExitTicketParts(t){
+  const partsPlain = [
+    `Finish this: "${t.name} is ___ because ___."`,
+    `An example of ${t.name} is ___________________.`,
+    findExitTicketQuestion(t)
+  ];
+  const partsHTML = [
+    `Finish this: <b>"${t.name} is ___ because ___."</b>`,
+    `An example of ${t.name} is ___________________.`,
+    findExitTicketQuestion(t)
+  ];
+  const plainText = partsPlain.map((p, i) => `${i + 1}) ${p}`).join(' ');
+  const html = partsHTML.map((p, i) => `${i + 1}) ${p}`).join('<br>');
+  return { plainText, html };
+}
 function isImageUrl(url){ return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(url); }
 function isAudioUrl(url){ return /\.(mp3|wav|m4a|ogg)(\?.*)?$/i.test(url); }
 
@@ -12203,13 +12267,8 @@ function renderCard(){
 
   if(pauseActive){
     cardEl.className = 'card pilot-order pause-gated';
-    const bonusPromptText = t.faithBonus
-      ? `Bonus: how might ${t.name} connect to your faith?`
-      : `Bonus: what's a cool experiment you'd try involving ${t.name}?`;
-    const prevTerm = getPreviousTerm(t);
-    const bridgeLine = prevTerm ? `Last time: in one sentence, what do you remember about ${prevTerm.name}? ` : '';
-    const fullEntrancePromptText = `${bridgeLine}Today: ${t.name} is next — what's your hypothesis from the name? ${bonusPromptText}`;
-    const entranceTicketFormUrl = buildEntranceTicketFormUrl(t.name, fullEntrancePromptText);
+    const entranceParts = buildEntranceTicketParts(t);
+    const entranceTicketFormUrl = buildEntranceTicketFormUrl(t.name, entranceParts.plainText);
     cardEl.innerHTML = `
       <div class="card-head">
         ${backButtonHTML}
@@ -12218,7 +12277,7 @@ function renderCard(){
       </div>
       <div class="stay-curious-block gated" id="stayCuriousBlock">
         <span class="stay-curious-badge">🧭 Stay Curious — Entrance Ticket</span>
-        <p>${prevTerm ? `Last time: in one sentence, what do you remember about <b>${prevTerm.name}</b>?<br>` : ''}Today: <b>${t.name}</b> is next — what's your hypothesis from the name? ${bonusPromptText}</p>
+        <p>${entranceParts.html}</p>
         <div class="gate-btn-row">
           <button id="continueJourneyBtn" class="continue-journey-btn">✅ Continue Your Journey →</button>
           <a class="submit-response-btn" href="${entranceTicketFormUrl}" target="_blank" rel="noopener">📤 Submit Your Response</a>
@@ -12306,14 +12365,16 @@ function renderCard(){
   let exitTicketHTML = '';
   if(t.exitTicket){
     const isUnlocked = unlockedExitTickets.has(current);
-    const exitPromptText = `Today's target: ${t.learningTarget} Finish this: "${t.name} is ___ because ___." An example of ${t.name} is ___________________.`;
+    const exitParts = buildExitTicketParts(t);
+    const exitPromptText = `Today's target: ${t.learningTarget} ${exitParts.plainText}`;
     const exitTicketFormUrl = buildExitTicketFormUrl(t.name, exitPromptText);
     exitTicketHTML = `
     <div class="exit-ticket-block" id="exitTicketBlock">
       <span class="exit-ticket-badge">🚪 Exit Ticket</span>
       ${isUnlocked ? `
         <p class="exit-ticket-unlocked-note">✅ Unlocked — go ahead and submit below.</p>
-        <p>Today's target: <b>${t.learningTarget}</b> On the form, finish this: <b>"${t.name} is ___ because ___."</b> An example of ${t.name} is ___________________.</p>
+        <p class="exit-ticket-target-note">Today's target: <b>${t.learningTarget}</b></p>
+        <p>${exitParts.html}</p>
         <a class="submit-response-btn" href="${exitTicketFormUrl}" target="_blank" rel="noopener">📤 Submit Exit Ticket</a>
       ` : `
         <p>Your teacher will give you a code in class when it's time for the Exit Ticket. Enter it below to unlock.</p>
@@ -12358,12 +12419,11 @@ function renderCard(){
       <p class="ttext">${t.learningTarget}</p>
     </div>
     ${t.entranceTicket && !t.pauseGate ? (() => {
-      const prevTerm2 = getPreviousTerm(t);
-      const bonus2 = t.faithBonus ? `Bonus: how might ${t.name} connect to your faith?` : `Bonus: what's a cool experiment you'd try involving ${t.name}?`;
+      const entranceParts2 = buildEntranceTicketParts(t);
       return `
     <div class="stay-curious-block" id="stayCuriousBlock">
       <span class="stay-curious-badge">🧭 Stay Curious — Entrance Ticket</span>
-      <p>${prevTerm2 ? `Last time: in one sentence, what do you remember about <b>${prevTerm2.name}</b>?<br>` : ''}Today: <b>${t.name}</b> is next — what's your hypothesis from the name? ${bonus2}</p>
+      <p>${entranceParts2.html}</p>
     </div>
     `;
     })() : ''}
