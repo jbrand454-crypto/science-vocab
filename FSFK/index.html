@@ -142,7 +142,7 @@
     display:flex;flex-direction:column;padding:26px 34px;
   }
   #mode-prayer{transition:opacity 1.8s ease;}
-  .fs-back-bar{display:flex;align-items:center;gap:16px;margin-bottom:10px;position:relative;z-index:50;}
+  .fs-back-bar{display:flex;align-items:center;gap:12px;row-gap:8px;flex-wrap:wrap;margin-bottom:10px;position:relative;z-index:50;}
   .back-btn{
     font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--chalk-dim);
     background:none;border:1px solid var(--line);border-radius:7px;padding:9px 16px;cursor:pointer;
@@ -785,6 +785,8 @@
 <div class="fullscreen-overlay" id="mode-seating" style="display:none;">
   <div class="fs-back-bar">
     <button class="back-btn" id="back-from-seating">&larr; Back</button>
+    <button class="back-btn" id="export-attendance-btn">Export attendance</button>
+    <button class="back-btn" id="email-attendance-btn">Email attendance</button>
     <span class="fs-mode-class" id="seating-mode-class">Class 6</span>
   </div>
   <div class="seating-body" id="seating-body-el">
@@ -1063,7 +1065,7 @@ function parseRoster(text){
 // Seeded once on first load for a device with no saved roster yet — the
 // current class lists as of 2026-08-17. Once a roster is saved (even edited),
 // this seed is never consulted again for that class.
-const SEED_ROSTERS = {"6": "RJ\nAniston\nJacob\nGloria\nBrock\nRicky\nNik\nMaggie\nEmmi\nLayken\nCarmela\nLuke\nMax\nIzzy\nGianna\nAiden\nEmmett\nAli\nCamila\nRyder\nMaddie\nAvi", "7": "Mya\nLuke\nMackson\nEmma\nBen\nRonan\nJoey\nJeremy\nDavid\nJaxon\nGabe\nLily\nGrayson\nRose*\nViolet\nBella\nMikey\nPeter", "8": "Vivian*\nZoe\nCody\nBeau\nDylan\nRosie*\nSophia\nEymi\nJoAnn\nEllie*\nKyler\nWill\nTegan"};
+const SEED_ROSTERS = {"6": "RJ\nAniston\nJacob\nGloria\nBrock\nRicky\nNik\nMaggie\nEmmi\nLayken\nCarmela\nLuke\nMax\nIzzy\nGianna\nAiden\nEmmett\nAli\nCamila\nRyder\nMaddie\nAvi", "7": "Mya\nLuke\nMackson\nEmma\nBen\nRonan\nJoey\nJeremy\nDavid\nJaxon\nGabe\nLily\nGrayson\nRose\nViolet\nBella\nMikey\nPeter", "8": "Viv\nZoe\nCody\nBeau\nDylan\nRosie\nSophia\nEymi\nJoAnn\nEllie\nKyler\nWill\nTegan"};
 
 async function loadRoster(cls){
   rosterSaveHint.textContent = 'loading...';
@@ -2248,6 +2250,51 @@ document.getElementById('seating-password-confirm').addEventListener('click', as
 });
 seatingPasswordInput.addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') document.getElementById('seating-password-confirm').click();
+});
+
+/* ---------- attendance export / email ---------- */
+const ATTENDANCE_EMAIL = 'jbrand@youngstowndiocese.org';
+
+function csvEscape(val){
+  const s = String(val);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+
+function getAttendanceRows(){
+  const cls = seatingModeClass.textContent.replace('Class ','');
+  const chart = seatingData[cls];
+  const dateStr = new Date().toLocaleDateString(undefined, {year:'numeric', month:'2-digit', day:'2-digit'});
+  const names = parseRoster(rosterArea.value);
+  const rows = names.map(name=>{
+    const status = (chart && chart.statuses && chart.statuses[name]) || 'present';
+    return {date: dateStr, grade: cls, name: name, status: SEAT_STATUS_LABEL[status]};
+  });
+  return {cls, dateStr, rows};
+}
+
+document.getElementById('export-attendance-btn').addEventListener('click', ()=>{
+  const {cls, dateStr, rows} = getAttendanceRows();
+  const lines = [['Date','Grade','Student','Status']];
+  rows.forEach(r=> lines.push([r.date, 'Grade '+r.grade, r.name, r.status]));
+  const csv = lines.map(row=> row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'attendance-grade'+cls+'-'+dateStr.replace(/\//g,'-')+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('email-attendance-btn').addEventListener('click', ()=>{
+  const {cls, dateStr, rows} = getAttendanceRows();
+  const subject = 'Attendance - Grade ' + cls + ' - ' + dateStr;
+  const bodyLines = rows.map(r=> r.name + ': ' + r.status);
+  const body = 'Attendance for Grade ' + cls + ' on ' + dateStr + '\n\n' + bodyLines.join('\n');
+  const mailto = 'mailto:' + ATTENDANCE_EMAIL +
+    '?subject=' + encodeURIComponent(subject) +
+    '&body=' + encodeURIComponent(body);
+  window.location.href = mailto;
 });
 
 /* ---------- init ---------- */
