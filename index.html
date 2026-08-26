@@ -1046,19 +1046,18 @@
     <div class="modal-card">
       <h2>🎓 Welcome, Student!</h2>
       <div class="modal-sub">One-time setup for this device</div>
-      <div class="student-access-cta-row">
-        <button type="button" id="studentAccessDemoBtn" class="student-access-demo-btn">👀 View Student Access Demo</button>
-        <a id="studentAccessPurchaseBtn" class="student-access-purchase-btn" href="#" target="_blank" rel="noopener">💳 Purchase Student Access — $3.16</a>
-        <button type="button" id="offeringPlateBtn" class="offering-plate-btn">🍽️ Add to Offering Plate</button>
-        <button type="button" id="offeringPlateClaimBtn" class="offering-plate-claim-btn">🙏 Use or Check for an Access Code</button>
-        <button type="button" id="studentDonateBtn" class="donate-btn">❤️ Make a Donation</button>
-      </div>
+      <!-- PILOT_MODE 2026-27: Student Access CTA row (View Demo / Purchase /
+           Offering Plate / Access Code / Donate buttons) removed from the
+           deployed source — not just CSS-hidden — so no purchase or access-code
+           language sits in the raw page for content filters to crawl. Full
+           markup preserved in pilot-mode-restore.html; restore when PILOT_MODE
+           flips to false. -->
       <p>Enter your class code, name, and grade. This is saved only on this device, so you won't be asked again here — and it's what gets used whenever you submit an Entrance Ticket or Journal Entry, so you don't have to retype it each time.</p>
       <form id="studentIdForm">
         <label class="student-id-label">Class Code
           <input type="text" id="studentIdCode" class="student-id-input" placeholder="Example: BEARS2026" required>
         </label>
-        <p class="offering-plate-hint">💬 Don't have a code? <button type="button" id="offeringPlateHintBtn" class="offering-plate-hint-link">Use or check for an access code in the Offering Plate</button>.</p>
+        <p class="offering-plate-hint">🎓 Ask your teacher for this year's class code.</p>
         <label class="student-id-label">First Name
           <input type="text" id="studentIdFirstName" class="student-id-input" required>
         </label>
@@ -1085,43 +1084,14 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="donationOverlay">
-    <div class="modal-card">
-      <button class="modal-close" id="donationClose" aria-label="Close">×</button>
-      <h2>❤️ Support Faith &amp; Science Field Notes</h2>
-      <div class="modal-sub">Every episode, term, and feature here stays free</div>
-      <p>Faith &amp; Science Field Notes is free for every student, family, and school that uses it — and it's built to stay that way. Keeping it growing (new episodes, new terms, hosting, production time) takes real work behind the scenes. If this has been meaningful to you, a gift of any size helps keep it free for everyone.</p>
-      <div class="donation-options" id="donationOptions"></div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="offeringPlateOverlay">
-    <div class="modal-card">
-      <button class="modal-close" id="offeringPlateClose" aria-label="Close">×</button>
-      <h2>🍽️ Add to the Offering Plate</h2>
-      <div class="modal-sub">Access, passed forward</div>
-      <p>Some families choose to buy an extra Student Access code and set it aside for someone who needs one — no questions asked. This is different from a general donation: every cent given here goes directly toward another person's access, nothing else.</p>
-      <div class="donation-options" id="offeringPlateOptions"></div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="offeringPlateClaimOverlay">
-    <div class="modal-card">
-      <button class="modal-close" id="offeringPlateClaimClose" aria-label="Close">×</button>
-      <h2>🙏 Use or Check for an Access Code</h2>
-      <div class="modal-sub">From the Offering Plate</div>
-      <p>Some families and students choose to buy an extra Student Access code and leave it in the Offering Plate for someone else. If cost is the only thing standing between you and access, this is that — no questions asked beyond one, just so it gets to the right place.</p>
-      <form id="offeringPlateClaimForm">
-        <label class="student-id-label">What school, organization, or group is this for? <span class="offering-plate-hint">(or just say "personal use")</span>
-          <input type="text" id="offeringPlateClaimOrg" class="student-id-input" placeholder="e.g. St. Mary School, our youth group, personal use" required>
-        </label>
-        <div class="student-id-btn-row">
-          <button type="submit" class="continue-journey-btn">📧 Request a Code</button>
-        </div>
-      </form>
-      <p class="offering-plate-claim-note" id="offeringPlateClaimConfirm" style="display:none;">Opening your email app with that filled in — send it, and you'll hear back with a code.</p>
-    </div>
-  </div>
+  <!-- PILOT_MODE 2026-27: Donation, Offering Plate, and Offering Plate Claim
+       modals removed from the deployed source for the same reason as above —
+       these are unreachable anyway (their trigger buttons were removed too),
+       but leaving them in place meant a crawler could still read "purchase,"
+       "access code," and "buy" language even though no button on the live
+       page could open them. Full markup preserved in pilot-mode-restore.html;
+       restore this block, plus the CTA row above, when PILOT_MODE flips to
+       false. -->
 
   <div class="catalog" id="catalog"></div>
 
