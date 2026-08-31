@@ -11350,9 +11350,9 @@ const AI_COHOSTS = {
 };
 
 const CURRICULUM = {
-  g6: { name:"Grade 6", sub:"Course 1", last:[], current:["matter","atomIntro","molecule"], next:["elementIntro","compound","physicalProperty"] },
-  g7: { name:"Grade 7", sub:"Course 2", last:[], current:["cell","cellTheory","cellMembrane"], next:["cellWall","cytoplasm","nucleus"] },
-  g8: { name:"Grade 8", sub:"Course 3", last:[], current:["atom","atomicNumber","atomicMass"], next:["proton","neutron","electron"] }
+  g6: { name:"Grade 6", sub:"Course 1", last:["matter","atomIntro","molecule"], current:["elementIntro","compound","physicalProperty"], next:["chemicalProperty","physicalChange"] },
+  g7: { name:"Grade 7", sub:"Course 2", last:["cell","cellTheory","cellMembrane"], current:["cellWall","cytoplasm","nucleus"], next:["mitochondria","chloroplast","chlorophyll"] },
+  g8: { name:"Grade 8", sub:"Course 3", last:["atom","atomicNumber","atomicMass"], current:["proton","neutron","electron"], next:["periodicTable","group","period"] }
 };
 const GRADE_RANK = { g6:6, g7:7, g8:8 };
 const DOMAINS = [
