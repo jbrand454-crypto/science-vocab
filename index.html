@@ -1699,6 +1699,26 @@ const unlockedExitTickets = new Set();
 // gets deleted, only hidden.
 const PILOT_MODE = true;
 
+// SIMPLIFIED MODE — Fall 2026: with Google Classroom becoming the main
+// landing spot for assessments, this flips off four features so the site
+// is just a clean run of Blocks 1-8 (Definition, Example, Common Mix-Up,
+// Analogy, Check Understanding, Practice, Explore More, Faith & Science)
+// with nothing to submit or unlock:
+//   1) Entrance Ticket ("Stay Curious" pretest / Field Pass warm-up)
+//   2) Pause Gate (the hard stop that required the Entrance Ticket before
+//      the rest of the card would show)
+//   3) Weekly Reflection journal (student-facing, graded or ungraded —
+//      the Google Form submission flow)
+//   4) Exit Ticket (the board-code-gated wrap-up submission)
+// NOTHING below is deleted — every term flag (entranceTicket, pauseGate,
+// reflect, journalToggle, journalProgress, exitTicket), every Google Form
+// URL builder, and all term content is untouched. This flag only skips
+// the four render points that display them. TO RESTORE: flip this back
+// to false. If that alone doesn't get everything back the way it was,
+// see the "Full Backup" chat in this project for the complete picture,
+// including a saved copy of this exact file from before this change.
+const SIMPLIFIED_MODE = true;
+
 // Placeholder — swap this for your real Payhip (or other) checkout link
 // once the "Purchase Student Access" product is live. Doesn't need to
 // point anywhere yet.
@@ -12219,7 +12239,7 @@ function renderCard(){
     return;
   }
 
-  if(t.pauseGate && siteMode !== 'personal'){
+  if(t.pauseGate && !SIMPLIFIED_MODE && siteMode !== 'personal'){
     if(pauseGateKey !== current){ pauseGateKey = current; pauseActive = true; }
   } else {
     pauseActive = false;
@@ -12305,7 +12325,7 @@ function renderCard(){
   const personalPromptHTML = `<p>This week's topic was <b>${t.name}</b>, and the Faith &amp; Science in Action question above invited you to sit with how that idea connects to your own life. Whenever you're ready, jot down your thoughts — there's no minimum length and nothing to score here. This is simply space to think it through honestly, at your own pace.</p>
     ${journalActionsHTML('personal', journalEntryFormUrl)}`;
 
-  const reflectHTML = !t.reflect ? '' : ((t.journalToggle && !PILOT_MODE) ? `
+  const reflectHTML = (!t.reflect || SIMPLIFIED_MODE) ? '' : ((t.journalToggle && !PILOT_MODE) ? `
     <div class="section-label">Weekly Reflection</div>
     <div class="reflect-block">
       <span class="reflect-badge">📝 Weekly Journal</span>
@@ -12333,7 +12353,7 @@ function renderCard(){
   // EXIT TICKET — pilot, Grade 6 only, gated by a board code the teacher
   // enters live in class rather than by student identity or a timer.
   let exitTicketHTML = '';
-  if(t.exitTicket){
+  if(t.exitTicket && !SIMPLIFIED_MODE){
     const isUnlocked = unlockedExitTickets.has(current);
     const exitParts = buildExitTicketParts(t);
     const exitPromptText = `Today's target: ${t.learningTarget} ${exitParts.plainText}`;
@@ -12388,7 +12408,7 @@ function renderCard(){
       <span class="slabel">Today's Learning Target</span>
       <p class="ttext">${t.learningTarget}</p>
     </div>
-    ${t.entranceTicket && !t.pauseGate ? (() => {
+    ${t.entranceTicket && !t.pauseGate && !SIMPLIFIED_MODE ? (() => {
       const entranceParts2 = buildEntranceTicketParts(t);
       return `
     <div class="stay-curious-block" id="stayCuriousBlock">
@@ -12442,7 +12462,7 @@ function renderCard(){
     ${exitTicketHTML}
     ${useNewOrder ? faithEntryHTML : ''}
     ${reflectHTML}
-    ${t.journalProgress ? journalProgressHTML() : ''}
+    ${t.journalProgress && !SIMPLIFIED_MODE ? journalProgressHTML() : ''}
 
     <div class="section-label">Navigate</div>
     <div class="nav-controls">
